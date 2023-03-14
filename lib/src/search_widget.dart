@@ -42,7 +42,7 @@ class _SearchWidgetState extends State<SearchWidget> {
           )
         ],
       ),
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -77,6 +77,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                     ),
                     const SizedBox(height: 5),
                     PopUpField<ColumnInfo>(
+                      allIfEmpty: true,
                       items: widget.columns
                           .map(
                             (e) => PopUpMenuItem(
@@ -140,12 +141,17 @@ class PopUpField<T> extends StatefulWidget {
 
   final Function(List<T> values) onChange;
 
-  const PopUpField(
-      {Key? key,
-      required this.items,
-      required this.onChange,
-      this.selectedFields})
-      : super(key: key);
+  /// Indica si cuando no se ha seleccionado ningún elemento, deba de tener el valor
+  /// de todos los elementos.
+  final bool allIfEmpty;
+
+  const PopUpField({
+    Key? key,
+    required this.items,
+    required this.onChange,
+    this.selectedFields,
+    this.allIfEmpty = false,
+  }) : super(key: key);
 
   @override
   State<PopUpField<T>> createState() => _PopUpFieldState<T>();
@@ -198,7 +204,9 @@ class _PopUpFieldState<T> extends State<PopUpField<T>> {
             children: [
               Expanded(
                 child: Text(
-                  selectedMap.isEmpty || selectedItems.length == items.length
+                  (widget.allIfEmpty
+                          ? selectedItems.isEmpty
+                          : selectedItems.length == items.length)
                       ? 'Todos'
                       : selectedItems.map((e) => e.name).join(', '),
                   maxLines: 1,

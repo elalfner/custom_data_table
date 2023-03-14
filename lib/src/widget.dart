@@ -77,12 +77,13 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               color: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    widget.title ?? 'Listado',
-                    style: Theme.of(context).textTheme.titleMedium,
+                  Expanded(
+                    child: Text(
+                      widget.title ?? 'Listado',
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                   ),
                   Row(
                     mainAxisSize: MainAxisSize.min,
@@ -126,41 +127,44 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                   if (widget.onCopy != null &&
                       widget.onPrint != null &&
                       widget.onExport != null)
-                    Material(
-                      color: Colors.transparent,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (widget.onCopy != null)
-                            IconButton(
-                              splashRadius: 20,
-                              onPressed: widget.onCopy,
-                              icon: Icon(
-                                Icons.copy,
-                                color: Colors.grey[800],
+                    ...[
+                      const SizedBox(width: 20),
+                      Material(
+                        color: Colors.transparent,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (widget.onCopy != null)
+                              IconButton(
+                                splashRadius: 20,
+                                onPressed: widget.onCopy,
+                                icon: Icon(
+                                  Icons.copy,
+                                  color: Colors.grey[800],
+                                ),
                               ),
-                            ),
-                          if (widget.onPrint != null)
-                            IconButton(
-                              splashRadius: 20,
-                              onPressed: widget.onPrint,
-                              icon: Icon(
-                                Icons.print,
-                                color: Colors.grey[800],
+                            if (widget.onPrint != null)
+                              IconButton(
+                                splashRadius: 20,
+                                onPressed: widget.onPrint,
+                                icon: Icon(
+                                  Icons.print,
+                                  color: Colors.grey[800],
+                                ),
                               ),
-                            ),
-                          if (widget.onExport != null)
-                            IconButton(
-                              splashRadius: 20,
-                              onPressed: widget.onExport,
-                              icon: Icon(
-                                Icons.download,
-                                color: Colors.grey[800],
+                            if (widget.onExport != null)
+                              IconButton(
+                                splashRadius: 20,
+                                onPressed: widget.onExport,
+                                icon: Icon(
+                                  Icons.download,
+                                  color: Colors.grey[800],
+                                ),
                               ),
-                            ),
-                        ],
+                          ],
+                        ),
                       ),
-                    )
+                    ]
                 ],
               ),
             ),
