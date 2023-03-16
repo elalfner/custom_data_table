@@ -90,16 +90,17 @@ class _MyHomePageState extends State<MyHomePage> {
               width: double.infinity,
               child: SearchWidget(
                 columns: [
-                  ColumnInfo(name: 'Id', key: 'id'),
-                  ColumnInfo(name: 'Nombre', key: 'name'),
-                  ColumnInfo(name: 'Teléfono', key: 'phone'),
-                  ColumnInfo(name: 'Email', key: 'email'),
+                  ColumnId(name: 'Id', key: 'id'),
+                  ColumnId(name: 'Nombre', key: 'name'),
+                  ColumnId(name: 'Teléfono', key: 'phone'),
+                  ColumnId(name: 'Email', key: 'email'),
                 ],
                 filterItems: filtersUserType,
                 onChangeSearchFields: (values) {},
                 onFilterPressed: () {
                   List<FilterItem>? newFiltersUserType = filtersUserType
-                      ?.where((element) => element.fieldName == 'Tipo')
+                      ?.where(
+                          (element) => element.columnInfo?.key == 'userType')
                       .toList();
 
                   showDialog(
@@ -111,15 +112,20 @@ class _MyHomePageState extends State<MyHomePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           FilterSectionWidget(
-                            filters: UserType.values
-                                .map(
-                                  (e) => FilterItem(
-                                    filterName: e.name ?? '',
-                                    fieldName: 'Tipo',
-                                    value: e,
-                                  ),
-                                )
-                                .toList(),
+                            section: FilterSection(
+                              columnInfo: ColumnId(
+                                name: 'Tipo',
+                                key: 'userType',
+                              ),
+                              filters: UserType.values
+                                  .map(
+                                    (e) => FilterItem(
+                                      filterName: e.name ?? '',
+                                      value: e,
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
                             selectedFilters: newFiltersUserType,
                             onChange: (values) {
                               newFiltersUserType = [...values];
@@ -156,12 +162,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 data: data,
                 title: 'Usuarios',
                 columns: [
-                  ColumnInfo(name: 'Id', key: 'id', flex: 1),
-                  ColumnInfo(name: 'Nombre', key: 'name', flex: 2),
+                  ColumnInfo(name: 'Id', key: 'id', flex: 1, width: 100),
+                  ColumnInfo(name: 'Nombre', key: 'name', flex: 2, width: 300),
                   ColumnInfo(name: 'Teléfono', key: 'phone', width: 110),
                   ColumnInfo(name: 'Email', key: 'email', width: 110),
                   ColumnInfo(name: 'Tipo', key: 'userType', width: 100),
-                  ColumnInfo(name: '', key: 'button', flex: 1),
+                  ColumnInfo(name: '', key: 'button', flex: 1, width: 100),
                 ],
                 toMap: (element) => element.toJson(),
                 paginatorInfo: PaginatorInfo(

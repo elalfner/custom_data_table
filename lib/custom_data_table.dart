@@ -1,7 +1,8 @@
 library custom_data_table;
 
-export 'src/widget.dart';
+export 'src/custom_data_table.dart';
 export 'src/search_widget.dart';
+export 'src/custom_table_search.dart';
 export 'src/filter_section_widget.dart';
 
 export 'src/models/column_info.dart';

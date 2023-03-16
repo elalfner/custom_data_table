@@ -2,7 +2,7 @@ import 'package:custom_data_table/src/models/filter_item.dart';
 import 'package:flutter/material.dart';
 
 class FilterSectionWidget extends StatefulWidget {
-  final List<FilterItem> filters;
+  final FilterSection section;
 
   final Function(List<FilterItem> values) onChange;
 
@@ -10,7 +10,7 @@ class FilterSectionWidget extends StatefulWidget {
 
   const FilterSectionWidget({
     Key? key,
-    required this.filters,
+    required this.section,
     required this.onChange,
     this.selectedFilters,
   }) : super(key: key);
@@ -20,9 +20,13 @@ class FilterSectionWidget extends StatefulWidget {
 }
 
 class _FilterSectionWidgetState extends State<FilterSectionWidget> {
+  FilterSection get section => widget.section;
+
+  List<FilterItem> get filters => section.filters;
+
   late Map<String, bool?> selectedMap = {};
 
-  List<FilterItem> get selectedFilters => widget.filters
+  List<FilterItem> get selectedFilters => filters
       .where((element) => selectedMap[element.filterName] == true)
       .toList();
 
@@ -41,13 +45,13 @@ class _FilterSectionWidgetState extends State<FilterSectionWidget> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text('Tipo'),
+        Text(section.columnInfo.name),
         const SizedBox(height: 5),
         Wrap(
           runSpacing: 5,
           spacing: 5,
           children: [
-            for (final filter in widget.filters) filterWidget(filter),
+            for (final filter in filters) filterWidget(filter),
           ],
         )
       ],
