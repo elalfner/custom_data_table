@@ -78,6 +78,12 @@ class CustomDataTable<T> extends StatefulWidget {
   /// If not provided, the export button is not shown.
   final VoidCallback? onFilterPressed;
 
+  /// Callback to notify that any column search field has changed.
+  ///
+  /// Sends the value of all text fields.
+  /// If not provided, it does not show the search fields.
+  final Function(List<SearchFieldInfo> values)? onChangeSearchTextField;
+
   const CustomDataTable({
     Key? key,
     this.title,
@@ -94,6 +100,7 @@ class CustomDataTable<T> extends StatefulWidget {
     this.onPrint,
     this.onExport,
     this.onFilterPressed,
+    this.onChangeSearchTextField,
   }) : super(key: key);
 
   @override
@@ -101,6 +108,8 @@ class CustomDataTable<T> extends StatefulWidget {
 }
 
 class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
+  late List<ColumnInfo> columns;
+
   /// Information of current sort options.
   SortInfo? sortInfo;
 
@@ -110,11 +119,39 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// Gets the columns that have to be displayed in the table.
   ///
   /// If there is no column selected it has to display all columns.
-  List<ColumnInfo> get columnsToShow => columnsSelected ?? widget.columns;
+  List<ColumnInfo> get columnsToShow => columnsSelected ?? columns;
 
   /// Scroll controllers to show ScrollBar.
   final ScrollController _horizontalScrollController = ScrollController();
   final ScrollController _verticalScrollController = ScrollController();
+
+  late Map<String, TextEditingController> textControllers;
+
+  @override
+  void initState() {
+    columns = widget.columns;
+
+    textControllers = {
+      for (final col in columns) col.key: createTextController(),
+    };
+
+    super.initState();
+  }
+
+  TextEditingController createTextController() => TextEditingController()
+    ..addListener(
+      () {
+        widget.onChangeSearchTextField?.call(textControllers.entries
+            .map(
+              (e) => SearchFieldInfo(
+                columnInfo:
+                    columns.firstWhere((element) => element.key == e.key),
+                searchValue: e.value.text,
+              ),
+            )
+            .toList());
+      },
+    );
 
   @override
   void dispose() {
@@ -416,26 +453,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   Widget dataTable(bool small) {
     return Column(
       children: [
-        Container(
-          color: Colors.white,
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              for (final column in columnsToShow)
-                if (column.flex != null)
-                  Expanded(
-                    flex: column.flex!,
-                    child: columnWidget(column),
-                  )
-                else
-                  SizedBox(
-                    width: column.width,
-                    child: columnWidget(column),
-                  )
-            ],
-          ),
-        ),
+        columnsWidget(),
         Expanded(
           child: ListView.separated(
             controller: _verticalScrollController,
@@ -479,6 +497,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             },
           ),
         ),
+        if (widget.onChangeSearchTextField != null) searchWidget(),
       ],
     );
   }
@@ -564,6 +583,51 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           ),
         ),
       ],
+    );
+  }
+
+  Widget searchWidget() {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(top: 10),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          for (final column in columnsToShow)
+            if (column.flex != null)
+              Expanded(
+                flex: column.flex!,
+                child: searchField(column),
+              )
+            else
+              SizedBox(
+                width: column.width,
+                child: searchField(column),
+              )
+        ],
+      ),
+    );
+  }
+
+  Widget searchField(ColumnInfo column) {
+    if (column.name.isEmpty) return const SizedBox();
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 2),
+      child: TextFormField(
+        controller: textControllers[column.key],
+        decoration: InputDecoration(
+          contentPadding:
+              const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+          hintText: column.name,
+          hintStyle: const TextStyle(
+            fontSize: 14,
+          ),
+        ),
+        style: const TextStyle(
+          fontSize: 14,
+        ),
+      ),
     );
   }
 

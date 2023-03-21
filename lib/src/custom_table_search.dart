@@ -6,28 +6,11 @@ import 'filter_section_widget.dart';
 import 'models/sort_info.dart';
 
 class CustomTableSearch<T> extends StatefulWidget {
-  // Search attributes.
-
   /// List of columns the table has.
   ///
   /// Each element of the list contains the name of the column, key to identify it, and the
   /// information of the space that is taking (width).
   final List<ColumnInfo> columns;
-
-  /// Callback to notify when search fields dropdown has changed.
-  ///
-  /// Notifies the new search fields to search.
-  final Function(List<ColumnId> values) onChangeSearchFields;
-
-  /// Sections of the filters.
-  ///
-  /// Each element contains the name and id of the column, and list of filter parameters.
-  final List<FilterSection>? filterSections;
-
-  /// Callback that notifies when new filters in search widget are selected.
-  ///
-  /// If user selects new filters, or deselects filters the Callback is notified.
-  final Function(List<FilterItem> values)? onChangeFilters;
 
   // Table attributes.
 
@@ -94,25 +77,49 @@ class CustomTableSearch<T> extends StatefulWidget {
   /// If not provided, the export button is not shown.
   final VoidCallback? onExport;
 
-  const CustomTableSearch(
-      {Key? key,
-      required this.columns,
-      this.filterSections,
-      this.onChangeFilters,
-      this.title,
-      required this.onChangeSearchFields,
-      required this.data,
-      required this.toMap,
-      this.cell,
-      this.onElementPressed,
-      required this.onSort,
-      this.paginatorInfo,
-      this.onNextPage,
-      this.onPreviousPage,
-      this.onCopy,
-      this.onPrint,
-      this.onExport})
-      : super(key: key);
+  /// Callback to notify that any column search field has changed.
+  ///
+  /// Sends the value of all text fields.
+  /// If not provided, it does not show the search fields.
+  final Function(List<SearchFieldInfo> values)? onChangeSearchTextField;
+
+  // Search attributes.
+
+  /// Callback to notify when search fields dropdown has changed.
+  ///
+  /// Notifies the new search fields to search.
+  final Function(List<ColumnId> values)? onChangeSearchFields;
+
+  /// Sections of the filters.
+  ///
+  /// Each element contains the name and id of the column, and list of filter parameters.
+  final List<FilterSection>? filterSections;
+
+  /// Callback that notifies when new filters in search widget are selected.
+  ///
+  /// If user selects new filters, or deselects filters the Callback is notified.
+  final Function(List<FilterItem> values)? onChangeFilters;
+
+  const CustomTableSearch({
+    Key? key,
+    this.title,
+    required this.columns,
+    required this.data,
+    required this.toMap,
+    required this.onSort,
+    this.cell,
+    this.onChangeSearchFields,
+    this.filterSections,
+    this.onChangeFilters,
+    this.onElementPressed,
+    this.paginatorInfo,
+    this.onNextPage,
+    this.onPreviousPage,
+    this.onCopy,
+    this.onPrint,
+    this.onExport,
+    this.onChangeSearchTextField,
+  }) : super(key: key);
 
   @override
   State<CustomTableSearch<T>> createState() => _CustomTableSearchState<T>();
@@ -167,7 +174,8 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
                     .expand((element) => element.filters)
                     .toList());
               },
-              onChangeSearchFields: widget.onChangeSearchFields,
+              onChangeSearchFields:
+                  widget.onChangeSearchFields ?? (List<ColumnId> values) {},
               columns: widget.columns
                   .map((e) => ColumnId(name: e.name, key: e.key))
                   .where((element) => element.name.isNotEmpty == true)
@@ -199,6 +207,7 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
             onFilterPressed: widget.filterSections?.isNotEmpty == true
                 ? filterPressed
                 : null,
+            onChangeSearchTextField: widget.onChangeSearchTextField,
           ),
         ),
       ],

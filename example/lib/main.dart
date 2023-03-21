@@ -103,6 +103,11 @@ class _MyHomePageState extends State<MyHomePage> {
             lastPage: 5,
           ),
           onChangeSearchFields: (values) {},
+          onChangeSearchTextField: (values) {
+            print({
+              for (final v in values) v.columnInfo.name: v.searchValue,
+            });
+          },
           cell: (element, map, key) {
             switch (key) {
               case 'button':
