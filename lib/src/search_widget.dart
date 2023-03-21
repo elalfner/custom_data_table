@@ -3,12 +3,25 @@ import 'package:flutter/material.dart';
 import '../custom_data_table.dart';
 
 class SearchWidget extends StatefulWidget {
+  /// List of columns the table has.
+  ///
+  /// Each element of the list contains the name of the column, key to identify it.
   final List<ColumnId> columns;
+
+  /// List of applied filters.
   final List<FilterItem>? filterItems;
 
+  /// Callback to notify when search fields dropdown has changed.
+  ///
+  /// Notifies the new search fields to search.
   final Function(List<ColumnId> values) onChangeSearchFields;
 
-  final VoidCallback? onFilterPressed;
+  /// Callback to notify when filter button es pressed.
+  final VoidCallback? onFilterButtonPressed;
+
+  /// Callback to notify when a filter element has been pressed to be removed from the filters list.
+  ///
+  /// [filterItem] item to be removed from the list.
   final Function(FilterItem filterItem) onFilterDeleted;
 
   const SearchWidget({
@@ -16,7 +29,7 @@ class SearchWidget extends StatefulWidget {
     required this.columns,
     required this.onChangeSearchFields,
     this.filterItems,
-    this.onFilterPressed,
+    this.onFilterButtonPressed,
     required this.onFilterDeleted,
   }) : super(key: key);
 
@@ -25,8 +38,6 @@ class SearchWidget extends StatefulWidget {
 }
 
 class _SearchWidgetState extends State<SearchWidget> {
-  List<ColumnInfo> selectedMenu = [];
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(builder: (_, constraints) {
@@ -110,7 +121,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                     ],
                   ),
                 ),
-                if (widget.onFilterPressed != null && !small) ...[
+                if (widget.onFilterButtonPressed != null && !small) ...[
                   const SizedBox(width: 10),
                   Column(
                     children: [
@@ -120,7 +131,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                       ),
                       FloatingActionButton.small(
                         elevation: 0,
-                        onPressed: widget.onFilterPressed,
+                        onPressed: widget.onFilterButtonPressed,
                         heroTag: 'Filter',
                         child: const Icon(Icons.filter_list),
                       ),

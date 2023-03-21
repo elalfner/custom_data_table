@@ -84,159 +84,66 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(20),
-        child: Column(
-          children: [
-            SizedBox(
-              width: double.infinity,
-              child: SearchWidget(
-                columns: [
-                  ColumnId(name: 'Id', key: 'id'),
-                  ColumnId(name: 'Nombre', key: 'name'),
-                  ColumnId(name: 'Teléfono', key: 'phone'),
-                  ColumnId(name: 'Email', key: 'email'),
-                ],
-                filterItems: filtersUserType,
-                onChangeSearchFields: (values) {},
-                onFilterPressed: () {
-                  List<FilterItem>? newFiltersUserType = filtersUserType
-                      ?.where(
-                          (element) => element.columnInfo?.key == 'userType')
-                      .toList();
-
-                  showDialog(
-                    context: context,
-                    builder: (context) => AlertDialog(
-                      title: const Text('Filtrar información'),
-                      content: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          FilterSectionWidget(
-                            section: FilterSection(
-                              columnInfo: ColumnId(
-                                name: 'Tipo',
-                                key: 'userType',
-                              ),
-                              filters: UserType.values
-                                  .map(
-                                    (e) => FilterItem(
-                                      filterName: e.name ?? '',
-                                      value: e,
-                                    ),
-                                  )
-                                  .toList(),
-                            ),
-                            selectedFilters: newFiltersUserType,
-                            onChange: (values) {
-                              newFiltersUserType = [...values];
-                            },
-                          ),
-                        ],
-                      ),
-                      actions: [
-                        TextButton(
-                          child: const Text('Aceptar'),
-                          onPressed: () {
-                            Navigator.pop(context);
-
-                            filtersUserType = [
-                              ...newFiltersUserType ?? [],
-                            ];
-
-                            setState(() {});
-                          },
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                onFilterDeleted: (filterItem) {
-                  filtersUserType?.remove(filterItem);
-                  setState(() {});
-                },
-              ),
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: CustomDataTable<User>(
-                data: data,
-                title: 'Usuarios',
-                columns: [
-                  ColumnInfo(name: 'Id', key: 'id', flex: 1, width: 100),
-                  ColumnInfo(name: 'Nombre', key: 'name', flex: 2, width: 300),
-                  ColumnInfo(name: 'Teléfono', key: 'phone', width: 110),
-                  ColumnInfo(name: 'Email', key: 'email', width: 110),
-                  ColumnInfo(name: 'Tipo', key: 'userType', width: 100),
-                  ColumnInfo(name: '', key: 'button', flex: 1, width: 100),
-                ],
-                toMap: (element) => element.toJson(),
-                paginatorInfo: PaginatorInfo(
-                  total: 100,
-                  perPage: 20,
-                  currentPage: 2,
-                  lastPage: 5,
-                ),
-                onPressedLast: () {},
-                onPressedNext: () {},
-                cell: (element, map, key) {
-                  Widget? widget;
-
-                  switch (key) {
-                    case 'button':
-                      widget = IconButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () => print(element.id),
-                        icon: const Icon(Icons.block),
-                        color: Colors.pink,
-                        splashRadius: 20,
-                      );
-
-                      break;
-                    case 'userType':
-                      return CellInfo(
-                        text: element.userType?.name ?? '',
-                        value: element.userType,
-                      );
-                  }
-
-                  return CellInfo(
-                    text: map[key].toString(),
-                    value: map[key],
-                    child: widget,
-                  );
-                },
-                onSort: (sortInfo) {
-                  switch (sortInfo.columnInfo.key) {
-                    case 'id':
-                      if (sortInfo.asc) {
-                        data.sort((a, b) => (a.id ?? 0).compareTo(b.id ?? 0));
-                      } else {
-                        data.sort((b, a) => (a.id ?? 0).compareTo(b.id ?? 0));
-                      }
-                      break;
-                    case 'name':
-                      if (sortInfo.asc) {
-                        data.sort(
-                            (a, b) => (a.name ?? '').compareTo(b.name ?? ''));
-                      } else {
-                        data.sort(
-                            (b, a) => (a.name ?? '').compareTo(b.name ?? ''));
-                      }
-                      break;
-                    case 'userType':
-                      if (sortInfo.asc) {
-                        data.sort((a, b) => (a.userType?.name ?? '')
-                            .compareTo(b.userType?.name ?? ''));
-                      } else {
-                        data.sort((b, a) => (a.userType?.name ?? '')
-                            .compareTo(b.userType?.name ?? ''));
-                      }
-                  }
-                },
-                onElementPressed: (value) {},
-              ),
-            ),
+        child: CustomTableSearch<User>(
+          data: data,
+          title: 'Usuarios',
+          columns: [
+            ColumnInfo(name: 'Id', key: 'id', flex: 1, width: 100),
+            ColumnInfo(name: 'Nombre', key: 'name', flex: 2, width: 300),
+            ColumnInfo(name: 'Teléfono', key: 'phone', width: 110),
+            ColumnInfo(name: 'Email', key: 'email', width: 110),
+            ColumnInfo(name: 'Tipo', key: 'userType', width: 100),
+            ColumnInfo(name: '', key: 'button', flex: 1, width: 100),
           ],
+          toMap: (element) => element.toJsonTable(),
+          paginatorInfo: PaginatorInfo(
+            total: 100,
+            perPage: 20,
+            currentPage: 2,
+            lastPage: 5,
+          ),
+          onChangeSearchFields: (values) {},
+          cell: (element, map, key) {
+            switch (key) {
+              case 'button':
+                return IconButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: () => print(element.id),
+                  icon: const Icon(Icons.block),
+                  color: Colors.pink,
+                  splashRadius: 20,
+                );
+            }
+
+            return null;
+          },
+          onSort: (sortInfo) {
+            switch (sortInfo.columnInfo.key) {
+              case 'id':
+                if (sortInfo.asc) {
+                  data.sort((a, b) => (a.id ?? 0).compareTo(b.id ?? 0));
+                } else {
+                  data.sort((b, a) => (a.id ?? 0).compareTo(b.id ?? 0));
+                }
+                break;
+              case 'name':
+                if (sortInfo.asc) {
+                  data.sort((a, b) => (a.name ?? '').compareTo(b.name ?? ''));
+                } else {
+                  data.sort((b, a) => (a.name ?? '').compareTo(b.name ?? ''));
+                }
+                break;
+              case 'userType':
+                if (sortInfo.asc) {
+                  data.sort((a, b) => (a.userType?.name ?? '')
+                      .compareTo(b.userType?.name ?? ''));
+                } else {
+                  data.sort((b, a) => (a.userType?.name ?? '')
+                      .compareTo(b.userType?.name ?? ''));
+                }
+            }
+          },
+          onElementPressed: (value) {},
         ),
       ),
     );

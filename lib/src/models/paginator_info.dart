@@ -1,11 +1,24 @@
+/// Paginator information.
+///
+/// It tells the page that is displaying, the number of total pages, and the
+/// number of items that it displays per page.
 class PaginatorInfo {
   int? count;
   int? total;
+
+  /// Page number that is displaying.
   int? currentPage;
+
   int? firstItem;
+
+  /// `true` if tha page that is displaying is not the last one.
   bool? hasMorePages;
   int? lastItem;
+
+  /// Number of total pages.
   int? lastPage;
+
+  /// NUmber of items that are displaying per page.
   int? perPage;
 
   PaginatorInfo({

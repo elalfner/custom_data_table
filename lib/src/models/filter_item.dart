@@ -1,8 +1,12 @@
 import 'package:custom_data_table/custom_data_table.dart';
 
-class FilterSection {
+/// Represents a section to show in the filter dialog.
+class FilterSection<T> {
+  /// Column name that the [filters] belong.
   final ColumnId columnInfo;
-  final List<FilterItem> filters;
+
+  /// Available filters to apply.
+  final List<FilterItem<T>> filters;
 
   FilterSection({
     required this.columnInfo,
@@ -19,10 +23,16 @@ class FilterSection {
       );
 }
 
-class FilterItem {
+/// Filter that can be applied to the table.
+class FilterItem<T> {
+  /// Column name that the filter belong.
   ColumnId? columnInfo;
+
+  /// Filter's name to display.
   final String filterName;
-  final dynamic value;
+
+  /// Filter's value to apply.
+  final T value;
 
   FilterItem({
     this.columnInfo,
