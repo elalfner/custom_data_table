@@ -39,6 +39,9 @@ class SearchWidget extends StatefulWidget {
 }
 
 class _SearchWidgetState extends State<SearchWidget> {
+  ValueNotifier<List<ColumnId>> searchFieldsSelected =
+      ValueNotifier<List<ColumnId>>([]);
+
   @override
   Widget build(BuildContext context) {
     if (context.screenSize == ScreenSize.small) {
@@ -67,12 +70,47 @@ class _SearchWidgetState extends State<SearchWidget> {
   }
 
   Widget searchBar() {
-    return const TextField(
-      decoration: InputDecoration(
-        prefixIcon: Icon(Icons.search),
-        hintText: 'Búsqueda',
-        contentPadding: EdgeInsets.zero,
-      ),
+    return Row(
+      children: [
+        ValueListenableBuilder(
+          valueListenable: searchFieldsSelected,
+          builder: (context, values, child) {
+            return Expanded(
+              child: TextField(
+                decoration: InputDecoration(
+                  prefixIcon: const Icon(Icons.search),
+                  hintText: values.isEmpty
+                      ? 'Búsqueda'
+                      : values.map((e) => e.name).join(', '),
+                  contentPadding: EdgeInsets.zero,
+                ),
+              ),
+            );
+          },
+        ),
+        PopUpField<ColumnId>(
+          tooltip: 'Filtrar búsqueda',
+          allIfEmpty: true,
+          items: widget.columns
+              .map(
+                (e) => PopUpMenuItem(
+                  key: e.key,
+                  name: e.name,
+                  value: e,
+                ),
+              )
+              .toList(),
+          onChange: (values) {
+            searchFieldsSelected.value = values;
+
+            widget.onChangeSearchFields(values);
+          },
+          onlyIcon: true,
+          icon: const CircleAvatar(
+            child: Icon(Icons.short_text_outlined),
+          ),
+        )
+      ],
     );
   }
 
@@ -127,6 +165,8 @@ class PopUpField<T> extends StatefulWidget {
 
   final Widget? icon;
 
+  final String? tooltip;
+
   const PopUpField({
     Key? key,
     required this.items,
@@ -135,6 +175,7 @@ class PopUpField<T> extends StatefulWidget {
     this.allIfEmpty = false,
     this.onlyIcon = false,
     this.icon,
+    this.tooltip,
   }) : super(key: key);
 
   @override
@@ -222,6 +263,7 @@ class _PopUpFieldState<T> extends State<PopUpField<T>> {
     return PopupMenuButton<PopUpMenuItem<T>>(
       key: _menuKey,
       icon: widget.icon ?? const Icon(Icons.keyboard_arrow_down),
+      tooltip: widget.tooltip,
       splashRadius: 20,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.all(

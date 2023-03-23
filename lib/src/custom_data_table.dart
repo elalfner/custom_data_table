@@ -237,6 +237,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               height: 40,
               // Only allow to hide column that have name.
               child: PopUpField<ColumnInfo>(
+                tooltip: 'Mostrar/Ocultar columnas',
                 items: widget.columns
                     .where((element) => element.name.isNotEmpty == true)
                     .map(
@@ -266,6 +267,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 widget.onPrint != null ||
                 widget.onExport != null)
               PopupMenuButton(
+                tooltip: 'Más opciones',
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(20.0),
@@ -340,6 +342,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               height: 40,
               // Only allow to hide column that have name.
               child: PopUpField<ColumnInfo>(
+                tooltip: 'Mostrar/Ocultar columnas',
                 items: widget.columns
                     .where((element) => element.name.isNotEmpty == true)
                     .map(
@@ -369,6 +372,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 widget.onCopy != null) ...[
               const SizedBox(width: 5),
               PopupMenuButton(
+                tooltip: 'Más opciones',
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(20.0),
@@ -445,6 +449,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             height: 40,
             // Only allow to hide column that have name.
             child: PopUpField<ColumnInfo>(
+              tooltip: 'Mostrar/Ocultar columnas',
               items: widget.columns
                   .where((element) => element.name.isNotEmpty == true)
                   .map(
