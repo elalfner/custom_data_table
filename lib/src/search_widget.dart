@@ -40,6 +40,57 @@ class SearchWidget extends StatefulWidget {
 class _SearchWidgetState extends State<SearchWidget> {
   @override
   Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: Wrap(
+            spacing: 5,
+            runSpacing: 5,
+            children: [
+              for (final filter in widget.filterItems!)
+                Chip(
+                  elevation: 1,
+                  label: Text(
+                      '${filter.columnInfo?.name ?? ''}: ${filter.filterName}'),
+                  deleteIcon: const Icon(
+                    Icons.close,
+                    size: 14,
+                  ),
+                  onDeleted: () => widget.onFilterDeleted(filter),
+                ),
+              if (widget.onFilterButtonPressed != null)
+                ActionChip(
+                  elevation: 1,
+                  label: const Text(
+                    'Más filtros',
+                    style: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  avatar: const Icon(
+                    Icons.filter_list,
+                    color: Colors.white,
+                  ),
+                  backgroundColor: Theme.of(context).primaryColor,
+                  onPressed: widget.onFilterButtonPressed,
+                ),
+            ],
+          ),
+        ),
+        const SizedBox(
+          height: 45,
+          width: 300,
+          child: TextField(
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.search),
+              hintText: 'Búsqueda',
+              contentPadding: EdgeInsets.zero,
+            ),
+          ),
+        )
+      ],
+    );
+
     return LayoutBuilder(builder: (_, constraints) {
       final availableWidth = constraints.maxWidth;
 

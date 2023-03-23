@@ -84,6 +84,8 @@ class CustomDataTable<T> extends StatefulWidget {
   /// If not provided, it does not show the search fields.
   final Function(List<SearchFieldInfo> values)? onChangeSearchTextField;
 
+  final Widget? searchBar;
+
   const CustomDataTable({
     Key? key,
     this.title,
@@ -101,6 +103,7 @@ class CustomDataTable<T> extends StatefulWidget {
     this.onExport,
     this.onFilterPressed,
     this.onChangeSearchTextField,
+    this.searchBar,
   }) : super(key: key);
 
   @override
@@ -186,13 +189,13 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             final availableWidth = constraints.maxWidth;
 
             // `true` if available space is smaller than this value.
-            final small = availableWidth < 500;
+            final small = availableWidth < 600;
 
             // Table layout.
             return Column(
               children: [
                 // Table title and actions.
-                header(small: small),
+                header(small: small, width: availableWidth),
                 const Divider(height: 0),
                 // Table content, including columns and rows.
                 Expanded(
@@ -219,7 +222,228 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   ///
   /// The columns to show dropdown only shows the columns that have name. If a column
   /// does not have name, it cannot be hidden.
-  Widget header({required bool small}) {
+  Widget header({required bool small, required double width}) {
+    print(width);
+    if (width < 700) {
+      return Container(
+        // Mark container to take all width possible.
+        width: double.infinity,
+        color: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            const Spacer(),
+            SizedBox(
+              width: 150,
+              height: 40,
+              // Only allow to hide column that have name.
+              child: PopUpField<ColumnInfo>(
+                items: widget.columns
+                    .where((element) => element.name.isNotEmpty == true)
+                    .map(
+                      (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
+                    )
+                    .toList(),
+                selectedFields: widget.columns
+                    .where((element) => element.name.isNotEmpty == true)
+                    .map(
+                      (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
+                    )
+                    .toList(),
+                onChange: (values) {
+                  // Notify new selected items.
+                  columnsSelected = values;
+
+                  columnsSelected?.addAll(
+                    widget.columns.where((element) => element.name.isEmpty),
+                  );
+
+                  setState(() {});
+                },
+              ),
+            ),
+            const SizedBox(width: 5),
+            if (widget.onCopy != null ||
+                widget.onPrint != null ||
+                widget.onExport != null)
+              PopupMenuButton(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(20.0),
+                  ),
+                ),
+                onSelected: (value) {
+                  if (value == 0) {}
+                },
+                itemBuilder: (context) {
+                  return [
+                    if (widget.onCopy != null)
+                      PopupMenuItem(
+                        value: 0,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.copy,
+                              color: Colors.grey[800],
+                            ),
+                            const SizedBox(width: 5),
+                            const Text('Copiar'),
+                          ],
+                        ),
+                      ),
+                    if (widget.onPrint != null)
+                      PopupMenuItem(
+                        value: 1,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.print,
+                              color: Colors.grey[800],
+                            ),
+                            const SizedBox(width: 5),
+                            const Text('Imprimir'),
+                          ],
+                        ),
+                      ),
+                    if (widget.onExport != null)
+                      PopupMenuItem(
+                        value: 2,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.download,
+                              color: Colors.grey[800],
+                            ),
+                            const SizedBox(width: 5),
+                            const Text('Exportar'),
+                          ],
+                        ),
+                      ),
+                  ];
+                },
+              ),
+          ],
+        ),
+      );
+    }
+
+    if (width < 1000) {
+      return Container(
+        // Mark container to take all width possible.
+        width: double.infinity,
+        color: Colors.white,
+        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Text(
+                widget.title ?? 'Listado',
+                style: Theme.of(context).textTheme.titleMedium,
+              ),
+            ),
+            SizedBox(
+              width: 130,
+              height: 40,
+              // Only allow to hide column that have name.
+              child: PopUpField<ColumnInfo>(
+                items: widget.columns
+                    .where((element) => element.name.isNotEmpty == true)
+                    .map(
+                      (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
+                    )
+                    .toList(),
+                selectedFields: widget.columns
+                    .where((element) => element.name.isNotEmpty == true)
+                    .map(
+                      (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
+                    )
+                    .toList(),
+                onChange: (values) {
+                  // Notify new selected items.
+                  columnsSelected = values;
+
+                  columnsSelected?.addAll(
+                    widget.columns.where((element) => element.name.isEmpty),
+                  );
+
+                  setState(() {});
+                },
+              ),
+            ),
+            if (widget.onExport != null ||
+                widget.onPrint != null ||
+                widget.onCopy != null) ...[
+              const SizedBox(width: 5),
+              PopupMenuButton(
+                shape: const RoundedRectangleBorder(
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(20.0),
+                  ),
+                ),
+                onSelected: (value) {
+                  if (value == 0) {}
+                },
+                itemBuilder: (context) {
+                  return [
+                    if (widget.onCopy != null)
+                      PopupMenuItem(
+                        value: 0,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.copy,
+                              color: Colors.grey[800],
+                            ),
+                            const SizedBox(width: 5),
+                            const Text('Copiar'),
+                          ],
+                        ),
+                      ),
+                    if (widget.onPrint != null)
+                      PopupMenuItem(
+                        value: 1,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.print,
+                              color: Colors.grey[800],
+                            ),
+                            const SizedBox(width: 5),
+                            const Text('Imprimir'),
+                          ],
+                        ),
+                      ),
+                    if (widget.onExport != null)
+                      PopupMenuItem(
+                        value: 2,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.download,
+                              color: Colors.grey[800],
+                            ),
+                            const SizedBox(width: 5),
+                            const Text('Exportar'),
+                          ],
+                        ),
+                      ),
+                  ];
+                },
+              ),
+            ],
+          ],
+        ),
+      );
+    }
+
     return Container(
       // Mark container to take all width possible.
       width: double.infinity,
@@ -228,18 +452,16 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          // If small, do not show table title.
-          if (!small)
-            Expanded(
-              child: Text(
-                widget.title ?? 'Listado',
-                style: Theme.of(context).textTheme.titleMedium,
-              ),
+          Expanded(
+            child: Text(
+              widget.title ?? 'Listado',
+              style: Theme.of(context).textTheme.titleMedium,
             ),
-          if (!small) const Text('Mostrar'),
-          const SizedBox(width: 5),
+          ),
+          const Text('Mostrar:'),
+          SizedBox(width: 5),
           SizedBox(
-            width: 150,
+            width: 130,
             height: 40,
             // Only allow to hide column that have name.
             child: PopUpField<ColumnInfo>(
@@ -267,79 +489,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               },
             ),
           ),
-          // If screen size is small, collapse all export buttons in a pop un button.
-          if (small) ...[
-            const Spacer(),
-            PopupMenuButton(
-              shape: const RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(
-                  Radius.circular(20.0),
-                ),
-              ),
-              onSelected: (value) {
-                if (value == 0) {}
-              },
-              itemBuilder: (context) {
-                return [
-                  if (widget.onCopy != null)
-                    PopupMenuItem(
-                      value: 0,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.copy,
-                            color: Colors.grey[800],
-                          ),
-                          const SizedBox(width: 5),
-                          const Text('Copiar'),
-                        ],
-                      ),
-                    ),
-                  if (widget.onPrint != null)
-                    PopupMenuItem(
-                      value: 1,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.print,
-                            color: Colors.grey[800],
-                          ),
-                          const SizedBox(width: 5),
-                          const Text('Imprimir'),
-                        ],
-                      ),
-                    ),
-                  if (widget.onExport != null)
-                    PopupMenuItem(
-                      value: 2,
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            Icons.download,
-                            color: Colors.grey[800],
-                          ),
-                          const SizedBox(width: 5),
-                          const Text('Exportar'),
-                        ],
-                      ),
-                    ),
-                ];
-              },
-            ),
-            if (widget.onFilterPressed != null)
-              FloatingActionButton.small(
-                elevation: 0,
-                onPressed: widget.onFilterPressed,
-                heroTag: 'Filter',
-                child: const Icon(Icons.filter_list),
-              ),
-          ] else if (widget.onCopy != null &&
-              widget.onPrint != null &&
-              widget.onExport != null) ...[
-            const SizedBox(width: 20),
+          if (widget.onExport != null ||
+              widget.onPrint != null ||
+              widget.onCopy != null) ...[
+            const SizedBox(width: 5),
             Material(
               color: Colors.transparent,
               child: Row(
@@ -375,7 +528,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 ],
               ),
             ),
-          ]
+          ],
         ],
       ),
     );
@@ -436,6 +589,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     return Container(
       color: Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 15).copyWith(bottom: 15),
       child: TablePaginatedCountWidget(
         paginatorInfo: widget.paginatorInfo!,
         loading: false,
@@ -497,7 +651,17 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             },
           ),
         ),
-        if (widget.onChangeSearchTextField != null) searchWidget(),
+        if (widget.onChangeSearchTextField != null)
+          Container(
+            color: Colors.white,
+            padding: const EdgeInsets.only(bottom: 15),
+            child: searchWidget(),
+          )
+        else
+          Container(
+            color: Colors.white,
+            height: 10,
+          ),
       ],
     );
   }
@@ -511,7 +675,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   Widget columnsWidget() {
     return Container(
       color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -537,47 +701,57 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// sort all data of the table by this column. The information of the column is contained in
   /// [column].
   Widget columnWidget(ColumnInfo column) {
+    if (column.name.isEmpty) return const SizedBox();
+
     return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        Material(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.circular(5),
-          child: InkWell(
+        Flexible(
+          child: Material(
+            color: Colors.transparent,
             borderRadius: BorderRadius.circular(5),
-            onTap: () {
-              // Changes the state of sort.
-              // If there is no column marked as sort, this column is marked as
-              // sorting ascendant.
+            child: InkWell(
+              borderRadius: BorderRadius.circular(5),
+              onTap: () {
+                // Changes the state of sort.
+                // If there is no column marked as sort, this column is marked as
+                // sorting ascendant.
 
-              if (sortInfo?.columnInfo != column) {
-                sortInfo = SortInfo(columnInfo: column, asc: true);
-              } else {
-                sortInfo!.asc = !sortInfo!.asc;
-              }
+                if (sortInfo?.columnInfo != column) {
+                  sortInfo = SortInfo(columnInfo: column, asc: true);
+                } else {
+                  sortInfo!.asc = !sortInfo!.asc;
+                }
 
-              widget.onSort(sortInfo!);
+                widget.onSort(sortInfo!);
 
-              setState(() {});
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(5),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Name of the column.
-                  Text(column.name),
-                  const SizedBox(width: 5),
+                setState(() {});
+              },
+              child: Padding(
+                padding: const EdgeInsets.all(5),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Name of the column.
+                    Flexible(
+                      child: Text(
+                        column.name,
+                        overflow: TextOverflow.fade,
+                        maxLines: 1,
+                        softWrap: false,
+                      ),
+                    ),
+                    const SizedBox(width: 5),
 
-                  // Indicates if the column is sorted asc, desc or if it is not sorted.
-                  if (column == sortInfo?.columnInfo)
-                    Icon(
-                      sortInfo?.asc == true
-                          ? Icons.keyboard_arrow_down_rounded
-                          : Icons.keyboard_arrow_up_rounded,
-                      size: 15,
-                    )
-                ],
+                    // Indicates if the column is sorted asc, desc or if it is not sorted.
+                    if (column == sortInfo?.columnInfo)
+                      Icon(
+                        sortInfo?.asc == true
+                            ? Icons.keyboard_arrow_down_rounded
+                            : Icons.keyboard_arrow_up_rounded,
+                        size: 15,
+                      )
+                  ],
+                ),
               ),
             ),
           ),
@@ -648,7 +822,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     // text contained in the map by the column id.
     if (cellWidget == null) {
       return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10).copyWith(left: 5),
+        padding: const EdgeInsets.symmetric(vertical: 5).copyWith(left: 5),
         child: Text(
           '${map[column.key] ?? ''}',
           maxLines: 1,

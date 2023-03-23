@@ -208,6 +208,35 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
                 ? filterPressed
                 : null,
             onChangeSearchTextField: widget.onChangeSearchTextField,
+            searchBar: SizedBox(
+              width: 300,
+              child: ValueListenableBuilder<Map<String, List<FilterItem>>>(
+                valueListenable: selectedFiltersMap,
+                builder: (context, value, child) => SearchWidget(
+                  // Removes the filter that was selected previously.
+                  onFilterDeleted: (filterItem) {
+                    value[filterItem.columnInfo?.key]?.remove(filterItem);
+
+                    selectedFiltersMap.value = {...value};
+
+                    widget.onChangeFilters?.call(selectedFilters
+                        .expand((element) => element.filters)
+                        .toList());
+                  },
+                  onChangeSearchFields:
+                  widget.onChangeSearchFields ?? (List<ColumnId> values) {},
+                  columns: widget.columns
+                      .map((e) => ColumnId(name: e.name, key: e.key))
+                      .where((element) => element.name.isNotEmpty == true)
+                      .toList(),
+                  filterItems:
+                  selectedFilters.expand((element) => element.filters).toList(),
+                  onFilterButtonPressed: widget.filterSections?.isNotEmpty == true
+                      ? filterPressed
+                      : null,
+                ),
+              ),
+            ),
           ),
         ),
       ],

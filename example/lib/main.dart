@@ -16,6 +16,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
+      themeMode: ThemeMode.dark,
       theme: ThemeData(
         primarySwatch: Colors.blue,
         inputDecorationTheme: InputDecorationTheme(
@@ -58,6 +59,7 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
+      darkTheme: ThemeData.dark(),
       home: const MyHomePage(),
     );
   }
@@ -103,11 +105,6 @@ class _MyHomePageState extends State<MyHomePage> {
             lastPage: 5,
           ),
           onChangeSearchFields: (values) {},
-          onChangeSearchTextField: (values) {
-            print({
-              for (final v in values) v.columnInfo.name: v.searchValue,
-            });
-          },
           cell: (element, map, key) {
             switch (key) {
               case 'button':
@@ -148,7 +145,17 @@ class _MyHomePageState extends State<MyHomePage> {
                 }
             }
           },
+          onPrint: () {},
           onElementPressed: (value) {},
+          onChangeFilters: (values) {},
+          filterSections: [
+            FilterSection(
+              columnInfo: ColumnId(key: 'hola', name: 'hola'),
+              filters: [
+                FilterItem(filterName: 'Hola', value: 'Hola'),
+              ],
+            ),
+          ],
         ),
       ),
     );
