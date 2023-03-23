@@ -62,7 +62,9 @@ class _FilterSectionWidgetState extends State<FilterSectionWidget> {
     final selected = selectedMap[filter.filterName] == true;
 
     return Material(
-      color: Colors.grey[200],
+      color: Theme.of(context).brightness == Brightness.dark
+          ? Colors.black26
+          : Colors.grey[200],
       borderRadius: BorderRadius.circular(10),
       child: InkWell(
         borderRadius: BorderRadius.circular(10),

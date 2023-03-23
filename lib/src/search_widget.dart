@@ -1,3 +1,4 @@
+import 'package:custom_data_table/src/helpers/responsive_helpers.dart';
 import 'package:flutter/material.dart';
 
 import '../custom_data_table.dart';
@@ -40,180 +41,75 @@ class SearchWidget extends StatefulWidget {
 class _SearchWidgetState extends State<SearchWidget> {
   @override
   Widget build(BuildContext context) {
+    if (context.screenSize == ScreenSize.small) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          searchBar(),
+          const SizedBox(height: 10),
+          filtersWidget(),
+        ],
+      );
+    }
+
     return Row(
       children: [
         Expanded(
-          child: Wrap(
-            spacing: 5,
-            runSpacing: 5,
-            children: [
-              for (final filter in widget.filterItems!)
-                Chip(
-                  elevation: 1,
-                  label: Text(
-                      '${filter.columnInfo?.name ?? ''}: ${filter.filterName}'),
-                  deleteIcon: const Icon(
-                    Icons.close,
-                    size: 14,
-                  ),
-                  onDeleted: () => widget.onFilterDeleted(filter),
-                ),
-              if (widget.onFilterButtonPressed != null)
-                ActionChip(
-                  elevation: 1,
-                  label: const Text(
-                    'Más filtros',
-                    style: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  avatar: const Icon(
-                    Icons.filter_list,
-                    color: Colors.white,
-                  ),
-                  backgroundColor: Theme.of(context).primaryColor,
-                  onPressed: widget.onFilterButtonPressed,
-                ),
-            ],
-          ),
+          child: filtersWidget(),
         ),
-        const SizedBox(
+        SizedBox(
           height: 45,
           width: 300,
-          child: TextField(
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.search),
-              hintText: 'Búsqueda',
-              contentPadding: EdgeInsets.zero,
-            ),
-          ),
+          child: searchBar(),
         )
       ],
     );
+  }
 
-    return LayoutBuilder(builder: (_, constraints) {
-      final availableWidth = constraints.maxWidth;
+  Widget searchBar() {
+    return const TextField(
+      decoration: InputDecoration(
+        prefixIcon: Icon(Icons.search),
+        hintText: 'Búsqueda',
+        contentPadding: EdgeInsets.zero,
+      ),
+    );
+  }
 
-      final small = availableWidth < 500;
-
-      return Container(
-        decoration: small
-            ? null
-            : BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(15),
-                boxShadow: [
-                  BoxShadow(
-                    color: const Color(0xff364258).withOpacity(0.03),
-                    blurRadius: 9.0,
-                    spreadRadius: 1,
-                    offset: const Offset(0, 5),
-                  )
-                ],
-              ),
-        padding: small
-            ? null
-            : const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (!small)
-                        Text(
-                          '¿Estás buscando algo?',
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                      const SizedBox(height: 5),
-                      const TextField(
-                        decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.search),
-                          hintText: 'Búsqueda',
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(width: 10),
-                SizedBox(
-                  width: small ? null : 200,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (!small)
-                        Text(
-                          'Campos a buscar',
-                          style: Theme.of(context).textTheme.titleSmall,
-                        ),
-                      const SizedBox(height: 5),
-                      PopUpField<ColumnId>(
-                        allIfEmpty: true,
-                        items: widget.columns
-                            .map(
-                              (e) => PopUpMenuItem(
-                                key: e.key,
-                                name: e.name,
-                                value: e,
-                              ),
-                            )
-                            .toList(),
-                        onChange: widget.onChangeSearchFields,
-                        onlyIcon: small,
-                        icon: !small
-                            ? null
-                            : const CircleAvatar(
-                                child: Icon(Icons.short_text_outlined),
-                              ),
-                      )
-                    ],
-                  ),
-                ),
-                if (widget.onFilterButtonPressed != null && !small) ...[
-                  const SizedBox(width: 10),
-                  Column(
-                    children: [
-                      Text(
-                        '',
-                        style: Theme.of(context).textTheme.titleSmall,
-                      ),
-                      FloatingActionButton.small(
-                        elevation: 0,
-                        onPressed: widget.onFilterButtonPressed,
-                        heroTag: 'Filter',
-                        child: const Icon(Icons.filter_list),
-                      ),
-                    ],
-                  ),
-                ]
-              ],
+  Widget filtersWidget() {
+    return Wrap(
+      spacing: 5,
+      runSpacing: 5,
+      children: [
+        for (final filter in widget.filterItems!)
+          Chip(
+            elevation: 1,
+            label:
+                Text('${filter.columnInfo?.name ?? ''}: ${filter.filterName}'),
+            deleteIcon: const Icon(
+              Icons.close,
+              size: 14,
             ),
-            const SizedBox(height: 5),
-            if (widget.filterItems?.isNotEmpty == true && !small)
-              Wrap(
-                spacing: 5,
-                runSpacing: 5,
-                children: [
-                  for (final filter in widget.filterItems!)
-                    Chip(
-                      elevation: 1,
-                      label: Text(
-                          '${filter.columnInfo?.name ?? ''}: ${filter.filterName}'),
-                      deleteIcon: const Icon(
-                        Icons.close,
-                        size: 14,
-                      ),
-                      onDeleted: () => widget.onFilterDeleted(filter),
-                    ),
-                ],
-              )
-          ],
-        ),
-      );
-    });
+            onDeleted: () => widget.onFilterDeleted(filter),
+          ),
+        if (widget.onFilterButtonPressed != null)
+          ActionChip(
+            elevation: 1,
+            label: const Text(
+              'Más filtros',
+              style: TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            avatar: const Icon(
+              Icons.filter_list,
+              color: Colors.white,
+            ),
+            backgroundColor: Theme.of(context).primaryColor,
+            onPressed: widget.onFilterButtonPressed,
+          ),
+      ],
+    );
   }
 }
 

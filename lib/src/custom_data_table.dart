@@ -196,7 +196,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               children: [
                 // Table title and actions.
                 header(small: small, width: availableWidth),
-                const Divider(height: 0),
                 // Table content, including columns and rows.
                 Expanded(
                   child: content(small: small, availableWidth: availableWidth),
@@ -223,12 +222,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// The columns to show dropdown only shows the columns that have name. If a column
   /// does not have name, it cannot be hidden.
   Widget header({required bool small, required double width}) {
-    print(width);
     if (width < 700) {
       return Container(
         // Mark container to take all width possible.
         width: double.infinity,
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -283,13 +281,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         value: 0,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.copy,
-                              color: Colors.grey[800],
-                            ),
-                            const SizedBox(width: 5),
-                            const Text('Copiar'),
+                          children: const [
+                            Icon(Icons.copy),
+                            SizedBox(width: 5),
+                            Text('Copiar'),
                           ],
                         ),
                       ),
@@ -298,13 +293,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         value: 1,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.print,
-                              color: Colors.grey[800],
-                            ),
-                            const SizedBox(width: 5),
-                            const Text('Imprimir'),
+                          children: const [
+                            Icon(Icons.print),
+                            SizedBox(width: 5),
+                            Text('Imprimir'),
                           ],
                         ),
                       ),
@@ -313,13 +305,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         value: 2,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.download,
-                              color: Colors.grey[800],
-                            ),
-                            const SizedBox(width: 5),
-                            const Text('Exportar'),
+                          children: const [
+                            Icon(Icons.download),
+                            SizedBox(width: 5),
+                            Text('Exportar'),
                           ],
                         ),
                       ),
@@ -335,7 +324,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       return Container(
         // Mark container to take all width possible.
         width: double.infinity,
-        color: Colors.white,
+        color: Theme.of(context).cardColor,
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -395,13 +384,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         value: 0,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.copy,
-                              color: Colors.grey[800],
-                            ),
-                            const SizedBox(width: 5),
-                            const Text('Copiar'),
+                          children: const [
+                            Icon(Icons.copy),
+                            SizedBox(width: 5),
+                            Text('Copiar'),
                           ],
                         ),
                       ),
@@ -410,13 +396,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         value: 1,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.print,
-                              color: Colors.grey[800],
-                            ),
-                            const SizedBox(width: 5),
-                            const Text('Imprimir'),
+                          children: const [
+                            Icon(Icons.print),
+                            SizedBox(width: 5),
+                            Text('Imprimir'),
                           ],
                         ),
                       ),
@@ -425,13 +408,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         value: 2,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.download,
-                              color: Colors.grey[800],
-                            ),
-                            const SizedBox(width: 5),
-                            const Text('Exportar'),
+                          children: const [
+                            Icon(Icons.download),
+                            SizedBox(width: 5),
+                            Text('Exportar'),
                           ],
                         ),
                       ),
@@ -447,7 +427,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     return Container(
       // Mark container to take all width possible.
       width: double.infinity,
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -459,7 +439,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             ),
           ),
           const Text('Mostrar:'),
-          SizedBox(width: 5),
+          const SizedBox(width: 5),
           SizedBox(
             width: 130,
             height: 40,
@@ -502,28 +482,19 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                     IconButton(
                       splashRadius: 20,
                       onPressed: widget.onCopy,
-                      icon: Icon(
-                        Icons.copy,
-                        color: Colors.grey[800],
-                      ),
+                      icon: const Icon(Icons.copy),
                     ),
                   if (widget.onPrint != null)
                     IconButton(
                       splashRadius: 20,
                       onPressed: widget.onPrint,
-                      icon: Icon(
-                        Icons.print,
-                        color: Colors.grey[800],
-                      ),
+                      icon: const Icon(Icons.print),
                     ),
                   if (widget.onExport != null)
                     IconButton(
                       splashRadius: 20,
                       onPressed: widget.onExport,
-                      icon: Icon(
-                        Icons.download,
-                        color: Colors.grey[800],
-                      ),
+                      icon: const Icon(Icons.download),
                     ),
                 ],
               ),
@@ -588,7 +559,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     if (widget.paginatorInfo == null) return const SizedBox();
 
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       padding: const EdgeInsets.symmetric(horizontal: 15).copyWith(bottom: 15),
       child: TablePaginatedCountWidget(
         paginatorInfo: widget.paginatorInfo!,
@@ -618,8 +589,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               final map = widget.toMap(element);
 
               return Material(
-                color:
-                    index.isEven ? Colors.grey.withOpacity(0.04) : Colors.white,
+                color: index.isEven
+                    ? Colors.grey.withOpacity(0.04)
+                    : Theme.of(context).cardColor,
                 child: InkWell(
                   hoverColor: Colors.black12,
                   onTap: widget.onElementPressed == null
@@ -653,13 +625,13 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         ),
         if (widget.onChangeSearchTextField != null)
           Container(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             padding: const EdgeInsets.only(bottom: 15),
             child: searchWidget(),
           )
         else
           Container(
-            color: Colors.white,
+            color: Theme.of(context).cardColor,
             height: 10,
           ),
       ],
@@ -674,7 +646,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// if only width is specified, it creates a [SizedBox] with the size given.
   Widget columnsWidget() {
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -762,7 +734,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   Widget searchWidget() {
     return Container(
-      color: Colors.white,
+      color: Theme.of(context).cardColor,
       padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(top: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

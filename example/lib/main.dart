@@ -16,9 +16,9 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
-      themeMode: ThemeMode.dark,
+     // themeMode: ThemeMode.dark,
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        useMaterial3: true,
         inputDecorationTheme: InputDecorationTheme(
           fillColor: const Color(0xFF31394D).withOpacity(0.09),
           filled: true,
@@ -59,7 +59,48 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      darkTheme: ThemeData.dark(),
+      darkTheme: ThemeData.dark().copyWith(
+        useMaterial3: true,
+        inputDecorationTheme: InputDecorationTheme(
+          fillColor: Color(0xff585858),
+          filled: true,
+          border: OutlineInputBorder(
+            borderSide: const BorderSide(
+              width: 1.5,
+              color: Colors.transparent,
+            ),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+              width: 1.5,
+              color: Colors.transparent,
+            ),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+              width: 1.5,
+              color: Colors.transparent,
+            ),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+              width: 1.5,
+              color: Colors.pink,
+            ),
+            borderRadius: BorderRadius.circular(15),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderSide: const BorderSide(
+              width: 1.5,
+              color: Colors.pink,
+            ),
+            borderRadius: BorderRadius.circular(15),
+          ),
+        ),
+      ),
       home: const MyHomePage(),
     );
   }
