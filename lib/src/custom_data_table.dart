@@ -805,10 +805,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     // Display widget specified in child if not null.
     return Material(
       color: Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5).copyWith(left: 5),
-        child: cellWidget,
-      ),
+      child: cellWidget,
     );
   }
 }
