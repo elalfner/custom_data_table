@@ -61,6 +61,17 @@ class _FilterSectionWidgetState extends State<FilterSectionWidget> {
   Widget filterWidget(FilterItem filter) {
     final selected = selectedMap[filter.filterName] == true;
 
+    return FilterChip(
+      label: Text(filter.filterName),
+      selected: selected,
+      onSelected: (value) {
+        selectedMap[filter.filterName] = !selected;
+        setState(() {});
+
+        widget.onChange(selectedFilters);
+      },
+    );
+
     return Material(
       color: Theme.of(context).brightness == Brightness.dark
           ? Colors.black26

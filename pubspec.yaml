@@ -13,6 +13,10 @@ dependencies:
 
   collection: ^1.17.0
 
+  intl: ^0.17.0
+
+  month_year_picker: ^0.2.0+3
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

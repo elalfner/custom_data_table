@@ -1,9 +1,23 @@
+import 'dart:io';
+
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
+import 'package:month_year_picker/month_year_picker.dart';
 
 import 'models/user.dart';
 
 void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final String defaultLocale = Platform.localeName;
+
+  Intl.systemLocale = defaultLocale;
+
+  initializeDateFormatting(defaultLocale, null)
+      .then((_) => runApp(const MyApp()));
+
   runApp(const MyApp());
 }
 
@@ -15,8 +29,11 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Flutter Demo',
+      localizationsDelegates: const [
+        MonthYearPickerLocalizations.delegate,
+      ],
       debugShowCheckedModeBanner: false,
-     // themeMode: ThemeMode.dark,
+      // themeMode: ThemeMode.dark,
       theme: ThemeData(
         useMaterial3: true,
         inputDecorationTheme: InputDecorationTheme(
@@ -62,7 +79,7 @@ class MyApp extends StatelessWidget {
       darkTheme: ThemeData.dark().copyWith(
         useMaterial3: true,
         inputDecorationTheme: InputDecorationTheme(
-          fillColor: Color(0xff585858),
+          fillColor: const Color(0xff585858),
           filled: true,
           border: OutlineInputBorder(
             borderSide: const BorderSide(
@@ -197,6 +214,7 @@ class _MyHomePageState extends State<MyHomePage> {
               ],
             ),
           ],
+          onChangeDateFilter: (today, month, startDate, endDate) {},
         ),
       ),
     );

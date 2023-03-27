@@ -35,7 +35,6 @@ class FilterItem<T> {
   final T value;
 
   FilterItem({
-    this.columnInfo,
     required this.filterName,
     required this.value,
   });

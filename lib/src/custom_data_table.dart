@@ -73,11 +73,6 @@ class CustomDataTable<T> extends StatefulWidget {
   /// If not provided, the export button is not shown.
   final VoidCallback? onExport;
 
-  /// Callback that notifies when the filter button has been pressed.
-  ///
-  /// If not provided, the export button is not shown.
-  final VoidCallback? onFilterPressed;
-
   /// Callback to notify that any column search field has changed.
   ///
   /// Sends the value of all text fields.
@@ -101,7 +96,6 @@ class CustomDataTable<T> extends StatefulWidget {
     this.onCopy,
     this.onPrint,
     this.onExport,
-    this.onFilterPressed,
     this.onChangeSearchTextField,
     this.searchBar,
   }) : super(key: key);
@@ -811,7 +805,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     // Display widget specified in child if not null.
     return Material(
       color: Colors.transparent,
-      child: cellWidget,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 5).copyWith(left: 5),
+        child: cellWidget,
+      ),
     );
   }
 }
