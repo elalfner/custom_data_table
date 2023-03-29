@@ -120,8 +120,14 @@ class _SearchWidgetState extends State<SearchWidget> {
             widget.onChangeSearchFields(values);
           },
           onlyIcon: true,
-          icon: const CircleAvatar(
-            child: Icon(Icons.short_text_outlined),
+          icon: CircleAvatar(
+            backgroundColor:
+                Theme.of(context).floatingActionButtonTheme.backgroundColor,
+            child: Icon(
+              Icons.short_text_outlined,
+              color:
+                  Theme.of(context).floatingActionButtonTheme.foregroundColor,
+            ),
           ),
         )
       ],
@@ -185,33 +191,39 @@ class _SearchWidgetState extends State<SearchWidget> {
         if (widget.onFilterButtonPressed != null)
           ActionChip(
             elevation: 1,
-            label: const Text(
+            label: Text(
               'Más filtros',
               style: TextStyle(
-                color: Colors.white,
+                color:
+                    Theme.of(context).floatingActionButtonTheme.foregroundColor,
               ),
             ),
-            avatar: const Icon(
+            avatar: Icon(
               Icons.filter_list,
-              color: Colors.white,
+              color:
+                  Theme.of(context).floatingActionButtonTheme.foregroundColor,
             ),
-            backgroundColor: Theme.of(context).primaryColor,
+            backgroundColor:
+                Theme.of(context).floatingActionButtonTheme.backgroundColor,
             onPressed: widget.onFilterButtonPressed,
           ),
         if (widget.onChangeDateFilter != null)
           ActionChip(
             elevation: 1,
-            label: const Text(
+            label: Text(
               'Escoger fechas',
               style: TextStyle(
-                color: Colors.white,
+                color:
+                    Theme.of(context).floatingActionButtonTheme.foregroundColor,
               ),
             ),
-            avatar: const Icon(
+            avatar: Icon(
               Icons.calendar_month,
-              color: Colors.white,
+              color:
+                  Theme.of(context).floatingActionButtonTheme.foregroundColor,
             ),
-            backgroundColor: Theme.of(context).primaryColor,
+            backgroundColor:
+                Theme.of(context).floatingActionButtonTheme.backgroundColor,
             onPressed: () async {
               bool today = this.today;
 

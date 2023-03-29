@@ -2,6 +2,7 @@ import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/src/models/sort_info.dart';
 import 'package:custom_data_table/src/table_paginated_count_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 
 class CustomDataTable<T> extends StatefulWidget {
   /// Title of table.
@@ -436,7 +437,12 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               style: Theme.of(context).textTheme.titleMedium,
             ),
           ),
-          const Text('Mostrar:'),
+          Text(
+            'Mostrar:',
+            style: TextStyle(
+              color: Theme.of(context).textTheme.bodySmall?.color,
+            ),
+          ),
           const SizedBox(width: 5),
           SizedBox(
             width: 130,
@@ -481,19 +487,25 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                     IconButton(
                       splashRadius: 20,
                       onPressed: widget.onCopy,
-                      icon: const Icon(Icons.copy),
+                      icon: const Icon(
+                        FeatherIcons.copy,
+                      ),
                     ),
                   if (widget.onPrint != null)
                     IconButton(
                       splashRadius: 20,
                       onPressed: widget.onPrint,
-                      icon: const Icon(Icons.print),
+                      icon: const Icon(
+                        FeatherIcons.printer,
+                      ),
                     ),
                   if (widget.onExport != null)
                     IconButton(
                       splashRadius: 20,
                       onPressed: widget.onExport,
-                      icon: const Icon(Icons.download),
+                      icon: const Icon(
+                        FeatherIcons.download,
+                      ),
                     ),
                 ],
               ),
@@ -709,6 +721,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                         softWrap: false,
+                        style:
+                            Theme.of(context).dataTableTheme.headingTextStyle,
                       ),
                     ),
                     const SizedBox(width: 5),
@@ -796,6 +810,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         padding: const EdgeInsets.symmetric(vertical: 5).copyWith(left: 5),
         child: Text(
           '${map[column.key] ?? ''}',
+          style: Theme.of(context).dataTableTheme.dataTextStyle,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
