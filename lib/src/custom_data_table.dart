@@ -597,7 +597,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             separatorBuilder: (context, index) => const SizedBox(height: 0),
             itemBuilder: (context, index) {
               final element = widget.data[index];
-              final map = widget.toMap(element);
+
+              if (widget.onElementPressed == null) {
+                return rowElementWidget(element, index);
+              }
 
               return Material(
                 color: index.isEven
@@ -608,27 +611,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                   onTap: widget.onElementPressed == null
                       ? null
                       : () => widget.onElementPressed?.call(element),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        for (final column in columnsToShow)
-                          if (column.flex != null)
-                            Expanded(
-                              flex: column.flex ?? 1,
-                              child: cell(element, map, column),
-                            )
-                          else
-                            SizedBox(
-                              width: column.width,
-                              child: cell(element, map, column),
-                            ),
-                      ],
-                    ),
-                  ),
+                  child: rowElementWidget(element, index),
                 ),
               );
             },
@@ -646,6 +629,35 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             height: 10,
           ),
       ],
+    );
+  }
+
+  Widget rowElementWidget(T element, int index) {
+    final map = widget.toMap(element);
+
+    return Container(
+      padding: const EdgeInsets.symmetric(
+        horizontal: 10,
+      ),
+      color: index.isEven
+          ? Colors.grey.withOpacity(0.04)
+          : Theme.of(context).cardColor,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          for (final column in columnsToShow)
+            if (column.flex != null)
+              Expanded(
+                flex: column.flex ?? 1,
+                child: cell(element, map, column),
+              )
+            else
+              SizedBox(
+                width: column.width,
+                child: cell(element, map, column),
+              ),
+        ],
+      ),
     );
   }
 
