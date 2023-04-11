@@ -599,7 +599,13 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               final element = widget.data[index];
 
               if (widget.onElementPressed == null) {
-                return rowElementWidget(element, index);
+                return Container(
+
+                  color: index.isEven
+                      ? Colors.grey.withOpacity(0.04)
+                      : Theme.of(context).cardColor,
+                  child: rowElementWidget(element),
+                );
               }
 
               return Material(
@@ -611,7 +617,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                   onTap: widget.onElementPressed == null
                       ? null
                       : () => widget.onElementPressed?.call(element),
-                  child: rowElementWidget(element, index),
+                  child: rowElementWidget(element),
                 ),
               );
             },
@@ -632,16 +638,13 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     );
   }
 
-  Widget rowElementWidget(T element, int index) {
+  Widget rowElementWidget(T element) {
     final map = widget.toMap(element);
 
-    return Container(
+    return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 10,
       ),
-      color: index.isEven
-          ? Colors.grey.withOpacity(0.04)
-          : Theme.of(context).cardColor,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
