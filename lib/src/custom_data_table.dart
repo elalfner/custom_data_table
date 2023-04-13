@@ -834,6 +834,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     // text contained in the map by the column id.
     if (cellWidget == null) {
       return Container(
+        padding: const EdgeInsets.only(left: 5),
         constraints: BoxConstraints(
             minHeight: Theme.of(context).dataTableTheme.dataRowHeight ?? 40),
         child: Align(
