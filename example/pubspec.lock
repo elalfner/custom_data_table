@@ -55,7 +55,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "0.0.1"
+    version: "0.0.2"
   fake_async:
     dependency: transitive
     description:
@@ -144,7 +144,7 @@ packages:
     source: hosted
     version: "1.8.0"
   month_year_picker:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: month_year_picker
       sha256: "050b74e62bc76a157d6fcad803db5398d5747a710a5095dfe46dcc5f4932b746"
