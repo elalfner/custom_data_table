@@ -223,8 +223,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         color: Theme.of(context).cardColor,
 
         padding: EdgeInsets.symmetric(
-            horizontal:
-            Theme.of(context).dataTableTheme.horizontalMargin ?? 20)
+                horizontal:
+                    Theme.of(context).dataTableTheme.horizontalMargin ?? 20)
             .copyWith(top: 15, bottom: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -326,8 +326,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         width: double.infinity,
         color: Theme.of(context).cardColor,
         padding: EdgeInsets.symmetric(
-            horizontal:
-            Theme.of(context).dataTableTheme.horizontalMargin ?? 20)
+                horizontal:
+                    Theme.of(context).dataTableTheme.horizontalMargin ?? 20)
             .copyWith(top: 15, bottom: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -611,32 +611,41 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     return Column(
       children: [
         columnsWidget(),
-        Divider(
-          height: 0,
-          thickness: Theme.of(context).dataTableTheme.dividerThickness,
-          color: Theme.of(context).dividerColor,
-        ),
+        if ((Theme.of(context).dataTableTheme.dividerThickness ?? 0) > 0)
+          Divider(
+            height: 0,
+            thickness: Theme.of(context).dataTableTheme.dividerThickness,
+            color: Theme.of(context).dividerColor,
+          ),
         Expanded(
           child: ListView.separated(
             controller: _verticalScrollController,
             itemCount: widget.data.length,
-            separatorBuilder: (context, index) => Divider(
-              height: 0,
-              thickness: Theme.of(context).dataTableTheme.dividerThickness,
-              color: Theme.of(context).dividerColor,
-            ),
+            separatorBuilder: (context, index) =>
+                (Theme.of(context).dataTableTheme.dividerThickness ?? 0) > 0
+                    ? Divider(
+                        height: 0,
+                        thickness:
+                            Theme.of(context).dataTableTheme.dividerThickness,
+                        color: Theme.of(context).dividerColor,
+                      )
+                    : const SizedBox(),
             itemBuilder: (context, index) {
               final element = widget.data[index];
 
               if (widget.onElementPressed == null) {
                 return Container(
-                  color: Theme.of(context).cardColor,
+                  color: index.isOdd
+                      ? Theme.of(context).dividerColor.withOpacity(0.3)
+                      : Theme.of(context).cardColor,
                   child: rowElementWidget(element),
                 );
               }
 
               return Material(
-                color: Theme.of(context).cardColor,
+                color: index.isOdd
+                    ? Theme.of(context).dividerColor.withOpacity(0.3)
+                    : Theme.of(context).cardColor,
                 child: InkWell(
                   hoverColor: getColor({MaterialState.hovered}),
                   onTap: widget.onElementPressed == null
