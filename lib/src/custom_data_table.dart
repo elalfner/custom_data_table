@@ -80,7 +80,6 @@ class CustomDataTable<T> extends StatefulWidget {
   /// If not provided, it does not show the search fields.
   final Function(List<SearchFieldInfo> values)? onChangeSearchTextField;
 
-  final Widget? searchBar;
 
   const CustomDataTable({
     Key? key,
@@ -98,7 +97,6 @@ class CustomDataTable<T> extends StatefulWidget {
     this.onPrint,
     this.onExport,
     this.onChangeSearchTextField,
-    this.searchBar,
   }) : super(key: key);
 
   @override
