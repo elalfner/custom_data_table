@@ -1,6 +1,5 @@
 import 'package:collection/collection.dart';
 import 'package:custom_data_table/custom_data_table.dart';
-import 'package:custom_data_table/src/filters/timeFilter.dart';
 import 'package:flutter/material.dart';
 
 import 'filter_section_widget.dart';

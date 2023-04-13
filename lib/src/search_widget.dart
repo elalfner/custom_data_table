@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 
 import '../custom_data_table.dart';
-import 'filters/timeFilter.dart';
+import 'filters/time_filter.dart';
 
 class SearchWidget extends StatefulWidget {
   /// List of columns the table has.

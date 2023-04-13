@@ -163,20 +163,15 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).scaffoldBackgroundColor,
-        borderRadius: BorderRadius.circular(15),
-        boxShadow: [
-          BoxShadow(
-            color: const Color(0xff364258).withOpacity(0.03),
-            blurRadius: 9.0,
-            spreadRadius: 1,
-            offset: const Offset(0, 5),
-          )
-        ],
-      ),
+      decoration: Theme.of(context).dataTableTheme.decoration ??
+          BoxDecoration(
+            borderRadius: BorderRadius.circular(15),
+          ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(15),
+        borderRadius:
+            (Theme.of(context).dataTableTheme.decoration as BoxDecoration?)
+                    ?.borderRadius ??
+                BorderRadius.circular(15),
 
         // Listen to screen size changes to adapt to large and small screens.
         child: LayoutBuilder(
@@ -196,8 +191,15 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                   child: content(small: small, availableWidth: availableWidth),
                 ),
 
+                if (widget.paginatorInfo != null &&
+                    widget.onChangeSearchTextField == null)
+                  Container(
+                    color: Theme.of(context).cardColor,
+                    height: 10,
+                  ),
+
                 // Table pages info.
-                footer(),
+                if (widget.paginatorInfo != null) footer(),
               ],
             );
           },
@@ -217,11 +219,12 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// The columns to show dropdown only shows the columns that have name. If a column
   /// does not have name, it cannot be hidden.
   Widget header({required bool small, required double width}) {
-    if (width < 700) {
+    if (width < 500) {
       return Container(
         // Mark container to take all width possible.
         width: double.infinity,
         color: Theme.of(context).cardColor,
+
         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -317,7 +320,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       );
     }
 
-    if (width < 1000) {
+    if (width < 600) {
       return Container(
         // Mark container to take all width possible.
         width: double.infinity,
@@ -329,11 +332,14 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             Expanded(
               child: Text(
                 widget.title ?? 'Listado',
-                style: Theme.of(context).textTheme.titleMedium,
+                style: Theme.of(context).textTheme.titleLarge,
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.fade,
               ),
             ),
             SizedBox(
-              width: 130,
+              width: 180,
               height: 40,
               // Only allow to hide column that have name.
               child: PopUpField<ColumnInfo>(
@@ -434,7 +440,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           Expanded(
             child: Text(
               widget.title ?? 'Listado',
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.titleLarge,
+              maxLines: 1,
+              softWrap: false,
+              overflow: TextOverflow.fade,
             ),
           ),
           Text(
@@ -445,7 +454,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           ),
           const SizedBox(width: 5),
           SizedBox(
-            width: 130,
+            width: 180,
             height: 40,
             // Only allow to hide column that have name.
             child: PopUpField<ColumnInfo>(
@@ -567,8 +576,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// Displays pages info. Contains buttons to navigate between pages.
   /// If paginator info is `null`, the footer is not displayed.
   Widget footer() {
-    if (widget.paginatorInfo == null) return const SizedBox();
-
     return Container(
       color: Theme.of(context).cardColor,
       padding: const EdgeInsets.symmetric(horizontal: 15).copyWith(bottom: 15),
@@ -587,33 +594,42 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// in those cells.
   /// [small] tells if the available space to display the table is not large enough.
   Widget dataTable(bool small) {
+    Color getColor(Set<MaterialState> states) {
+      return Theme.of(context).dataTableTheme.dataRowColor?.resolve(states) ??
+          Colors.transparent;
+    }
+
     return Column(
       children: [
         columnsWidget(),
+        Divider(
+          height: 0,
+          thickness: Theme.of(context).dataTableTheme.dividerThickness,
+          color: Theme.of(context).dividerColor,
+        ),
         Expanded(
           child: ListView.separated(
             controller: _verticalScrollController,
             itemCount: widget.data.length,
-            separatorBuilder: (context, index) => const SizedBox(height: 0),
+            separatorBuilder: (context, index) => Divider(
+              height: 0,
+              thickness: Theme.of(context).dataTableTheme.dividerThickness,
+              color: Theme.of(context).dividerColor,
+            ),
             itemBuilder: (context, index) {
               final element = widget.data[index];
 
               if (widget.onElementPressed == null) {
                 return Container(
-
-                  color: index.isEven
-                      ? Colors.grey.withOpacity(0.04)
-                      : Theme.of(context).cardColor,
+                  color: Theme.of(context).cardColor,
                   child: rowElementWidget(element),
                 );
               }
 
               return Material(
-                color: index.isEven
-                    ? Colors.grey.withOpacity(0.04)
-                    : Theme.of(context).cardColor,
+                color: Theme.of(context).cardColor,
                 child: InkWell(
-                  hoverColor: Colors.black12,
+                  hoverColor: getColor({MaterialState.hovered}),
                   onTap: widget.onElementPressed == null
                       ? null
                       : () => widget.onElementPressed?.call(element),
@@ -629,11 +645,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             padding: const EdgeInsets.only(bottom: 15),
             child: searchWidget(),
           )
-        else
-          Container(
-            color: Theme.of(context).cardColor,
-            height: 10,
-          ),
       ],
     );
   }
@@ -672,8 +683,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// if only width is specified, it creates a [SizedBox] with the size given.
   Widget columnsWidget() {
     return Container(
-      color: Theme.of(context).cardColor,
-      padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(bottom: 10),
+      color: Theme.of(context)
+          .dataTableTheme
+          .headingRowColor
+          ?.resolve({MaterialState.selected}),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -821,13 +835,18 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     // If data is not specified or child is not given, the cell is displaying the
     // text contained in the map by the column id.
     if (cellWidget == null) {
-      return Padding(
-        padding: const EdgeInsets.symmetric(vertical: 5).copyWith(left: 5),
-        child: Text(
-          '${map[column.key] ?? ''}',
-          style: Theme.of(context).dataTableTheme.dataTextStyle,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
+      return Container(
+        constraints: BoxConstraints(
+            minHeight: Theme.of(context).dataTableTheme.dataRowHeight ?? 40),
+        child: Align(
+          alignment: Alignment.centerLeft,
+          child: Text(
+            '${map[column.key] ?? ''}',
+            style: Theme.of(context).dataTableTheme.dataTextStyle,
+            maxLines: 1,
+            overflow: TextOverflow.fade,
+            softWrap: false,
+          ),
         ),
       );
     }

@@ -71,39 +71,5 @@ class _FilterSectionWidgetState extends State<FilterSectionWidget> {
         widget.onChange(selectedFilters);
       },
     );
-
-    return Material(
-      color: Theme.of(context).brightness == Brightness.dark
-          ? Colors.black26
-          : Colors.grey[200],
-      borderRadius: BorderRadius.circular(10),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(10),
-        onTap: () {
-          selectedMap[filter.filterName] = !selected;
-          setState(() {});
-
-          widget.onChange(selectedFilters);
-        },
-        child: Container(
-          padding: const EdgeInsets.only(right: 10),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Checkbox(
-                value: selected,
-                onChanged: (value) {
-                  selectedMap[filter.filterName] = value;
-                  setState(() {});
-
-                  widget.onChange(selectedFilters);
-                },
-              ),
-              Text(filter.filterName),
-            ],
-          ),
-        ),
-      ),
-    );
   }
 }

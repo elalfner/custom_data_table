@@ -27,6 +27,49 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    final theme = ThemeData(
+      useMaterial3: true,
+      inputDecorationTheme: InputDecorationTheme(
+        fillColor: const Color(0xFF31394D).withOpacity(0.09),
+        filled: true,
+        border: OutlineInputBorder(
+          borderSide: const BorderSide(
+            width: 1.5,
+            color: Colors.transparent,
+          ),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+            width: 1.5,
+            color: Colors.transparent,
+          ),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+            width: 1.5,
+            color: Colors.transparent,
+          ),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+            width: 1.5,
+            color: Colors.pink,
+          ),
+          borderRadius: BorderRadius.circular(15),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderSide: const BorderSide(
+            width: 1.5,
+            color: Colors.pink,
+          ),
+          borderRadius: BorderRadius.circular(15),
+        ),
+      ),
+      dividerColor: const Color(0xffe7e7e7),
+    );
     return MaterialApp(
       title: 'Flutter Demo',
       localizationsDelegates: const [
@@ -34,45 +77,36 @@ class MyApp extends StatelessWidget {
       ],
       debugShowCheckedModeBanner: false,
       // themeMode: ThemeMode.dark,
-      theme: ThemeData(
-        useMaterial3: true,
-        inputDecorationTheme: InputDecorationTheme(
-          fillColor: const Color(0xFF31394D).withOpacity(0.09),
-          filled: true,
-          border: OutlineInputBorder(
-            borderSide: const BorderSide(
-              width: 1.5,
-              color: Colors.transparent,
-            ),
-            borderRadius: BorderRadius.circular(15),
+      theme: theme.copyWith(
+        dataTableTheme: DataTableThemeData(
+          decoration: BoxDecoration(
+            color: Theme.of(context).scaffoldBackgroundColor,
+            borderRadius: BorderRadius.circular(30),
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xff000000).withOpacity(0.16),
+                blurRadius: 9.0,
+                spreadRadius: 1,
+                offset: const Offset(0, 5),
+              ),
+            ],
           ),
-          enabledBorder: OutlineInputBorder(
-            borderSide: const BorderSide(
-              width: 1.5,
-              color: Colors.transparent,
-            ),
-            borderRadius: BorderRadius.circular(15),
+          dividerThickness: 0.7,
+          dataRowColor: MaterialStateProperty.resolveWith(
+            (states) {
+              if (states.contains(MaterialState.hovered)) {
+                return Colors.grey[200];
+              }
+              return null;
+            },
           ),
-          focusedBorder: OutlineInputBorder(
-            borderSide: const BorderSide(
-              width: 1.5,
-              color: Colors.transparent,
-            ),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          errorBorder: OutlineInputBorder(
-            borderSide: const BorderSide(
-              width: 1.5,
-              color: Colors.pink,
-            ),
-            borderRadius: BorderRadius.circular(15),
-          ),
-          focusedErrorBorder: OutlineInputBorder(
-            borderSide: const BorderSide(
-              width: 1.5,
-              color: Colors.pink,
-            ),
-            borderRadius: BorderRadius.circular(15),
+          headingRowColor: MaterialStateProperty.resolveWith(
+            (states) {
+              if (states.contains(MaterialState.selected)) {
+                return theme.colorScheme.secondaryContainer;
+              }
+              return null;
+            },
           ),
         ),
       ),
@@ -156,12 +190,6 @@ class _MyHomePageState extends State<MyHomePage> {
             ColumnInfo(name: '', key: 'button', flex: 1, width: 100),
           ],
           toMap: (element) => element.toJsonTable(),
-          paginatorInfo: PaginatorInfo(
-            total: 100,
-            perPage: 20,
-            currentPage: 2,
-            lastPage: 5,
-          ),
           onChangeSearchFields: (values) {},
           cell: (element, map, key) {
             switch (key) {
@@ -177,6 +205,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
             return null;
           },
+          paginatorInfo: PaginatorInfo(),
+          onChangeSearchTextField: (values) {},
           onSort: (sortInfo) {
             switch (sortInfo.columnInfo.key) {
               case 'id':
