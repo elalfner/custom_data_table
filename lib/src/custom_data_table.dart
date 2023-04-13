@@ -185,7 +185,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 header(small: small, width: availableWidth),
                 // Table content, including columns and rows.
                 Expanded(
-                  child: content(small: small, availableWidth: availableWidth),
+                  child: SelectionArea(
+                    child:
+                        content(small: small, availableWidth: availableWidth),
+
+                  ),
                 ),
 
                 if (widget.paginatorInfo != null &&
@@ -861,13 +865,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             minHeight: Theme.of(context).dataTableTheme.dataRowHeight ?? 40),
         child: Align(
           alignment: Alignment.centerLeft,
-          child: Text(
-            '${map[column.key] ?? ''}',
-            style: Theme.of(context).dataTableTheme.dataTextStyle,
-            maxLines: 1,
-            overflow: TextOverflow.fade,
-            softWrap: false,
-          ),
+          child: Text('${map[column.key] ?? ''}',
+              style: Theme.of(context).dataTableTheme.dataTextStyle,
+              maxLines: 1),
         ),
       );
     }
