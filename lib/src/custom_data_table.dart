@@ -80,7 +80,6 @@ class CustomDataTable<T> extends StatefulWidget {
   /// If not provided, it does not show the search fields.
   final Function(List<SearchFieldInfo> values)? onChangeSearchTextField;
 
-
   const CustomDataTable({
     Key? key,
     this.title,
@@ -223,7 +222,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         width: double.infinity,
         color: Theme.of(context).cardColor,
 
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        padding: EdgeInsets.symmetric(
+            horizontal:
+            Theme.of(context).dataTableTheme.horizontalMargin ?? 20)
+            .copyWith(top: 15, bottom: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -323,7 +325,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         // Mark container to take all width possible.
         width: double.infinity,
         color: Theme.of(context).cardColor,
-        padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+        padding: EdgeInsets.symmetric(
+            horizontal:
+            Theme.of(context).dataTableTheme.horizontalMargin ?? 20)
+            .copyWith(top: 15, bottom: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -431,7 +436,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       // Mark container to take all width possible.
       width: double.infinity,
       color: Theme.of(context).cardColor,
-      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+      padding: EdgeInsets.symmetric(
+              horizontal:
+                  Theme.of(context).dataTableTheme.horizontalMargin ?? 20)
+          .copyWith(top: 15, bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -576,7 +584,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   Widget footer() {
     return Container(
       color: Theme.of(context).cardColor,
-      padding: const EdgeInsets.symmetric(horizontal: 15).copyWith(bottom: 15),
+      padding: EdgeInsets.symmetric(
+              horizontal:
+                  Theme.of(context).dataTableTheme.horizontalMargin ?? 20)
+          .copyWith(bottom: 15),
       child: TablePaginatedCountWidget(
         paginatorInfo: widget.paginatorInfo!,
         loading: false,
