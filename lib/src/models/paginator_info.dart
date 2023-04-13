@@ -32,6 +32,27 @@ class PaginatorInfo {
     this.perPage = 0,
   });
 
+  PaginatorInfo copyWith({
+    int? count,
+    int? total,
+    int? currentPage,
+    int? firstItem,
+    bool? hasMorePages,
+    int? lastItem,
+    int? lastPage,
+    int? perPage,
+  }) =>
+      PaginatorInfo(
+        count: count ?? this.count,
+        total: total ?? this.total,
+        currentPage: currentPage ?? this.currentPage,
+        firstItem: firstItem ?? this.firstItem,
+        hasMorePages: hasMorePages ?? this.hasMorePages,
+        lastItem: lastItem ?? this.lastItem,
+        lastPage: lastPage ?? this.lastPage,
+        perPage: perPage ?? this.perPage,
+      );
+
   factory PaginatorInfo.fromJson(Map<String, dynamic> json) => PaginatorInfo(
         count: json["count"] ?? 0,
         total: json["total"] ?? 0,

@@ -56,11 +56,13 @@ class CustomTableSearch<T> extends StatefulWidget {
   /// elements per page.
   final PaginatorInfo? paginatorInfo;
 
+  /// Callback that notifies when the previous page button is pressed.
+  final VoidCallback? onPreviousPage;
+
   /// Callback that notifies when the next page button is pressed.
   final VoidCallback? onNextPage;
 
-  /// Callback that notifies when the previous page button is pressed.
-  final VoidCallback? onPreviousPage;
+  final Function(int page)? onSelectedPage;
 
   /// Callback that notifies when the copy button has been pressed.
   ///
@@ -117,8 +119,9 @@ class CustomTableSearch<T> extends StatefulWidget {
     this.onChangeFilters,
     this.onElementPressed,
     this.paginatorInfo,
-    this.onNextPage,
     this.onPreviousPage,
+    this.onNextPage,
+    this.onSelectedPage,
     this.onCopy,
     this.onPrint,
     this.onExport,
@@ -209,6 +212,7 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
             title: widget.title,
             onPreviousPage: widget.onPreviousPage,
             onNextPage: widget.onNextPage,
+            onSelectedPage: widget.onSelectedPage,
             paginatorInfo: widget.paginatorInfo,
             onChangeSearchTextField: widget.onChangeSearchTextField,
           ),

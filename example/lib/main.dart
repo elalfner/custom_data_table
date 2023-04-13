@@ -173,6 +173,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<FilterItem>? filtersUserType;
 
+  PaginatorInfo paginatorInfo = PaginatorInfo(lastPage: 10, currentPage: 5);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -216,7 +218,21 @@ class _MyHomePageState extends State<MyHomePage> {
 
                   return null;
                 },
-                paginatorInfo: PaginatorInfo(),
+                paginatorInfo: paginatorInfo,
+                onPreviousPage: () {
+                  paginatorInfo = paginatorInfo.copyWith(
+                      currentPage: (paginatorInfo.currentPage ?? 0) - 1);
+                  setState(() {});
+                },
+                onNextPage: () {
+                  paginatorInfo = paginatorInfo.copyWith(
+                      currentPage: (paginatorInfo.currentPage ?? 0) + 1);
+                  setState(() {});
+                },
+                onSelectedPage: (page) {
+                  paginatorInfo = paginatorInfo.copyWith(currentPage: page);
+                  setState(() {});
+                },
                 onChangeSearchTextField: (values) {},
                 onSort: (sortInfo) {
                   switch (sortInfo.columnInfo.key) {

@@ -53,11 +53,13 @@ class CustomDataTable<T> extends StatefulWidget {
   /// elements per page.
   final PaginatorInfo? paginatorInfo;
 
+  /// Callback that notifies when the previous page button is pressed.
+  final VoidCallback? onPreviousPage;
+
   /// Callback that notifies when the next page button is pressed.
   final VoidCallback? onNextPage;
 
-  /// Callback that notifies when the previous page button is pressed.
-  final VoidCallback? onPreviousPage;
+  final Function(int page)? onSelectedPage;
 
   /// Callback that notifies when the copy button has been pressed.
   ///
@@ -92,6 +94,7 @@ class CustomDataTable<T> extends StatefulWidget {
     this.paginatorInfo,
     this.onNextPage,
     this.onPreviousPage,
+    this.onSelectedPage,
     this.onCopy,
     this.onPrint,
     this.onExport,
@@ -188,7 +191,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                   child: SelectionArea(
                     child:
                         content(small: small, availableWidth: availableWidth),
-
                   ),
                 ),
 
@@ -597,6 +599,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         loading: false,
         onPressedLast: widget.onPreviousPage,
         onPressedNext: widget.onNextPage,
+        onSelectedPage: widget.onSelectedPage,
       ),
     );
   }
