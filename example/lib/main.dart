@@ -195,7 +195,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   ColumnInfo(name: 'Id', key: 'id', flex: 1, width: 100),
                   ColumnInfo(name: 'Nombre', key: 'name', flex: 2, width: 300),
                   ColumnInfo(name: 'Teléfono', key: 'phone', width: 110),
-                  ColumnInfo(name: 'Email', key: 'email', width: 110),
+                  ColumnInfo(
+                      name: 'Email', key: 'email', width: 110, canSort: false),
                   ColumnInfo(name: 'Tipo', key: 'userType', width: 100),
                   ColumnInfo(name: '', key: 'button', flex: 1, width: 100),
                 ],
