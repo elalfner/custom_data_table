@@ -741,21 +741,23 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             borderRadius: BorderRadius.circular(5),
             child: InkWell(
               borderRadius: BorderRadius.circular(5),
-              onTap: () {
-                // Changes the state of sort.
-                // If there is no column marked as sort, this column is marked as
-                // sorting ascendant.
+              onTap: !column.canSort
+                  ? null
+                  : () {
+                      // Changes the state of sort.
+                      // If there is no column marked as sort, this column is marked as
+                      // sorting ascendant.
 
-                if (sortInfo?.columnInfo != column) {
-                  sortInfo = SortInfo(columnInfo: column, asc: true);
-                } else {
-                  sortInfo!.asc = !sortInfo!.asc;
-                }
+                      if (sortInfo?.columnInfo != column) {
+                        sortInfo = SortInfo(columnInfo: column, asc: true);
+                      } else {
+                        sortInfo!.asc = !sortInfo!.asc;
+                      }
 
-                widget.onSort(sortInfo!);
+                      widget.onSort(sortInfo!);
 
-                setState(() {});
-              },
+                      setState(() {});
+                    },
               child: Padding(
                 padding: const EdgeInsets.all(5),
                 child: Row(
