@@ -6,6 +6,12 @@ import 'filter_section_widget.dart';
 import 'models/sort_info.dart';
 
 class CustomTableSearch<T> extends StatefulWidget {
+  /// Theme of the table.
+  ///
+  /// Attributes given will override main datatable theme declared in the material
+  /// theme.
+  final DataTableThemeData? dataTableTheme;
+
   /// List of columns the table has.
   ///
   /// Each element of the list contains the name of the column, key to identify it, and the
@@ -127,6 +133,7 @@ class CustomTableSearch<T> extends StatefulWidget {
     this.onExport,
     this.onChangeSearchTextField,
     this.onChangeDateFilter,
+    this.dataTableTheme,
   }) : super(key: key);
 
   @override
@@ -215,6 +222,7 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
             onSelectedPage: widget.onSelectedPage,
             paginatorInfo: widget.paginatorInfo,
             onChangeSearchTextField: widget.onChangeSearchTextField,
+            dataTableTheme: widget.dataTableTheme,
           ),
         ),
       ],

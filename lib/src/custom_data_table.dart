@@ -5,6 +5,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 
 class CustomDataTable<T> extends StatefulWidget {
+  /// Theme of the table.
+  ///
+  /// Attributes given will override main datatable theme declared in the material
+  /// theme.
+  final DataTableThemeData? dataTableTheme;
+
   /// Title of table.
   ///
   /// if `null` shows `Listado` in the title.
@@ -99,6 +105,7 @@ class CustomDataTable<T> extends StatefulWidget {
     this.onPrint,
     this.onExport,
     this.onChangeSearchTextField,
+    this.dataTableTheme,
   }) : super(key: key);
 
   @override
@@ -124,6 +131,39 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   final ScrollController _verticalScrollController = ScrollController();
 
   late Map<String, TextEditingController> textControllers;
+
+  DataTableThemeData get dataTableTheme {
+    final decoration =
+        Theme.of(context).dataTableTheme.decoration as BoxDecoration?;
+    final newDecoration = widget.dataTableTheme?.decoration as BoxDecoration?;
+
+    return Theme.of(context).dataTableTheme.copyWith(
+          dividerThickness: widget.dataTableTheme?.dividerThickness,
+          dataRowColor: widget.dataTableTheme?.dataRowColor,
+          decoration: BoxDecoration(
+            color: newDecoration?.color ?? decoration?.color,
+            borderRadius:
+                newDecoration?.borderRadius ?? decoration?.borderRadius,
+            shape:
+                newDecoration?.shape ?? decoration?.shape ?? BoxShape.rectangle,
+            boxShadow: newDecoration?.boxShadow ?? decoration?.boxShadow,
+            border: newDecoration?.border ?? decoration?.border,
+            backgroundBlendMode: newDecoration?.backgroundBlendMode ??
+                decoration?.backgroundBlendMode,
+            gradient: newDecoration?.gradient ?? decoration?.gradient,
+            image: newDecoration?.image ?? decoration?.image,
+          ),
+          dataTextStyle: widget.dataTableTheme?.dataTextStyle,
+          headingTextStyle: widget.dataTableTheme?.headingTextStyle,
+          checkboxHorizontalMargin:
+              widget.dataTableTheme?.checkboxHorizontalMargin,
+          columnSpacing: widget.dataTableTheme?.columnSpacing,
+          dataRowHeight: widget.dataTableTheme?.dataRowHeight,
+          headingRowColor: widget.dataTableTheme?.headingRowColor,
+          headingRowHeight: widget.dataTableTheme?.headingRowHeight,
+          horizontalMargin: widget.dataTableTheme?.horizontalMargin,
+        );
+  }
 
   @override
   void initState() {
@@ -163,15 +203,14 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: Theme.of(context).dataTableTheme.decoration ??
+      decoration: dataTableTheme.decoration ??
           BoxDecoration(
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(0),
           ),
       child: ClipRRect(
         borderRadius:
-            (Theme.of(context).dataTableTheme.decoration as BoxDecoration?)
-                    ?.borderRadius ??
-                BorderRadius.circular(15),
+            (dataTableTheme.decoration as BoxDecoration?)?.borderRadius ??
+                BorderRadius.circular(0),
 
         // Listen to screen size changes to adapt to large and small screens.
         child: LayoutBuilder(
@@ -229,8 +268,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         color: Theme.of(context).cardColor,
 
         padding: EdgeInsets.symmetric(
-                horizontal:
-                    Theme.of(context).dataTableTheme.horizontalMargin ?? 20)
+                horizontal: dataTableTheme.horizontalMargin ?? 20)
             .copyWith(top: 15, bottom: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -332,8 +370,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         width: double.infinity,
         color: Theme.of(context).cardColor,
         padding: EdgeInsets.symmetric(
-                horizontal:
-                    Theme.of(context).dataTableTheme.horizontalMargin ?? 20)
+                horizontal: dataTableTheme.horizontalMargin ?? 20)
             .copyWith(top: 15, bottom: 10),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -443,8 +480,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       width: double.infinity,
       color: Theme.of(context).cardColor,
       padding: EdgeInsets.symmetric(
-              horizontal:
-                  Theme.of(context).dataTableTheme.horizontalMargin ?? 20)
+              horizontal: dataTableTheme.horizontalMargin ?? 20)
           .copyWith(top: 15, bottom: 10),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -591,8 +627,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     return Container(
       color: Theme.of(context).cardColor,
       padding: EdgeInsets.symmetric(
-              horizontal:
-                  Theme.of(context).dataTableTheme.horizontalMargin ?? 20)
+              horizontal: dataTableTheme.horizontalMargin ?? 20)
           .copyWith(bottom: 15),
       child: TablePaginatedCountWidget(
         paginatorInfo: widget.paginatorInfo!,
@@ -611,17 +646,16 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// [small] tells if the available space to display the table is not large enough.
   Widget dataTable(bool small) {
     Color getColor(Set<MaterialState> states) {
-      return Theme.of(context).dataTableTheme.dataRowColor?.resolve(states) ??
-          Colors.transparent;
+      return dataTableTheme.dataRowColor?.resolve(states) ?? Colors.transparent;
     }
 
     return Column(
       children: [
         columnsWidget(),
-        if ((Theme.of(context).dataTableTheme.dividerThickness ?? 0) > 0)
+        if ((dataTableTheme.dividerThickness ?? 0) > 0)
           Divider(
             height: 0,
-            thickness: Theme.of(context).dataTableTheme.dividerThickness,
+            thickness: dataTableTheme.dividerThickness,
             color: Theme.of(context).dividerColor,
           ),
         Expanded(
@@ -629,11 +663,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             controller: _verticalScrollController,
             itemCount: widget.data.length,
             separatorBuilder: (context, index) =>
-                (Theme.of(context).dataTableTheme.dividerThickness ?? 0) > 0
+                (dataTableTheme.dividerThickness ?? 0) > 0
                     ? Divider(
                         height: 0,
-                        thickness:
-                            Theme.of(context).dataTableTheme.dividerThickness,
+                        thickness: dataTableTheme.dividerThickness,
                         color: Theme.of(context).dividerColor,
                       )
                     : const SizedBox(),
@@ -708,10 +741,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// if only width is specified, it creates a [SizedBox] with the size given.
   Widget columnsWidget() {
     return Container(
-      color: Theme.of(context)
-          .dataTableTheme
-          .headingRowColor
-          ?.resolve({MaterialState.selected}),
+      color: dataTableTheme.headingRowColor?.resolve({MaterialState.selected}),
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -777,8 +807,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                         softWrap: false,
-                        style:
-                            Theme.of(context).dataTableTheme.headingTextStyle,
+                        style: dataTableTheme.headingTextStyle,
                       ),
                     ),
                     const SizedBox(width: 5),
@@ -864,13 +893,12 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     if (cellWidget == null) {
       return Container(
         padding: const EdgeInsets.only(left: 5),
-        constraints: BoxConstraints(
-            minHeight: Theme.of(context).dataTableTheme.dataRowHeight ?? 40),
+        constraints:
+            BoxConstraints(minHeight: dataTableTheme.dataRowHeight ?? 40),
         child: Align(
           alignment: Alignment.centerLeft,
           child: Text('${map[column.key] ?? ''}',
-              style: Theme.of(context).dataTableTheme.dataTextStyle,
-              maxLines: 1),
+              style: dataTableTheme.dataTextStyle, maxLines: 1),
         ),
       );
     }
