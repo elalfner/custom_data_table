@@ -8,9 +8,12 @@ class FilterSection<T> {
   /// Available filters to apply.
   final List<FilterItem<T>> filters;
 
+  List<FilterItem<T>>? selectedFilters;
+
   FilterSection({
     required this.columnInfo,
     required this.filters,
+    this.selectedFilters,
   });
 
   FilterSection copyWith({
@@ -25,9 +28,6 @@ class FilterSection<T> {
 
 /// Filter that can be applied to the table.
 class FilterItem<T> {
-  /// Column name that the filter belong.
-  ColumnId? columnInfo;
-
   /// Filter's name to display.
   final String filterName;
 

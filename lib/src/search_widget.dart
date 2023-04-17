@@ -2,6 +2,7 @@ import 'package:custom_data_table/src/helpers/responsive_helpers.dart';
 import 'package:flutter/material.dart';
 
 import '../custom_data_table.dart';
+import 'widgets/dates_filter_chip.dart';
 
 class SearchWidget extends StatefulWidget {
   /// List of columns the table has.
@@ -9,38 +10,32 @@ class SearchWidget extends StatefulWidget {
   /// Each element of the list contains the name of the column, key to identify it.
   final List<ColumnId> columns;
 
-  /// List of applied filters.
-  final List<FilterItem>? filterItems;
-
   /// Callback to notify when search fields dropdown has changed.
   ///
   /// Notifies the new search fields to search.
   final Function(List<ColumnId> values) onChangeSearchFields;
 
-  /// Builder that creates the view that is displaying when filter button is pressed.
-  ///
-  /// If not provided, the filter Chip Button is not displayed.
-  final WidgetBuilder? filterBuilder;
+  final List<FilterSection>? filterSections;
+  final List<FilterSection>? selectedFilters;
+  final Function(List<FilterSection> sections)? onChangeFilters;
 
-  /// Callback to notify when a filter element has been pressed to be removed from the filters list.
-  ///
-  /// [filterItem] item to be removed from the list.
-  final Function(FilterItem filterItem) onFilterDeleted;
-
-  /// Callback to notify when date filter button is pressed.
-  ///
-  /// If not provided, the date filter Chip Button is not displayed.
-  final Function(
-          bool today, DateTime? month, DateTime? startDate, DateTime? endDate)?
-      onChangeDateFilter;
+  final bool today;
+  final DateTime? selectedMonth;
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final ChangeDateCallback? onChangeDateFilter;
 
   const SearchWidget({
     Key? key,
     required this.columns,
     required this.onChangeSearchFields,
-    this.filterItems,
-    this.filterBuilder,
-    required this.onFilterDeleted,
+    this.filterSections,
+    this.selectedFilters,
+    this.onChangeFilters,
+    this.today = false,
+    this.selectedMonth,
+    this.startDate,
+    this.endDate,
     this.onChangeDateFilter,
   }) : super(key: key);
 
@@ -66,10 +61,10 @@ class _SearchWidgetState extends State<SearchWidget> {
           searchBar(),
           const SizedBox(height: 10),
           CustomFilters(
-            onFilterDeleted: widget.onFilterDeleted,
+            sections: widget.filterSections,
+            selectedFilters: widget.selectedFilters,
+            onChange: widget.onChangeFilters,
             onChangeDateFilter: widget.onChangeDateFilter,
-            filterBuilder: widget.filterBuilder,
-            filterItems: widget.filterItems,
           ),
         ],
       );
@@ -79,10 +74,10 @@ class _SearchWidgetState extends State<SearchWidget> {
       children: [
         Expanded(
           child: CustomFilters(
-            onFilterDeleted: widget.onFilterDeleted,
+            sections: widget.filterSections,
+            selectedFilters: widget.selectedFilters,
+            onChange: widget.onChangeFilters,
             onChangeDateFilter: widget.onChangeDateFilter,
-            filterBuilder: widget.filterBuilder,
-            filterItems: widget.filterItems,
           ),
         ),
         SizedBox(

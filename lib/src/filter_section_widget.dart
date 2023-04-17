@@ -1,12 +1,12 @@
 import 'package:custom_data_table/src/models/filter_item.dart';
 import 'package:flutter/material.dart';
 
-class FilterSectionWidget extends StatefulWidget {
-  final FilterSection section;
+class FilterSectionWidget<T> extends StatefulWidget {
+  final FilterSection<T> section;
 
-  final Function(List<FilterItem> values) onChange;
+  final Function(List<FilterItem<T>> values) onChange;
 
-  final List<FilterItem>? selectedFilters;
+  final List<FilterItem<T>>? selectedFilters;
 
   const FilterSectionWidget({
     Key? key,
@@ -16,25 +16,23 @@ class FilterSectionWidget extends StatefulWidget {
   }) : super(key: key);
 
   @override
-  State<FilterSectionWidget> createState() => _FilterSectionWidgetState();
+  State<FilterSectionWidget<T>> createState() => _FilterSectionWidgetState<T>();
 }
 
-class _FilterSectionWidgetState extends State<FilterSectionWidget> {
-  FilterSection get section => widget.section;
+class _FilterSectionWidgetState<T> extends State<FilterSectionWidget<T>> {
+  FilterSection<T> get section => widget.section;
 
-  List<FilterItem> get filters => section.filters;
+  List<FilterItem<T>> get filters => section.filters;
 
-  late Map<String, bool?> selectedMap = {};
+  late Set selected = {};
 
-  List<FilterItem> get selectedFilters => filters
-      .where((element) => selectedMap[element.filterName] == true)
+  List<FilterItem<T>> get selectedFilters => filters
+      .where((element) => selected.contains(element.filterName))
       .toList();
 
   @override
   void initState() {
-    selectedMap = {
-      for (final f in widget.selectedFilters ?? []) f.filterName: true
-    };
+    selected = {for (final f in widget.selectedFilters ?? []) f.filterName};
 
     super.initState();
   }
@@ -59,13 +57,16 @@ class _FilterSectionWidgetState extends State<FilterSectionWidget> {
   }
 
   Widget filterWidget(FilterItem filter) {
-    final selected = selectedMap[filter.filterName] == true;
-
     return FilterChip(
       label: Text(filter.filterName),
-      selected: selected,
+      selected: selected.contains(filter.filterName),
       onSelected: (value) {
-        selectedMap[filter.filterName] = !selected;
+        if (value) {
+          selected.add(filter.filterName);
+        } else {
+          selected.remove(filter.filterName);
+        }
+
         setState(() {});
 
         widget.onChange(selectedFilters);

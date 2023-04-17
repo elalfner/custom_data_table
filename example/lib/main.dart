@@ -175,6 +175,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   PaginatorInfo paginatorInfo = PaginatorInfo(lastPage: 10, currentPage: 5);
 
+  List<FilterSection>? selectedFilters;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -184,11 +186,32 @@ class _MyHomePageState extends State<MyHomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             CustomFilters(
-              filterBuilder: (context) {
-                return Container();
+              sections: [
+                FilterSection<String>(
+                  columnInfo: ColumnId(key: 'type', name: 'Tipo de vehículo'),
+                  filters: [
+                    FilterItem(filterName: 'Automóvil', value: 'Auto'),
+                    FilterItem(filterName: 'Motocicleta', value: 'Moto'),
+                  ],
+                ),
+                FilterSection<String>(
+                  columnInfo: ColumnId(key: 'clase', name: 'Clase'),
+                  filters: [
+                    FilterItem(filterName: 'Particular', value: 'particular'),
+                    FilterItem(filterName: 'Público', value: 'publico'),
+                  ],
+                ),
+              ],
+              selectedFilters: selectedFilters,
+              onChange: (sections) {
+                print(sections);
               },
-              onFilterDeleted: (FilterItem<dynamic> filterItem) {},
+              today: true,
+              onChangeDateFilter: (today, month, startDate, endDate) {
+                print(today);
+              },
             ),
+            const SizedBox(height: 20),
             Expanded(
               child: CustomTableSearch<User>(
                 data: data,
@@ -264,7 +287,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 onPrint: () {},
                 onElementPressed: (value) {},
-                onChangeFilters: (values) {},
                 filterSections: [
                   FilterSection(
                     columnInfo: ColumnId(key: 'hola', name: 'hola'),
@@ -273,6 +295,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     ],
                   ),
                 ],
+                onChangeFilters: (values) {},
                 onChangeDateFilter: (today, month, startDate, endDate) {},
               ),
             ),
