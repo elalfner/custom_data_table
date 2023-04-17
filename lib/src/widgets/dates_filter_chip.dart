@@ -5,14 +5,15 @@ import 'package:month_year_picker/month_year_picker.dart';
 
 import '../filters/time_filter.dart';
 
+typedef ChangeDateCallback = void Function(
+    bool today, DateTime? month, DateTime? startDate, DateTime? endDate);
+
 class DatesFilterChip extends StatelessWidget {
   final bool today;
   final DateTime? selectedMonth;
   final DateTime? startDate;
   final DateTime? endDate;
-  final Function(
-          bool today, DateTime? month, DateTime? startDate, DateTime? endDate)?
-      onChangeDateFilter;
+  final ChangeDateCallback? onChangeDateFilter;
 
   const DatesFilterChip({
     Key? key,

@@ -1,8 +1,8 @@
-import 'package:collection/collection.dart';
+
 import 'package:custom_data_table/custom_data_table.dart';
+import 'package:custom_data_table/src/widgets/dates_filter_chip.dart';
 import 'package:flutter/material.dart';
 
-import 'filter_section_widget.dart';
 import 'models/sort_info.dart';
 
 class CustomTableSearch<T> extends StatefulWidget {
@@ -106,11 +106,9 @@ class CustomTableSearch<T> extends StatefulWidget {
   /// Callback that notifies when new filters in search widget are selected.
   ///
   /// If user selects new filters, or deselects filters the Callback is notified.
-  final Function(List<FilterItem> values)? onChangeFilters;
+  final Function(List<FilterSection> sections)? onChangeFilters;
 
-  final Function(
-          bool today, DateTime? month, DateTime? startDate, DateTime? endDate)?
-      onChangeDateFilter;
+  final ChangeDateCallback? onChangeDateFilter;
 
   const CustomTableSearch({
     Key? key,
@@ -141,33 +139,12 @@ class CustomTableSearch<T> extends StatefulWidget {
 }
 
 class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
-  /// Keeps the filters that are selected.
-  /// As it is a map, the key is given by the key of the column to filter. And the
-  /// value, is a list of filters that are applied to that column.
-  ValueNotifier<Map<String, List<FilterItem>>> selectedFiltersMap =
-      ValueNotifier({});
+  List<FilterSection>? selectedFilters;
 
-  /// Converts [selectedFiltersMap] to list of filter sections to get filters applied
-  /// grouped by section.
-  List<FilterSection> get selectedFilters => selectedFiltersMap.value.entries
-      .map((e) {
-        final section = widget.filterSections?.firstWhereOrNull(
-          (element) => element.columnInfo.key == e.key,
-        );
-
-        final newSection = section?.copyWith(filters: e.value);
-
-        if (newSection == null) return newSection;
-
-        for (final FilterItem filter in newSection.filters) {
-          filter.columnInfo = newSection.columnInfo;
-        }
-
-        return newSection;
-      })
-      .where((element) => element != null)
-      .map((e) => e!)
-      .toList();
+  @override
+  void initState() {
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -176,32 +153,17 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
         // SizedBox to tell the widget to take all available width.
         SizedBox(
           width: double.infinity,
-          child: ValueListenableBuilder<Map<String, List<FilterItem>>>(
-            valueListenable: selectedFiltersMap,
-            builder: (context, value, child) => SearchWidget(
-              // Removes the filter that was selected previously.
-              onFilterDeleted: (filterItem) {
-                value[filterItem.columnInfo?.key]?.remove(filterItem);
-
-                selectedFiltersMap.value = {...value};
-
-                widget.onChangeFilters?.call(selectedFilters
-                    .expand((element) => element.filters)
-                    .toList());
-              },
-              onChangeSearchFields:
-                  widget.onChangeSearchFields ?? (List<ColumnId> values) {},
-              columns: widget.columns
-                  .map((e) => ColumnId(name: e.name, key: e.key))
-                  .where((element) => element.name.isNotEmpty == true)
-                  .toList(),
-              filterItems:
-                  selectedFilters.expand((element) => element.filters).toList(),
-              filterBuilder: widget.filterSections?.isNotEmpty == true
-                  ? filterWidget
-                  : null,
-              onChangeDateFilter: widget.onChangeDateFilter,
-            ),
+          child: SearchWidget(
+            onChangeSearchFields:
+                widget.onChangeSearchFields ?? (List<ColumnId> values) {},
+            columns: widget.columns
+                .map((e) => ColumnId(name: e.name, key: e.key))
+                .where((element) => element.name.isNotEmpty == true)
+                .toList(),
+            filterSections: widget.filterSections,
+            selectedFilters: selectedFilters,
+            onChangeFilters: widget.onChangeFilters,
+            onChangeDateFilter: widget.onChangeDateFilter,
           ),
         ),
         const SizedBox(height: 10),
@@ -226,44 +188,6 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget filterWidget(BuildContext context) {
-    return StatefulBuilder(
-      builder: (context, setState) {
-        return Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              for (final FilterSection section in widget.filterSections ?? [])
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 5),
-                  child: ValueListenableBuilder<Map<String, List<FilterItem>>>(
-                    valueListenable: selectedFiltersMap,
-                    builder: (context, value, child) {
-                      return FilterSectionWidget(
-                        section: section,
-                        selectedFilters: value[section.columnInfo.key],
-                        onChange: (values) {
-                          value[section.columnInfo.key] = [...values];
-
-                          selectedFiltersMap.value = {...value};
-
-                          widget.onChangeFilters?.call(selectedFilters
-                              .expand((element) => element.filters)
-                              .toList());
-                        },
-                      );
-                    },
-                  ),
-                ),
-            ],
-          ),
-        );
-      },
     );
   }
 }

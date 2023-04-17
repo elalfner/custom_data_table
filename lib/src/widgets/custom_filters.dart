@@ -1,47 +1,72 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
-import '../models/filter_item.dart';
+import '../../custom_data_table.dart';
 import 'dates_filter_chip.dart';
 
 class CustomFilters extends StatefulWidget {
-  /// List of applied filters.
-  final List<FilterItem>? filterItems;
+  final List<FilterSection>? sections;
+  final List<FilterSection>? selectedFilters;
 
-  /// Callback to notify when a filter element has been pressed to be removed from the filters list.
-  ///
-  /// [filterItem] item to be removed from the list.
-  final Function(FilterItem filterItem) onFilterDeleted;
+  final Function(List<FilterSection> sections)? onChange;
 
-  /// Builder that creates the view that is displaying when filter button is pressed.
-  ///
-  /// If not provided, the filter Chip Button is not displayed.
-  final WidgetBuilder? filterBuilder;
+  final bool today;
+  final DateTime? selectedMonth;
+  final DateTime? startDate;
+  final DateTime? endDate;
 
-  /// Callback to notify when date filter button is pressed.
-  ///
-  /// If not provided, the date filter Chip Button is not displayed.
-  final Function(
-          bool today, DateTime? month, DateTime? startDate, DateTime? endDate)?
-      onChangeDateFilter;
+  final ChangeDateCallback? onChangeDateFilter;
 
-  const CustomFilters(
-      {Key? key,
-      this.filterItems,
-      required this.onFilterDeleted,
-      this.filterBuilder,
-      this.onChangeDateFilter})
-      : super(key: key);
+  const CustomFilters({
+    Key? key,
+    this.sections,
+    this.selectedFilters,
+    this.onChange,
+    this.today = false,
+    this.selectedMonth,
+    this.startDate,
+    this.endDate,
+    this.onChangeDateFilter,
+  }) : super(key: key);
+
+  factory CustomFilters.dateFilter({
+    final bool today = false,
+    final DateTime? selectedMonth,
+    final DateTime? startDate,
+    final DateTime? endDate,
+    final ChangeDateCallback? onChangeDateFilter,
+  }) =>
+      CustomFilters(
+        today: today,
+        selectedMonth: selectedMonth,
+        startDate: startDate,
+        endDate: endDate,
+        onChangeDateFilter: onChangeDateFilter,
+      );
 
   @override
   State<CustomFilters> createState() => _CustomFiltersState();
 }
 
 class _CustomFiltersState extends State<CustomFilters> {
+  late List<FilterSection> selectedFilters;
+
   bool today = false;
   DateTime? selectedMonth;
   DateTime? startDate;
   DateTime? endDate;
+
+  @override
+  void initState() {
+    selectedFilters = widget.selectedFilters ?? widget.sections ?? [];
+
+    today = widget.today;
+    selectedMonth = widget.selectedMonth;
+    startDate = widget.startDate;
+    endDate = widget.endDate;
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,17 +74,23 @@ class _CustomFiltersState extends State<CustomFilters> {
       spacing: 5,
       runSpacing: 5,
       children: [
-        for (final filter in widget.filterItems ?? [])
-          Chip(
-            elevation: 1,
-            label:
-                Text('${filter.columnInfo?.name ?? ''}: ${filter.filterName}'),
-            deleteIcon: const Icon(
-              Icons.close,
-              size: 14,
+        for (final FilterSection section in selectedFilters)
+          for (final FilterItem filter in section.selectedFilters ?? [])
+            Chip(
+              elevation: 1,
+              label: Text('${section.columnInfo.name}: ${filter.filterName}'),
+              deleteIcon: const Icon(
+                Icons.close,
+                size: 14,
+              ),
+              onDeleted: () {
+                section.selectedFilters?.remove(filter);
+
+                setState(() {});
+
+                widget.onChange?.call(selectedFilters);
+              },
             ),
-            onDeleted: () => widget.onFilterDeleted(filter),
-          ),
         if (today)
           Chip(
             elevation: 1,
@@ -68,9 +99,13 @@ class _CustomFiltersState extends State<CustomFilters> {
               Icons.close,
               size: 14,
             ),
-            onDeleted: () => setState(() {
-              today = false;
-            }),
+            onDeleted: () {
+              setState(() {
+                today = false;
+              });
+
+              notifyDateFilterChange();
+            },
           ),
         if (selectedMonth != null)
           Chip(
@@ -80,9 +115,13 @@ class _CustomFiltersState extends State<CustomFilters> {
               Icons.close,
               size: 14,
             ),
-            onDeleted: () => setState(() {
-              selectedMonth = null;
-            }),
+            onDeleted: () {
+              setState(() {
+                selectedMonth = null;
+              });
+
+              notifyDateFilterChange();
+            },
           ),
         if (startDate != null && endDate != null)
           Chip(
@@ -93,12 +132,16 @@ class _CustomFiltersState extends State<CustomFilters> {
               Icons.close,
               size: 14,
             ),
-            onDeleted: () => setState(() {
-              startDate = null;
-              endDate = null;
-            }),
+            onDeleted: () {
+              setState(() {
+                startDate = null;
+                endDate = null;
+              });
+
+              notifyDateFilterChange();
+            },
           ),
-        if (widget.filterBuilder != null)
+        if (widget.onChange != null && widget.sections != null)
           ActionChip(
             elevation: 1,
             label: Text(
@@ -115,7 +158,7 @@ class _CustomFiltersState extends State<CustomFilters> {
             ),
             backgroundColor:
                 Theme.of(context).floatingActionButtonTheme.backgroundColor,
-            onPressed: filterPressed,
+            onPressed: showFilters,
           ),
         if (widget.onChangeDateFilter != null)
           DatesFilterChip(
@@ -143,8 +186,8 @@ class _CustomFiltersState extends State<CustomFilters> {
     );
   }
 
-  void filterPressed() {
-    showModalBottomSheet(
+  void showFilters() async {
+    await showModalBottomSheet(
       context: context,
       constraints: const BoxConstraints(
         maxWidth: 500,
@@ -152,7 +195,35 @@ class _CustomFiltersState extends State<CustomFilters> {
       ),
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: widget.filterBuilder!,
+      builder: (context) => filtersView(),
     );
+
+    setState(() {});
+
+    widget.onChange?.call(selectedFilters);
+  }
+
+  Widget filtersView() {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final section in selectedFilters)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: FilterSectionWidget(
+                section: section,
+                onChange: (values) => section.selectedFilters = values,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+
+  void notifyDateFilterChange() {
+    widget.onChangeDateFilter?.call(today, selectedMonth, startDate, endDate);
   }
 }
