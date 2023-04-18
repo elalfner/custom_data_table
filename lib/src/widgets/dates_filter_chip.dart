@@ -3,23 +3,22 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:month_year_picker/month_year_picker.dart';
 
+import '../../custom_data_table.dart';
 import '../filters/time_filter.dart';
 
 typedef ChangeDateCallback = void Function(
-    bool today, DateTime? month, DateTime? startDate, DateTime? endDate);
+    DateFilterType? dateFilterType, DateTime? date, DateTime? endDate);
 
 class DatesFilterChip extends StatelessWidget {
-  final bool today;
-  final DateTime? selectedMonth;
-  final DateTime? startDate;
+  final DateFilterType? dateFilterType;
+  final DateTime? date;
   final DateTime? endDate;
   final ChangeDateCallback? onChangeDateFilter;
 
   const DatesFilterChip({
     Key? key,
-    required this.today,
-    this.selectedMonth,
-    this.startDate,
+    this.dateFilterType,
+    this.date,
     this.endDate,
     this.onChangeDateFilter,
   }) : super(key: key);
@@ -41,124 +40,295 @@ class DatesFilterChip extends StatelessWidget {
       backgroundColor:
           Theme.of(context).floatingActionButtonTheme.backgroundColor,
       onPressed: () async {
-        bool today = this.today;
-
-        DateTime? selectedMonth = this.selectedMonth;
-
-        bool period = this.startDate != null && this.endDate != null;
-
-        DateTime startDate = this.startDate ?? DateTime.now().onlyDate;
-
-        DateTime endDate = this.endDate ??
-            DateTime.now().onlyDate.add(
-                  const Duration(hours: 23, minutes: 59, seconds: 59),
-                );
-
-        await showModalBottomSheet(
+        final _DateSelection? selection = await showModalBottomSheet(
+          isDismissible: false,
           context: context,
+          isScrollControlled: true,
           constraints: const BoxConstraints(
             maxWidth: 500,
             minWidth: 500,
           ),
-          builder: (_) {
-            return StatefulBuilder(
-              builder: (context, setState) {
-                final thisYear = selectedMonth?.year == DateTime.now().year;
+          builder: (_) => DateFilterView(
+            dateFilterType: dateFilterType,
+            date: date,
+            endDate: endDate,
+          ),
+        );
 
-                return SingleChildScrollView(
-                  padding: const EdgeInsets.all(20),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+        onChangeDateFilter?.call(
+          selection?.dateFilterType,
+          selection?.date,
+          selection?.endDate,
+        );
+      },
+    );
+  }
+}
+
+class DateFilterView extends StatefulWidget {
+  final DateFilterType? dateFilterType;
+
+  final DateTime? date;
+  final DateTime? endDate;
+
+  const DateFilterView({Key? key, this.dateFilterType, this.date, this.endDate})
+      : super(key: key);
+
+  @override
+  State<DateFilterView> createState() => _DateFilterViewState();
+}
+
+class _DateFilterViewState extends State<DateFilterView> {
+  static const startYear = 2020;
+
+  DateFilterType? dateFilterType;
+
+  DateTime? date;
+  DateTime? endDate;
+
+  @override
+  void initState() {
+    dateFilterType = widget.dateFilterType;
+
+    date = widget.date;
+    endDate = widget.endDate;
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final thisYear = date?.year == DateTime.now().year;
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(20).copyWith(bottom: 5),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'Filtro de fechas',
+                  style: Theme.of(context).textTheme.titleLarge,
+                  softWrap: false,
+                  overflow: TextOverflow.fade,
+                ),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancelar'),
+              ),
+              const SizedBox(width: 5),
+              ElevatedButton(
+                onPressed: () => Navigator.pop(
+                  context,
+                  _DateSelection(
+                    dateFilterType: dateFilterType,
+                    date: date,
+                    endDate: endDate,
+                  ),
+                ),
+                child: const Text('Aceptar'),
+              ),
+            ],
+          ),
+        ),
+        Flexible(
+          child: SizedBox(
+            width: double.infinity,
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(20).copyWith(top: 0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text('Por día'),
+                  const SizedBox(height: 5),
+                  Wrap(
+                    spacing: 5,
+                    runSpacing: 5,
                     children: [
-                      const Text('Día'),
-                      const SizedBox(height: 5),
                       ChoiceChip(
                         label: const Text('Hoy'),
-                        selected: today,
+                        selected: dateFilterType == DateFilterType.date &&
+                            date?.onlyDate == DateTime.now().onlyDate,
                         onSelected: (value) {
-                          setState(() {
-                            today = value;
-                          });
-
-                          selectedMonth = null;
-                          period = false;
-                        },
-                      ),
-                      const SizedBox(height: 10),
-                      Text('Mes (${DateTime.now().year})'),
-                      const SizedBox(height: 5),
-                      Wrap(
-                        spacing: 5.0,
-                        children: List<Widget>.generate(
-                          DateTime.now().month,
-                          (int index) {
-                            final month =
-                                DateTime(DateTime.now().year, index + 1);
-
-                            return ChoiceChip(
-                              label: Text(DateFormat.MMMM().format(month)),
-                              selected: month == selectedMonth,
-                              onSelected: (bool selected) {
-                                setState(() {
-                                  selectedMonth = selected ? month : null;
-                                });
-
-                                period = false;
-                                today = false;
-                              },
-                            );
-                          },
-                        ).toList(),
-                      ),
-                      const SizedBox(height: 10),
-                      const Text('Otro Mes'),
-                      const SizedBox(height: 5),
-                      InputChip(
-                        selected: selectedMonth != null && !thisYear,
-                        label: Text(
-                          selectedMonth == null || thisYear
-                              ? 'Seleccione'
-                              : DateFormat.yMMMM().format(selectedMonth!),
-                        ),
-                        onPressed: () async {
-                          selectedMonth = await showMonthYearPicker(
-                            context: context,
-                            firstDate: DateTime(2020),
-                            lastDate: DateTime.now(),
-                            initialDate: selectedMonth ?? DateTime.now(),
-                          );
-
-                          period = false;
-                          today = false;
+                          if (value) {
+                            dateFilterType = DateFilterType.date;
+                            date = DateTime.now().onlyDate;
+                          } else {
+                            dateFilterType = null;
+                            date = null;
+                            endDate = null;
+                          }
 
                           setState(() {});
                         },
                       ),
-                      const SizedBox(height: 10),
-                      const Text('Periodo de tiempo'),
-                      const SizedBox(height: 5),
                       ChoiceChip(
-                        label: const Text('Seleccione'),
-                        selected: period,
-                        onSelected: (value) {
-                          setState(() {
-                            period = value;
-                          });
+                        selected: dateFilterType == DateFilterType.date &&
+                            date?.onlyDate != DateTime.now().onlyDate,
+                        label: Text(dateFilterType != DateFilterType.date ||
+                                date?.onlyDate == DateTime.now().onlyDate ||
+                                date == null
+                            ? 'Otro día'
+                            : DateFormat('dd-MM-yyyy').format(date!)),
+                        onSelected: (value) async {
+                          final selectedDate = await showDatePicker(
+                            context: context,
+                            initialDate: date ?? DateTime.now(),
+                            firstDate: DateTime(startYear),
+                            lastDate: DateTime.now(),
+                          );
 
-                          selectedMonth = null;
-                          today = false;
+                          if (selectedDate != null) {
+                            dateFilterType = DateFilterType.date;
+                            date = selectedDate;
+                          } else {
+                            dateFilterType = null;
+                            date = null;
+                            endDate = null;
+                          }
+
+                          setState(() {});
                         },
                       ),
-                      const SizedBox(height: 10),
-                      if (period && selectedMonth == null)
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 300),
-                          child: TimeFilterWidget(
-                            startDate: startDate,
-                            endDate: endDate,
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Text('Por Mes (${DateTime.now().year})'),
+                  const SizedBox(height: 5),
+                  Wrap(
+                    spacing: 5,
+                    runSpacing: 5,
+                    children: List<Widget>.generate(
+                      DateTime.now().month,
+                      (int index) {
+                        final month = DateTime(DateTime.now().year, index + 1);
+
+                        return ChoiceChip(
+                          label: Text(DateFormat.MMMM().format(month)),
+                          selected: dateFilterType == DateFilterType.month &&
+                              month == date?.onlyMonth,
+                          onSelected: (bool selected) {
+                            if (selected) {
+                              dateFilterType = DateFilterType.month;
+                              date = month.onlyMonth;
+                            } else {
+                              dateFilterType = null;
+                              date = null;
+                              endDate = null;
+                            }
+
+                            setState(() {});
+                          },
+                        );
+                      },
+                    ).toList(),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text('Por Otro Mes'),
+                  const SizedBox(height: 5),
+                  InputChip(
+                    selected:
+                        dateFilterType == DateFilterType.month && !thisYear,
+                    label: Text(
+                      dateFilterType != DateFilterType.month ||
+                              thisYear ||
+                              date == null
+                          ? 'Seleccione'
+                          : DateFormat.yMMMM().format(date!),
+                    ),
+                    onPressed: () async {
+                      final selectedMonth = await showMonthYearPicker(
+                        context: context,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now(),
+                        initialDate: date ?? DateTime.now(),
+                      );
+
+                      if (selectedMonth != null) {
+                        dateFilterType = DateFilterType.month;
+                        date = selectedMonth.onlyMonth;
+                      } else {
+                        dateFilterType = null;
+                        date = null;
+                        endDate = null;
+                      }
+
+                      setState(() {});
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  const Text('Por Año'),
+                  const SizedBox(height: 5),
+                  Wrap(
+                    spacing: 5,
+                    runSpacing: 5,
+                    children: List<Widget>.generate(
+                      DateTime.now().year - startYear + 1,
+                      (int index) {
+                        final year = DateTime(DateTime.now().year - index);
+
+                        return ChoiceChip(
+                          label: Text(DateFormat.y().format(year)),
+                          selected: dateFilterType == DateFilterType.year &&
+                              year == date?.onlyYear,
+                          onSelected: (bool selected) {
+                            if (selected) {
+                              dateFilterType = DateFilterType.year;
+                              date = year.onlyYear;
+                            } else {
+                              dateFilterType = null;
+                              date = null;
+                              endDate = null;
+                            }
+
+                            setState(() {});
+                          },
+                        );
+                      },
+                    ).toList(),
+                  ),
+                  const SizedBox(height: 10),
+                  const Text('Por Periodo de tiempo'),
+                  const SizedBox(height: 5),
+                  ChoiceChip(
+                    label: const Text('Seleccione'),
+                    selected: dateFilterType == DateFilterType.period,
+                    onSelected: (value) {
+                      if (value) {
+                        dateFilterType = DateFilterType.period;
+
+                        date = DateTime.now().onlyDate;
+                        endDate = DateTime.now()
+                            .onlyDate
+                            .add(const Duration(days: 1));
+                      } else {
+                        dateFilterType = null;
+
+                        date = null;
+                        endDate = null;
+                      }
+
+                      setState(() {});
+                    },
+                  ),
+                  const SizedBox(height: 10),
+                  AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 300),
+                    child: dateFilterType != DateFilterType.period
+                        ? const SizedBox()
+                        : TimeFilterWidget(
+                            startDate: date ?? DateTime.now().onlyDate,
+                            endDate: endDate ??
+                                DateTime.now()
+                                    .onlyDate
+                                    .add(const Duration(days: 1)),
                             onChangeStart: (dateTime) {
-                              startDate = dateTime;
+                              date = dateTime;
                               setState(() {});
                             },
                             onChangeEnd: (dateTime) {
@@ -166,22 +336,22 @@ class DatesFilterChip extends StatelessWidget {
                               setState(() {});
                             },
                           ),
-                        ),
-                    ],
                   ),
-                );
-              },
-            );
-          },
-        );
-
-        onChangeDateFilter?.call(
-          today,
-          selectedMonth,
-          !period ? null : startDate,
-          !period ? null : endDate,
-        );
-      },
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
+}
+
+class _DateSelection {
+  DateFilterType? dateFilterType;
+
+  DateTime? date;
+  DateTime? endDate;
+
+  _DateSelection({this.dateFilterType, this.date, this.endDate});
 }

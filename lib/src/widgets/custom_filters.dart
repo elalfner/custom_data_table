@@ -1,3 +1,4 @@
+import 'package:custom_data_table/src/utils/date_time_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -10,9 +11,8 @@ class CustomFilters extends StatefulWidget {
 
   final Function(List<FilterSection> sections)? onChange;
 
-  final bool today;
-  final DateTime? selectedMonth;
-  final DateTime? startDate;
+  final DateFilterType? dateFilterType;
+  final DateTime? date;
   final DateTime? endDate;
 
   final ChangeDateCallback? onChangeDateFilter;
@@ -22,24 +22,21 @@ class CustomFilters extends StatefulWidget {
     this.sections,
     this.selectedFilters,
     this.onChange,
-    this.today = false,
-    this.selectedMonth,
-    this.startDate,
+    this.dateFilterType,
+    this.date,
     this.endDate,
     this.onChangeDateFilter,
   }) : super(key: key);
 
   factory CustomFilters.dateFilter({
-    final bool today = false,
-    final DateTime? selectedMonth,
-    final DateTime? startDate,
+    final DateFilterType? dateFilterType,
+    final DateTime? date,
     final DateTime? endDate,
     final ChangeDateCallback? onChangeDateFilter,
   }) =>
       CustomFilters(
-        today: today,
-        selectedMonth: selectedMonth,
-        startDate: startDate,
+        dateFilterType: dateFilterType,
+        date: date,
         endDate: endDate,
         onChangeDateFilter: onChangeDateFilter,
       );
@@ -51,18 +48,16 @@ class CustomFilters extends StatefulWidget {
 class _CustomFiltersState extends State<CustomFilters> {
   late List<FilterSection> selectedFilters;
 
-  bool today = false;
-  DateTime? selectedMonth;
-  DateTime? startDate;
+  DateFilterType? dateFilterType;
+  DateTime? date;
   DateTime? endDate;
 
   @override
   void initState() {
     selectedFilters = widget.selectedFilters ?? widget.sections ?? [];
 
-    today = widget.today;
-    selectedMonth = widget.selectedMonth;
-    startDate = widget.startDate;
+    dateFilterType = widget.dateFilterType;
+    date = widget.date;
     endDate = widget.endDate;
 
     super.initState();
@@ -91,7 +86,8 @@ class _CustomFiltersState extends State<CustomFilters> {
                 widget.onChange?.call(selectedFilters);
               },
             ),
-        if (today)
+        if (dateFilterType == DateFilterType.date &&
+            date?.onlyDate == DateTime.now().onlyDate)
           Chip(
             elevation: 1,
             label: const Text('Sólo Hoy'),
@@ -100,43 +96,93 @@ class _CustomFiltersState extends State<CustomFilters> {
               size: 14,
             ),
             onDeleted: () {
-              setState(() {
-                today = false;
-              });
+              dateFilterType = null;
+
+              date = null;
+              endDate = null;
+
+              setState(() {});
 
               notifyDateFilterChange();
             },
           ),
-        if (selectedMonth != null)
+        if (dateFilterType == DateFilterType.date &&
+            date != null &&
+            date?.onlyDate != DateTime.now().onlyDate)
           Chip(
             elevation: 1,
-            label: Text(DateFormat.yMMMM().format(selectedMonth!)),
+            label: Text(DateFormat('dd-MM-yyyy').format(date!)),
             deleteIcon: const Icon(
               Icons.close,
               size: 14,
             ),
             onDeleted: () {
-              setState(() {
-                selectedMonth = null;
-              });
+              dateFilterType = null;
+
+              date = null;
+              endDate = null;
+
+              setState(() {});
 
               notifyDateFilterChange();
             },
           ),
-        if (startDate != null && endDate != null)
+        if (dateFilterType == DateFilterType.month && date != null)
+          Chip(
+            elevation: 1,
+            label: Text(DateFormat.yMMMM().format(date!)),
+            deleteIcon: const Icon(
+              Icons.close,
+              size: 14,
+            ),
+            onDeleted: () {
+              dateFilterType = null;
+
+              date = null;
+              endDate = null;
+
+              setState(() {});
+
+              notifyDateFilterChange();
+            },
+          ),
+        if (dateFilterType == DateFilterType.year && date != null)
+          Chip(
+            elevation: 1,
+            label: Text(DateFormat.y().format(date!)),
+            deleteIcon: const Icon(
+              Icons.close,
+              size: 14,
+            ),
+            onDeleted: () {
+              dateFilterType = null;
+
+              date = null;
+              endDate = null;
+
+              setState(() {});
+
+              notifyDateFilterChange();
+            },
+          ),
+        if (dateFilterType == DateFilterType.period &&
+            date != null &&
+            endDate != null)
           Chip(
             elevation: 1,
             label: Text(
-                '${DateFormat.yMd().add_Hm().format(startDate!)} - ${DateFormat.yMd().add_Hm().format(endDate!)}'),
+                '${DateFormat.yMd().add_Hm().format(date!)} - ${DateFormat.yMd().add_Hm().format(endDate!)}'),
             deleteIcon: const Icon(
               Icons.close,
               size: 14,
             ),
             onDeleted: () {
-              setState(() {
-                startDate = null;
-                endDate = null;
-              });
+              dateFilterType = null;
+
+              date = null;
+              endDate = null;
+
+              setState(() {});
 
               notifyDateFilterChange();
             },
@@ -162,22 +208,15 @@ class _CustomFiltersState extends State<CustomFilters> {
           ),
         if (widget.onChangeDateFilter != null)
           DatesFilterChip(
-            today: today,
-            selectedMonth: selectedMonth,
-            startDate: startDate,
+            dateFilterType: dateFilterType,
+            date: date,
             endDate: endDate,
-            onChangeDateFilter: (today, month, startDate, endDate) {
-              this.today = today;
-              selectedMonth = month;
-              this.startDate = startDate;
+            onChangeDateFilter: (dateFilterType, date, endDate) {
+              this.dateFilterType = dateFilterType;
+              this.date = date;
               this.endDate = endDate;
 
-              widget.onChangeDateFilter?.call(
-                today,
-                selectedMonth,
-                startDate,
-                endDate,
-              );
+              widget.onChangeDateFilter?.call(dateFilterType, date, endDate);
 
               setState(() {});
             },
@@ -224,6 +263,6 @@ class _CustomFiltersState extends State<CustomFilters> {
   }
 
   void notifyDateFilterChange() {
-    widget.onChangeDateFilter?.call(today, selectedMonth, startDate, endDate);
+    widget.onChangeDateFilter?.call(dateFilterType, date, endDate);
   }
 }
