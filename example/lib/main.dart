@@ -206,9 +206,8 @@ class _MyHomePageState extends State<MyHomePage> {
               onChange: (sections) {
                 print(sections);
               },
-              today: true,
-              onChangeDateFilter: (today, month, startDate, endDate) {
-                print(today);
+              onChangeDateFilter:(dateFilterType, date, endDate) {
+
               },
             ),
             const SizedBox(height: 20),
@@ -296,7 +295,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
                 onChangeFilters: (values) {},
-                onChangeDateFilter: (today, month, startDate, endDate) {},
+                onChangeDateFilter: (dateFilterType, date, endDate) {
+
+                },
               ),
             ),
           ],

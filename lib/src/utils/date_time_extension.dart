@@ -5,6 +5,11 @@ extension DateExtension on DateTime {
   /// Deja la pura fecha y elimina el tiempo.
   DateTime get onlyDate => DateTime(year, month, day);
 
+  DateTime get onlyMonth => DateTime(year, month);
+
+
+  DateTime get onlyYear => DateTime(year);
+
   /// Deja solo el tiempo y elimina la fecha.
   DateTime get onlyTime => DateTime(0, 0, 0, hour, minute, second);
 
