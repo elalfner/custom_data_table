@@ -111,6 +111,8 @@ class CustomTableSearch<T> extends StatefulWidget {
 
   final ChangeDateCallback? onChangeDateFilter;
 
+  final TextEditingController? generalSearchController;
+
   const CustomTableSearch({
     Key? key,
     this.title,
@@ -134,6 +136,7 @@ class CustomTableSearch<T> extends StatefulWidget {
     this.onChangeGeneralSearch,
     this.onChangeDateFilter,
     this.dataTableTheme,
+    this.generalSearchController,
   }) : super(key: key);
 
   @override
@@ -167,6 +170,7 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
             onChangeFilters: widget.onChangeFilters,
             onChangeDateFilter: widget.onChangeDateFilter,
             onChangeGeneralSearch: widget.onChangeGeneralSearch,
+            generalSearchController: widget.generalSearchController,
           ),
         ),
         const SizedBox(height: 10),

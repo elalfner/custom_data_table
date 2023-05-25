@@ -26,6 +26,8 @@ class SearchWidget extends StatefulWidget {
   final DateTime? endDate;
   final ChangeDateCallback? onChangeDateFilter;
 
+  final TextEditingController? generalSearchController;
+
   const SearchWidget({
     Key? key,
     required this.columns,
@@ -39,6 +41,7 @@ class SearchWidget extends StatefulWidget {
     this.endDate,
     this.onChangeDateFilter,
     this.onChangeGeneralSearch,
+    this.generalSearchController,
   }) : super(key: key);
 
   @override
@@ -53,6 +56,8 @@ class _SearchWidgetState extends State<SearchWidget> {
   DateTime? selectedMonth;
   DateTime? startDate;
   DateTime? endDate;
+
+  final TextEditingController _generalController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +97,8 @@ class _SearchWidgetState extends State<SearchWidget> {
   }
 
   Widget searchBar() {
+    final controller = widget.generalSearchController ?? _generalController;
+
     return Row(
       children: [
         ValueListenableBuilder(
@@ -99,12 +106,22 @@ class _SearchWidgetState extends State<SearchWidget> {
           builder: (context, values, child) {
             return Expanded(
               child: TextField(
+                controller: widget.generalSearchController,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search),
                   hintText: values.isEmpty
                       ? 'Búsqueda'
                       : values.map((e) => e.name).join(', '),
                   contentPadding: EdgeInsets.zero,
+                  suffixIcon: controller.value.text.isEmpty
+                      ? null
+                      : IconButton(
+                          onPressed: () {
+                            controller.clear();
+                            setState(() {});
+                          },
+                          icon: const Icon(Icons.clear),
+                        ),
                 ),
                 onChanged: widget.onChangeGeneralSearch,
               ),

@@ -256,6 +256,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   setState(() {});
                 },
                 onChangeSearchTextField: (values) {},
+                generalSearchController: TextEditingController(text: 'Hola'),
                 onChangeGeneralSearch: (value) {
                   print(value);
                 },
