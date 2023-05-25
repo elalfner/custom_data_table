@@ -14,6 +14,7 @@ class SearchWidget extends StatefulWidget {
   ///
   /// Notifies the new search fields to search.
   final Function(List<ColumnId> values) onChangeSearchFields;
+  final ValueChanged<String>? onChangeGeneralSearch;
 
   final List<FilterSection>? filterSections;
   final List<FilterSection>? selectedFilters;
@@ -37,6 +38,7 @@ class SearchWidget extends StatefulWidget {
     this.startDate,
     this.endDate,
     this.onChangeDateFilter,
+    this.onChangeGeneralSearch,
   }) : super(key: key);
 
   @override
@@ -104,6 +106,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                       : values.map((e) => e.name).join(', '),
                   contentPadding: EdgeInsets.zero,
                 ),
+                onChanged: widget.onChangeGeneralSearch,
               ),
             );
           },

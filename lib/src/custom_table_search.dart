@@ -1,4 +1,3 @@
-
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/src/widgets/dates_filter_chip.dart';
 import 'package:flutter/material.dart';
@@ -98,6 +97,8 @@ class CustomTableSearch<T> extends StatefulWidget {
   /// Notifies the new search fields to search.
   final Function(List<ColumnId> values)? onChangeSearchFields;
 
+  final ValueChanged<String>? onChangeGeneralSearch;
+
   /// Sections of the filters.
   ///
   /// Each element contains the name and id of the column, and list of filter parameters.
@@ -130,6 +131,7 @@ class CustomTableSearch<T> extends StatefulWidget {
     this.onPrint,
     this.onExport,
     this.onChangeSearchTextField,
+    this.onChangeGeneralSearch,
     this.onChangeDateFilter,
     this.dataTableTheme,
   }) : super(key: key);
@@ -164,6 +166,7 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
             selectedFilters: selectedFilters,
             onChangeFilters: widget.onChangeFilters,
             onChangeDateFilter: widget.onChangeDateFilter,
+            onChangeGeneralSearch: widget.onChangeGeneralSearch,
           ),
         ),
         const SizedBox(height: 10),

@@ -227,10 +227,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 header(small: small, width: availableWidth),
                 // Table content, including columns and rows.
                 Expanded(
-                  child: SelectionArea(
-                    child:
-                        content(small: small, availableWidth: availableWidth),
-                  ),
+                  child: content(small: small, availableWidth: availableWidth),
                 ),
 
                 if (widget.paginatorInfo != null &&

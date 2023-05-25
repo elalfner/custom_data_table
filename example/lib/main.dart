@@ -256,6 +256,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   setState(() {});
                 },
                 onChangeSearchTextField: (values) {},
+                onChangeGeneralSearch: (value) {
+                  print(value);
+                },
                 onSort: (sortInfo) {
                   switch (sortInfo.columnInfo.key) {
                     case 'id':
