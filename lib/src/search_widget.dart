@@ -118,6 +118,7 @@ class _SearchWidgetState extends State<SearchWidget> {
                       : IconButton(
                           onPressed: () {
                             controller.clear();
+                            widget.onChangeGeneralSearch?.call('');
                             setState(() {});
                           },
                           icon: const Icon(Icons.clear),
