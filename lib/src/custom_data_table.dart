@@ -130,6 +130,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   final ScrollController _horizontalScrollController = ScrollController();
   final ScrollController _verticalScrollController = ScrollController();
 
+  final ValueNotifier<double> _scrollNotifier = ValueNotifier(0);
+
   late Map<String, TextEditingController> textControllers;
 
   DataTableThemeData get dataTableTheme {
@@ -167,6 +169,12 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   @override
   void initState() {
+    _verticalScrollController.addListener(() {
+      final maxExtent = _verticalScrollController.position.maxScrollExtent;
+      final position = _verticalScrollController.offset;
+
+      _scrollNotifier.value = position / maxExtent;
+    });
     columns = widget.columns;
 
     textControllers = {
@@ -582,6 +590,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// To calculate table min width, we sum all columns width. That would be the table
   /// breakpoint, where the table begins to scroll.
   Widget content({required bool small, required double availableWidth}) {
+    const double barHeight = 90;
     // Table breakpoint to begin to scroll.
     double tableWidth = 0;
 
@@ -597,22 +606,71 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     // If table width is bigger than available space, then it is surrounded by a
     // horizontal scroll.
-    return MediaQuery(
-      data: MediaQuery.of(context).removePadding(removeBottom: true),
-      child: SafeArea(
-        child: Scrollbar(
-          controller: _horizontalScrollController,
-          child: SingleChildScrollView(
-            controller: _horizontalScrollController,
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              // The table width is the value calculated.
-              width: tableWidth,
-              child: dataTable(small),
-            ),
-          ),
-        ),
-      ),
+    return LayoutBuilder(
+      builder: (_, constraints) {
+        final availableHeight = constraints.maxHeight;
+        return ValueListenableBuilder(
+          valueListenable: _scrollNotifier,
+          builder: (context, value, child) {
+            const min = 40.0;
+            final max = availableHeight - 70 - barHeight;
+
+            final pos = ((max - min) * value) + min;
+
+            return Stack(
+              children: [
+                MediaQuery(
+                  data:
+                      MediaQuery.of(context).removePadding(removeBottom: true),
+                  child: SafeArea(
+                    child: Scrollbar(
+                      thumbVisibility: true,
+                      controller: _horizontalScrollController,
+                      child: SingleChildScrollView(
+                        controller: _horizontalScrollController,
+                        scrollDirection: Axis.horizontal,
+                        child: SizedBox(
+                          // The table width is the value calculated.
+                          width: tableWidth,
+                          child: dataTable(small),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  right: 2,
+                  top: pos,
+                  child: GestureDetector(
+                    onVerticalDragUpdate: (details) {
+                      if (!_verticalScrollController.hasClients) return;
+
+                      final maxExtent =
+                          _verticalScrollController.position.maxScrollExtent;
+
+                      double newPercentage =
+                          _scrollNotifier.value + (0.01 * details.delta.dy);
+
+                      newPercentage = newPercentage.clamp(0, 1);
+
+                      _verticalScrollController
+                          .jumpTo(maxExtent * newPercentage);
+                    },
+                    child: Container(
+                      width: 8,
+                      height: barHeight,
+                      decoration: BoxDecoration(
+                        color: Colors.black26,
+                        borderRadius: BorderRadius.circular(100),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            );
+          },
+        );
+      },
     );
   }
 
@@ -656,42 +714,46 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             color: Theme.of(context).dividerColor,
           ),
         Expanded(
-          child: ListView.separated(
+          child: Scrollbar(
+            thickness: 0,
             controller: _verticalScrollController,
-            itemCount: widget.data.length,
-            separatorBuilder: (context, index) =>
-                (dataTableTheme.dividerThickness ?? 0) > 0
-                    ? Divider(
-                        height: 0,
-                        thickness: dataTableTheme.dividerThickness,
-                        color: Theme.of(context).dividerColor,
-                      )
-                    : const SizedBox(),
-            itemBuilder: (context, index) {
-              final element = widget.data[index];
+            child: ListView.separated(
+              controller: _verticalScrollController,
+              itemCount: widget.data.length,
+              separatorBuilder: (context, index) =>
+                  (dataTableTheme.dividerThickness ?? 0) > 0
+                      ? Divider(
+                          height: 0,
+                          thickness: dataTableTheme.dividerThickness,
+                          color: Theme.of(context).dividerColor,
+                        )
+                      : const SizedBox(),
+              itemBuilder: (context, index) {
+                final element = widget.data[index];
 
-              if (widget.onElementPressed == null) {
-                return Container(
+                if (widget.onElementPressed == null) {
+                  return Container(
+                    color: index.isOdd
+                        ? Theme.of(context).dividerColor.withOpacity(0.3)
+                        : Theme.of(context).cardColor,
+                    child: rowElementWidget(element),
+                  );
+                }
+
+                return Material(
                   color: index.isOdd
                       ? Theme.of(context).dividerColor.withOpacity(0.3)
                       : Theme.of(context).cardColor,
-                  child: rowElementWidget(element),
+                  child: InkWell(
+                    hoverColor: getColor({MaterialState.hovered}),
+                    onTap: widget.onElementPressed == null
+                        ? null
+                        : () => widget.onElementPressed?.call(element),
+                    child: rowElementWidget(element),
+                  ),
                 );
-              }
-
-              return Material(
-                color: index.isOdd
-                    ? Theme.of(context).dividerColor.withOpacity(0.3)
-                    : Theme.of(context).cardColor,
-                child: InkWell(
-                  hoverColor: getColor({MaterialState.hovered}),
-                  onTap: widget.onElementPressed == null
-                      ? null
-                      : () => widget.onElementPressed?.call(element),
-                  child: rowElementWidget(element),
-                ),
-              );
-            },
+              },
+            ),
           ),
         ),
         if (widget.onChangeSearchTextField != null)
