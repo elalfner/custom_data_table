@@ -1,4 +1,5 @@
 import 'package:custom_data_table/src/helpers/responsive_helpers.dart';
+import 'package:custom_data_table/src/utils/debounce.dart';
 import 'package:flutter/material.dart';
 
 import '../custom_data_table.dart';
@@ -58,6 +59,8 @@ class _SearchWidgetState extends State<SearchWidget> {
   DateTime? endDate;
 
   final TextEditingController _generalController = TextEditingController();
+
+  final debouncer = Debouncer(milliseconds: 500);
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +127,9 @@ class _SearchWidgetState extends State<SearchWidget> {
                           icon: const Icon(Icons.clear),
                         ),
                 ),
-                onChanged: widget.onChangeGeneralSearch,
+                onChanged: (value) => debouncer.run(
+                  () => widget.onChangeGeneralSearch?.call(value),
+                ),
               ),
             );
           },
