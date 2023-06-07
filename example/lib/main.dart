@@ -169,6 +169,10 @@ class _MyHomePageState extends State<MyHomePage> {
     User(id: 1, name: 'Hugo', phone: '3347294736', userType: UserType.admin),
     User(id: 2, name: 'Paco', phone: '3392053734', userType: UserType.admin),
     User(id: 5, name: 'Luis', phone: '3392053734', userType: UserType.user),
+    User(id: 5, name: 'Luis', phone: '3392053734', userType: UserType.user),
+    User(id: 5, name: 'Luis', phone: '3392053734', userType: UserType.user),
+    User(id: 5, name: 'Luis', phone: '3392053734', userType: UserType.user),
+    User(id: 5, name: 'Luis', phone: '3392053734', userType: UserType.user),
   ];
 
   List<FilterItem>? filtersUserType;
@@ -206,9 +210,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onChange: (sections) {
                 print(sections);
               },
-              onChangeDateFilter:(dateFilterType, date, endDate) {
-
-              },
+              onChangeDateFilter: (dateFilterType, date, endDate) {},
             ),
             const SizedBox(height: 20),
             Expanded(
@@ -216,16 +218,28 @@ class _MyHomePageState extends State<MyHomePage> {
                 data: data,
                 title: 'Usuarios',
                 columns: [
-                  ColumnInfo(name: 'Id', key: 'id', flex: 1, width: 100),
+                  ColumnInfo(
+                      name: 'Id',
+                      key: 'id',
+                      canSearch: true,
+                      flex: 1,
+                      width: 100),
                   ColumnInfo(name: 'Nombre', key: 'name', flex: 2, width: 300),
                   ColumnInfo(name: 'Teléfono', key: 'phone', width: 110),
                   ColumnInfo(
-                      name: 'Email', key: 'email', width: 110, canSort: false),
+                    name: 'Email',
+                    key: 'email',
+                    width: 110,
+                    canSearch: true,
+                    canSort: false,
+                  ),
                   ColumnInfo(name: 'Tipo', key: 'userType', width: 100),
                   ColumnInfo(name: '', key: 'button', flex: 1, width: 100),
                 ],
                 toMap: (element) => element.toJsonTable(),
-                onChangeSearchFields: (values) {},
+                onChangeSearchFilter: (values) {
+                  print(values);
+                },
                 cell: (element, map, key) {
                   switch (key) {
                     case 'button':
@@ -299,9 +313,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
                 onChangeFilters: (values) {},
-                onChangeDateFilter: (dateFilterType, date, endDate) {
-
-                },
+                onChangeDateFilter: (dateFilterType, date, endDate) {},
               ),
             ),
           ],

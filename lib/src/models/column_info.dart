@@ -26,6 +26,8 @@ class ColumnInfo {
   /// `true` if the data can be sorted by this column.
   final bool canSort;
 
+  final bool canSearch;
+
   /// Creates a new instance of the [ColumnInfo] class.
   ///
   /// [canSort] by default is `true`. Indicating that data can be sorted by this
@@ -36,6 +38,7 @@ class ColumnInfo {
     required this.width,
     this.flex,
     this.canSort = true,
+    this.canSearch = false,
   });
 }
 
@@ -49,8 +52,11 @@ class ColumnId {
   /// Column's title to display in the table.
   final String name;
 
+  final bool canSearch;
+
   ColumnId({
     required this.key,
     required this.name,
+    this.canSearch = false,
   });
 }

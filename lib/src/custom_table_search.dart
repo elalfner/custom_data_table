@@ -95,7 +95,7 @@ class CustomTableSearch<T> extends StatefulWidget {
   /// Callback to notify when search fields dropdown has changed.
   ///
   /// Notifies the new search fields to search.
-  final Function(List<ColumnId> values)? onChangeSearchFields;
+  final Function(List<ColumnId> values)? onChangeSearchFilter;
 
   final ValueChanged<String>? onChangeGeneralSearch;
 
@@ -121,7 +121,7 @@ class CustomTableSearch<T> extends StatefulWidget {
     required this.toMap,
     required this.onSort,
     this.cell,
-    this.onChangeSearchFields,
+    this.onChangeSearchFilter,
     this.filterSections,
     this.onChangeFilters,
     this.onElementPressed,
@@ -159,10 +159,11 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
         SizedBox(
           width: double.infinity,
           child: SearchWidget(
-            onChangeSearchFields:
-                widget.onChangeSearchFields ?? (List<ColumnId> values) {},
+            onChangeSearchFilter:
+                widget.onChangeSearchFilter ?? (List<ColumnId> values) {},
             columns: widget.columns
-                .map((e) => ColumnId(name: e.name, key: e.key))
+                .map((e) =>
+                    ColumnId(name: e.name, key: e.key, canSearch: e.canSearch))
                 .where((element) => element.name.isNotEmpty == true)
                 .toList(),
             filterSections: widget.filterSections,

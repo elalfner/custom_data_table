@@ -14,7 +14,7 @@ class SearchWidget extends StatefulWidget {
   /// Callback to notify when search fields dropdown has changed.
   ///
   /// Notifies the new search fields to search.
-  final Function(List<ColumnId> values) onChangeSearchFields;
+  final Function(List<ColumnId> values) onChangeSearchFilter;
   final ValueChanged<String>? onChangeGeneralSearch;
 
   final List<FilterSection>? filterSections;
@@ -32,7 +32,7 @@ class SearchWidget extends StatefulWidget {
   const SearchWidget({
     Key? key,
     required this.columns,
-    required this.onChangeSearchFields,
+    required this.onChangeSearchFilter,
     this.filterSections,
     this.selectedFilters,
     this.onChangeFilters,
@@ -50,7 +50,7 @@ class SearchWidget extends StatefulWidget {
 }
 
 class _SearchWidgetState extends State<SearchWidget> {
-  ValueNotifier<List<ColumnId>> searchFieldsSelected =
+  ValueNotifier<List<ColumnId>> searchColumnsSelected =
       ValueNotifier<List<ColumnId>>([]);
 
   bool today = false;
@@ -102,19 +102,22 @@ class _SearchWidgetState extends State<SearchWidget> {
   Widget searchBar() {
     final controller = widget.generalSearchController ?? _generalController;
 
+    final searchColumns =
+        widget.columns.where((element) => element.canSearch).toList();
+
     return Row(
       children: [
         ValueListenableBuilder(
-          valueListenable: searchFieldsSelected,
+          valueListenable: searchColumnsSelected,
           builder: (context, values, child) {
             return Expanded(
               child: TextField(
                 controller: widget.generalSearchController,
                 decoration: InputDecoration(
                   prefixIcon: const Icon(Icons.search),
-                  hintText: values.isEmpty
-                      ? 'Búsqueda'
-                      : values.map((e) => e.name).join(', '),
+                  hintText: values.isNotEmpty
+                      ? values.map((e) => e.name).join(', ')
+                      : 'Búsqueda',
                   contentPadding: EdgeInsets.zero,
                   suffixIcon: controller.value.text.isEmpty
                       ? null
@@ -134,34 +137,35 @@ class _SearchWidgetState extends State<SearchWidget> {
             );
           },
         ),
-        PopUpField<ColumnId>(
-          tooltip: 'Filtrar búsqueda',
-          allIfEmpty: true,
-          items: widget.columns
-              .map(
-                (e) => PopUpMenuItem(
-                  key: e.key,
-                  name: e.name,
-                  value: e,
-                ),
-              )
-              .toList(),
-          onChange: (values) {
-            searchFieldsSelected.value = values;
+        if (searchColumns.isNotEmpty)
+          PopUpField<ColumnId>(
+            tooltip: 'Filtrar búsqueda',
+            allIfEmpty: true,
+            items: searchColumns
+                .map(
+                  (e) => PopUpMenuItem(
+                    key: e.key,
+                    name: e.name,
+                    value: e,
+                  ),
+                )
+                .toList(),
+            onChange: (values) {
+              searchColumnsSelected.value = values;
 
-            widget.onChangeSearchFields(values);
-          },
-          onlyIcon: true,
-          icon: CircleAvatar(
-            backgroundColor:
-                Theme.of(context).floatingActionButtonTheme.backgroundColor,
-            child: Icon(
-              Icons.short_text_outlined,
-              color:
-                  Theme.of(context).floatingActionButtonTheme.foregroundColor,
+              widget.onChangeSearchFilter(values);
+            },
+            onlyIcon: true,
+            icon: CircleAvatar(
+              backgroundColor:
+                  Theme.of(context).floatingActionButtonTheme.backgroundColor,
+              child: Icon(
+                Icons.short_text_outlined,
+                color:
+                    Theme.of(context).floatingActionButtonTheme.foregroundColor,
+              ),
             ),
-          ),
-        )
+          )
       ],
     );
   }
