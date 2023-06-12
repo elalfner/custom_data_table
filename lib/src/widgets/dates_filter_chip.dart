@@ -15,12 +15,15 @@ class DatesFilterChip extends StatelessWidget {
   final DateTime? endDate;
   final ChangeDateCallback? onChangeDateFilter;
 
+  final VoidCallback? onTapDateFilter;
+
   const DatesFilterChip({
     Key? key,
     this.dateFilterType,
     this.date,
     this.endDate,
     this.onChangeDateFilter,
+    this.onTapDateFilter,
   }) : super(key: key);
 
   @override
@@ -40,6 +43,8 @@ class DatesFilterChip extends StatelessWidget {
       backgroundColor:
           Theme.of(context).floatingActionButtonTheme.backgroundColor,
       onPressed: () async {
+        onTapDateFilter?.call();
+
         final _DateSelection? selection = await showModalBottomSheet(
           isDismissible: false,
           context: context,

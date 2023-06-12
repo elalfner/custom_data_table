@@ -214,6 +214,7 @@ class _CustomFiltersState extends State<CustomFilters> {
             dateFilterType: dateFilterType,
             date: date,
             endDate: endDate,
+            onTapDateFilter: widget.onTapDateFilter,
             onChangeDateFilter: (dateFilterType, date, endDate) {
               this.dateFilterType = dateFilterType;
               this.date = date;
@@ -229,8 +230,6 @@ class _CustomFiltersState extends State<CustomFilters> {
   }
 
   void showFilters() async {
-    widget.onTapDateFilter?.call();
-
     await showModalBottomSheet(
       context: context,
       constraints: const BoxConstraints(
