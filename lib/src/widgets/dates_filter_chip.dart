@@ -242,7 +242,12 @@ class _DateFilterViewState extends State<DateFilterView> {
                           : DateFormat.yMMMM().format(date!),
                     ),
                     onPressed: () async {
-                      final selectedMonth = await showMonthPicker(context: context);
+                      final selectedMonth = await showMonthPicker(
+                        context: context,
+                        firstDate: DateTime(2020),
+                        lastDate: DateTime.now(),
+                        initialDate: date ?? DateTime.now(),
+                      );
 
                       if (selectedMonth != null) {
                         dateFilterType = DateFilterType.month;
