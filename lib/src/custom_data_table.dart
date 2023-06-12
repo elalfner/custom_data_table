@@ -158,7 +158,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           checkboxHorizontalMargin:
               widget.dataTableTheme?.checkboxHorizontalMargin,
           columnSpacing: widget.dataTableTheme?.columnSpacing,
-          dataRowMinHeight: widget.dataTableTheme?.dataRowMinHeight,
+          dataRowHeight: widget.dataTableTheme?.dataRowHeight,
           headingRowColor: widget.dataTableTheme?.headingRowColor,
           headingRowHeight: widget.dataTableTheme?.headingRowHeight,
           horizontalMargin: widget.dataTableTheme?.horizontalMargin,
@@ -891,7 +891,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       return Container(
         padding: const EdgeInsets.only(left: 5),
         constraints:
-            BoxConstraints(minHeight: dataTableTheme.dataRowMinHeight ?? 40),
+            BoxConstraints(minHeight: dataTableTheme.dataRowHeight ?? 40),
         child: Align(
           alignment: Alignment.centerLeft,
           child: Text('${map[column.key] ?? ''}',
