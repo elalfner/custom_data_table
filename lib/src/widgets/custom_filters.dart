@@ -17,6 +17,8 @@ class CustomFilters extends StatefulWidget {
 
   final ChangeDateCallback? onChangeDateFilter;
 
+  final VoidCallback? onTapDateFilter;
+
   const CustomFilters({
     Key? key,
     this.sections,
@@ -26,6 +28,7 @@ class CustomFilters extends StatefulWidget {
     this.date,
     this.endDate,
     this.onChangeDateFilter,
+    this.onTapDateFilter,
   }) : super(key: key);
 
   factory CustomFilters.dateFilter({
@@ -226,6 +229,8 @@ class _CustomFiltersState extends State<CustomFilters> {
   }
 
   void showFilters() async {
+    widget.onTapDateFilter?.call();
+
     await showModalBottomSheet(
       context: context,
       constraints: const BoxConstraints(
