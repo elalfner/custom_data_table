@@ -1,7 +1,7 @@
 import 'package:custom_data_table/src/utils/date_time_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:month_year_picker/month_year_picker.dart';
+import 'package:month_picker_dialog/month_picker_dialog.dart';
 
 import '../../custom_data_table.dart';
 import '../filters/time_filter.dart';
@@ -242,12 +242,7 @@ class _DateFilterViewState extends State<DateFilterView> {
                           : DateFormat.yMMMM().format(date!),
                     ),
                     onPressed: () async {
-                      final selectedMonth = await showMonthYearPicker(
-                        context: context,
-                        firstDate: DateTime(2020),
-                        lastDate: DateTime.now(),
-                        initialDate: date ?? DateTime.now(),
-                      );
+                      final selectedMonth = await showMonthPicker(context: context);
 
                       if (selectedMonth != null) {
                         dateFilterType = DateFilterType.month;

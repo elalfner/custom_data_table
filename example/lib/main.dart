@@ -2,21 +2,18 @@ import 'dart:io';
 
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
-import 'package:month_year_picker/month_year_picker.dart';
 
 import 'models/user.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final String defaultLocale = Platform.localeName;
-
-  Intl.systemLocale = defaultLocale;
-
-  initializeDateFormatting(defaultLocale, null)
-      .then((_) => runApp(const MyApp()));
+  Intl.defaultLocale = defaultLocale;
+  await initializeDateFormatting(defaultLocale, null);
 
   runApp(const MyApp());
 }
@@ -73,9 +70,15 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       localizationsDelegates: const [
-        MonthYearPickerLocalizations.delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+      ],
+      supportedLocales: const [
+        Locale('es'),
       ],
       debugShowCheckedModeBanner: false,
+
       // themeMode: ThemeMode.dark,
       theme: theme.copyWith(
         dataTableTheme: DataTableThemeData(

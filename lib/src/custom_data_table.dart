@@ -158,7 +158,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           checkboxHorizontalMargin:
               widget.dataTableTheme?.checkboxHorizontalMargin,
           columnSpacing: widget.dataTableTheme?.columnSpacing,
-          dataRowHeight: widget.dataTableTheme?.dataRowHeight,
+          dataRowMinHeight: widget.dataTableTheme?.dataRowMinHeight,
           headingRowColor: widget.dataTableTheme?.headingRowColor,
           headingRowHeight: widget.dataTableTheme?.headingRowHeight,
           horizontalMargin: widget.dataTableTheme?.horizontalMargin,
@@ -318,11 +318,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 itemBuilder: (context) {
                   return [
                     if (widget.onCopy != null)
-                      PopupMenuItem(
+                      const PopupMenuItem(
                         value: 0,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Icon(Icons.copy),
                             SizedBox(width: 5),
                             Text('Copiar'),
@@ -330,11 +330,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         ),
                       ),
                     if (widget.onPrint != null)
-                      PopupMenuItem(
+                      const PopupMenuItem(
                         value: 1,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Icon(Icons.print),
                             SizedBox(width: 5),
                             Text('Imprimir'),
@@ -342,11 +342,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         ),
                       ),
                     if (widget.onExport != null)
-                      PopupMenuItem(
+                      const PopupMenuItem(
                         value: 2,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Icon(Icons.download),
                             SizedBox(width: 5),
                             Text('Exportar'),
@@ -428,11 +428,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 itemBuilder: (context) {
                   return [
                     if (widget.onCopy != null)
-                      PopupMenuItem(
+                      const PopupMenuItem(
                         value: 0,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Icon(Icons.copy),
                             SizedBox(width: 5),
                             Text('Copiar'),
@@ -440,11 +440,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         ),
                       ),
                     if (widget.onPrint != null)
-                      PopupMenuItem(
+                      const PopupMenuItem(
                         value: 1,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Icon(Icons.print),
                             SizedBox(width: 5),
                             Text('Imprimir'),
@@ -452,11 +452,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         ),
                       ),
                     if (widget.onExport != null)
-                      PopupMenuItem(
+                      const PopupMenuItem(
                         value: 2,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: const [
+                          children: [
                             Icon(Icons.download),
                             SizedBox(width: 5),
                             Text('Exportar'),
@@ -891,7 +891,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       return Container(
         padding: const EdgeInsets.only(left: 5),
         constraints:
-            BoxConstraints(minHeight: dataTableTheme.dataRowHeight ?? 40),
+            BoxConstraints(minHeight: dataTableTheme.dataRowMinHeight ?? 40),
         child: Align(
           alignment: Alignment.centerLeft,
           child: Text('${map[column.key] ?? ''}',
