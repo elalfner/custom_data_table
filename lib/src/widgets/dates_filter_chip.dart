@@ -60,10 +60,47 @@ class DatesFilterChip extends StatelessWidget {
           ),
         );
 
+        final selectionDate = selection?.date;
+        final selectionEndDate = selection?.endDate;
+
+        if (selection == null || selectionDate == null) {
+          onChangeDateFilter?.call(
+            selection?.dateFilterType,
+            selectionDate,
+            selectionEndDate,
+          );
+
+          return;
+        }
+
+        DateTime? fromDate;
+        DateTime? toDate;
+
+        switch (selection.dateFilterType) {
+          case DateFilterType.date:
+            fromDate = selectionDate.onlyDate;
+            toDate = fromDate.add(const Duration(days: 1));
+
+            break;
+          case DateFilterType.month:
+            fromDate = selectionDate.onlyDate;
+            toDate = fromDate.copyWith(month: fromDate.month + 1);
+
+            break;
+          case DateFilterType.year:
+            fromDate = selectionDate.onlyDate;
+            toDate = fromDate.copyWith(year: fromDate.year + 1);
+
+            break;
+          default:
+            fromDate = selectionDate;
+            toDate = selectionEndDate;
+        }
+
         onChangeDateFilter?.call(
-          selection?.dateFilterType,
-          selection?.date,
-          selection?.endDate,
+          selection.dateFilterType,
+          fromDate,
+          toDate,
         );
       },
     );

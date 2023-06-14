@@ -316,7 +316,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
                 onChangeFilters: (values) {},
-                onChangeDateFilter: (dateFilterType, date, endDate) {},
+                onChangeDateFilter: (dateFilterType, date, endDate) {
+                  print(dateFilterType);
+                  print(date);
+                  print(endDate);
+                },
               ),
             ),
           ],
