@@ -180,7 +180,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<FilterItem>? filtersUserType;
 
-  PaginatorInfo paginatorInfo = PaginatorInfo(lastPage: 10, currentPage: 5);
+  PaginatorInfo paginatorInfo =
+      PaginatorInfo(lastPage: 10, currentPage: 5, perPage: 7);
 
   List<FilterSection>? selectedFilters;
 
@@ -272,10 +273,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   paginatorInfo = paginatorInfo.copyWith(currentPage: page);
                   setState(() {});
                 },
-                onChangeSearchTextField: (values) {},
                 generalSearchController: TextEditingController(text: 'Hola'),
                 onChangeGeneralSearch: (value) {
                   print(value);
+                },
+                onPerPageChange: (perPage) {
+                  print(perPage);
                 },
                 onSort: (sortInfo) {
                   switch (sortInfo.columnInfo.key) {

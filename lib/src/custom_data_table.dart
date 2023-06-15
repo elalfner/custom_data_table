@@ -1,8 +1,12 @@
+import 'dart:math';
+
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/src/models/sort_info.dart';
-import 'package:custom_data_table/src/table_paginated_count_widget.dart';
+import 'package:custom_data_table/src/widgets/per_page_widget.dart';
+import 'package:custom_data_table/src/widgets/table_paginated_count_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
+import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 class CustomDataTable<T> extends StatefulWidget {
   /// Theme of the table.
@@ -67,6 +71,8 @@ class CustomDataTable<T> extends StatefulWidget {
 
   final Function(int page)? onSelectedPage;
 
+  final Function(int perPage)? onPerPageChange;
+
   /// Callback that notifies when the copy button has been pressed.
   ///
   /// If not provided, the copy button is not shown.
@@ -101,6 +107,7 @@ class CustomDataTable<T> extends StatefulWidget {
     this.onNextPage,
     this.onPreviousPage,
     this.onSelectedPage,
+    this.onPerPageChange,
     this.onCopy,
     this.onPrint,
     this.onExport,
@@ -127,10 +134,30 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   List<ColumnInfo> get columnsToShow => columnsSelected ?? columns;
 
   /// Scroll controllers to show ScrollBar.
-  final ScrollController _horizontalScrollController = ScrollController();
+  late ScrollController _horizontalScrollController;
+  late ScrollController _columnsHeaderController;
+  late ScrollController _columnsFooterController;
   final ScrollController _verticalScrollController = ScrollController();
+  late LinkedScrollControllerGroup _controllers;
 
   late Map<String, TextEditingController> textControllers;
+
+  static const double dataRowMinHeight = 40;
+
+  double get tableMinWidth {
+    // Table breakpoint to begin to scroll.
+    double tableWidth = 0;
+
+    // Sum all widths.
+    for (final column in columnsToShow) {
+      tableWidth += column.width;
+    }
+
+    return tableWidth;
+  }
+
+  Color getColor(Set<MaterialState> states) =>
+      dataTableTheme.dataRowColor?.resolve(states) ?? Colors.transparent;
 
   DataTableThemeData get dataTableTheme {
     final decoration =
@@ -167,6 +194,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   @override
   void initState() {
+    _controllers = LinkedScrollControllerGroup();
+    _horizontalScrollController = _controllers.addAndGet();
+    _columnsHeaderController = _controllers.addAndGet();
+    _columnsFooterController = _controllers.addAndGet();
+
     columns = widget.columns;
 
     textControllers = {
@@ -216,26 +248,117 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         child: LayoutBuilder(
           builder: (_, constraints) {
             final availableWidth = constraints.maxWidth;
+            final availableHeight = constraints.maxHeight;
 
             // `true` if available space is smaller than this value.
             final small = availableWidth < 600;
 
+            const double headerHeight = 70;
+
+            double? tableheight;
+
+            if (widget.paginatorInfo?.perPage == null) {
+              tableheight =
+                  (dataTableTheme.dataRowMinHeight ?? dataRowMinHeight) *
+                      widget.paginatorInfo!.perPage!;
+            }
+
+            if (widget.data.isNotEmpty) {
+              tableheight =
+                  (dataTableTheme.dataRowMinHeight ?? dataRowMinHeight) *
+                      widget.data.length;
+            }
+
+            tableheight ??= availableHeight;
+            availableHeight;
+
             // Table layout.
             return Column(
+              mainAxisSize: MainAxisSize.min,
               children: [
                 // Table title and actions.
-                header(small: small, width: availableWidth),
-                // Table content, including columns and rows.
-                Expanded(
-                  child: content(small: small, availableWidth: availableWidth),
+                SizedBox(
+                  height: headerHeight,
+                  child: header(small: small, width: availableWidth),
+                ),
+                ScrollWidget(
+                  scrollController: _columnsHeaderController,
+                  minWidth: tableMinWidth,
+                  width: availableWidth,
+                  child: columnsWidget(),
                 ),
 
-                if (widget.paginatorInfo != null &&
-                    widget.onChangeSearchTextField == null)
-                  Container(
-                    color: Theme.of(context).cardColor,
-                    height: 10,
+                if (widget.onChangeSearchTextField != null)
+                  ScrollWidget(
+                    scrollController: _columnsFooterController,
+                    minWidth: tableMinWidth,
+                    width: availableWidth,
+                    child: Container(
+                      color: Theme.of(context).cardColor,
+                      child: searchWidget(),
+                    ),
                   ),
+
+                if ((dataTableTheme.dividerThickness ?? 0) > 0)
+                  Divider(
+                    height: 0,
+                    thickness: dataTableTheme.dividerThickness,
+                    color: Theme.of(context).dividerColor,
+                  ),
+
+                Flexible(
+                  child: SizedBox(
+                    height: tableheight,
+                    child: ScrollWidgetWithBar(
+                      scrollController: _horizontalScrollController,
+                      minWidth: tableMinWidth,
+                      width: availableWidth,
+                      child: ListView.separated(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        controller: _verticalScrollController,
+                        itemCount: widget.data.length,
+                        separatorBuilder: (context, index) =>
+                            (dataTableTheme.dividerThickness ?? 0) > 0
+                                ? Divider(
+                                    height: 0,
+                                    thickness: dataTableTheme.dividerThickness,
+                                    color: Theme.of(context).dividerColor,
+                                  )
+                                : const SizedBox(),
+                        itemBuilder: (context, index) {
+                          final element = widget.data[index];
+
+                          if (widget.onElementPressed == null) {
+                            return Container(
+                              color: index.isOdd
+                                  ? Theme.of(context)
+                                      .dividerColor
+                                      .withOpacity(0.3)
+                                  : Theme.of(context).cardColor,
+                              child: rowElementWidget(element),
+                            );
+                          }
+
+                          return Material(
+                            color: index.isOdd
+                                ? Theme.of(context)
+                                    .dividerColor
+                                    .withOpacity(0.3)
+                                : Theme.of(context).cardColor,
+                            child: InkWell(
+                              hoverColor: getColor({MaterialState.hovered}),
+                              onTap: widget.onElementPressed == null
+                                  ? null
+                                  : () =>
+                                      widget.onElementPressed?.call(element),
+                              child: rowElementWidget(element),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                ),
 
                 // Table pages info.
                 if (widget.paginatorInfo != null) footer(),
@@ -570,52 +693,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     );
   }
 
-  /// Table content.
-  ///
-  /// Widget that calculates min width of table and creates a scroll horizontal if
-  /// the table does not fit the available space.
-  ///
-  /// [small] tells if the available space to display the table is not large enough.
-  /// [availableWidth] max width that the table has to draw. If [availableWidth] is
-  /// smaller than table min width, the table can be scrolled horizontally.
-  ///
-  /// To calculate table min width, we sum all columns width. That would be the table
-  /// breakpoint, where the table begins to scroll.
-  Widget content({required bool small, required double availableWidth}) {
-    // Table breakpoint to begin to scroll.
-    double tableWidth = 0;
-
-    // Sum all widths.
-    for (final column in columnsToShow) {
-      tableWidth += column.width;
-    }
-
-    // If table width fits in available space, the table displays just like it is.
-    if (tableWidth < availableWidth) {
-      return dataTable(small);
-    }
-
-    // If table width is bigger than available space, then it is surrounded by a
-    // horizontal scroll.
-    return MediaQuery(
-      data: MediaQuery.of(context).removePadding(removeBottom: true),
-      child: SafeArea(
-        child: Scrollbar(
-          controller: _horizontalScrollController,
-          child: SingleChildScrollView(
-            controller: _horizontalScrollController,
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              // The table width is the value calculated.
-              width: tableWidth,
-              child: dataTable(small),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
   /// Table footer.
   ///
   /// Displays pages info. Contains buttons to navigate between pages.
@@ -624,83 +701,31 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     return Container(
       color: Theme.of(context).cardColor,
       padding: EdgeInsets.symmetric(
-              horizontal: dataTableTheme.horizontalMargin ?? 20)
-          .copyWith(bottom: 15),
-      child: TablePaginatedCountWidget(
-        paginatorInfo: widget.paginatorInfo!,
-        loading: false,
-        onPressedLast: widget.onPreviousPage,
-        onPressedNext: widget.onNextPage,
-        onSelectedPage: widget.onSelectedPage,
+        horizontal: dataTableTheme.horizontalMargin ?? 20,
+        vertical: 10,
       ),
-    );
-  }
-
-  /// Content of table.
-  ///
-  /// Widget that displays columns and rows, and the data that has to be displayed
-  /// in those cells.
-  /// [small] tells if the available space to display the table is not large enough.
-  Widget dataTable(bool small) {
-    Color getColor(Set<MaterialState> states) {
-      return dataTableTheme.dataRowColor?.resolve(states) ?? Colors.transparent;
-    }
-
-    return Column(
-      children: [
-        columnsWidget(),
-        if ((dataTableTheme.dividerThickness ?? 0) > 0)
-          Divider(
-            height: 0,
-            thickness: dataTableTheme.dividerThickness,
-            color: Theme.of(context).dividerColor,
-          ),
-        Expanded(
-          child: ListView.separated(
-            controller: _verticalScrollController,
-            itemCount: widget.data.length,
-            separatorBuilder: (context, index) =>
-                (dataTableTheme.dividerThickness ?? 0) > 0
-                    ? Divider(
-                        height: 0,
-                        thickness: dataTableTheme.dividerThickness,
-                        color: Theme.of(context).dividerColor,
-                      )
-                    : const SizedBox(),
-            itemBuilder: (context, index) {
-              final element = widget.data[index];
-
-              if (widget.onElementPressed == null) {
-                return Container(
-                  color: index.isOdd
-                      ? Theme.of(context).dividerColor.withOpacity(0.3)
-                      : Theme.of(context).cardColor,
-                  child: rowElementWidget(element),
-                );
-              }
-
-              return Material(
-                color: index.isOdd
-                    ? Theme.of(context).dividerColor.withOpacity(0.3)
-                    : Theme.of(context).cardColor,
-                child: InkWell(
-                  hoverColor: getColor({MaterialState.hovered}),
-                  onTap: widget.onElementPressed == null
-                      ? null
-                      : () => widget.onElementPressed?.call(element),
-                  child: rowElementWidget(element),
-                ),
-              );
-            },
-          ),
-        ),
-        if (widget.onChangeSearchTextField != null)
-          Container(
-            color: Theme.of(context).cardColor,
-            padding: const EdgeInsets.only(bottom: 15),
-            child: searchWidget(),
-          )
-      ],
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (widget.paginatorInfo != null &&
+              widget.paginatorInfo?.perPage != 0)
+            Flexible(
+              child: TablePerPageWidget(
+                paginatorInfo: widget.paginatorInfo!,
+                onChange: widget.onPerPageChange,
+              ),
+            ),
+          const SizedBox(width: 20),
+          if (widget.paginatorInfo != null)
+            TablePaginatedCountWidget(
+              paginatorInfo: widget.paginatorInfo!,
+              loading: false,
+              onPressedLast: widget.onPreviousPage,
+              onPressedNext: widget.onNextPage,
+              onSelectedPage: widget.onSelectedPage,
+            ),
+        ],
+      ),
     );
   }
 
@@ -830,7 +855,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   Widget searchWidget() {
     return Container(
       color: Theme.of(context).cardColor,
-      padding: const EdgeInsets.symmetric(horizontal: 10).copyWith(top: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
@@ -854,19 +879,20 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     if (column.name.isEmpty) return const SizedBox();
 
     return Container(
+      height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 2),
       child: TextFormField(
         controller: textControllers[column.key],
         decoration: InputDecoration(
           contentPadding:
-              const EdgeInsets.symmetric(vertical: 15, horizontal: 10),
+              const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
           hintText: column.name,
           hintStyle: const TextStyle(
-            fontSize: 14,
+            fontSize: 13,
           ),
         ),
         style: const TextStyle(
-          fontSize: 14,
+          fontSize: 13,
         ),
       ),
     );
@@ -890,8 +916,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     if (cellWidget == null) {
       return Container(
         padding: const EdgeInsets.only(left: 5),
-        constraints:
-            BoxConstraints(minHeight: dataTableTheme.dataRowMinHeight ?? 40),
+        constraints: BoxConstraints(
+            minHeight: dataTableTheme.dataRowMinHeight ?? dataRowMinHeight),
         child: Align(
           alignment: Alignment.centerLeft,
           child: Text('${map[column.key] ?? ''}',
@@ -904,6 +930,138 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     return Material(
       color: Colors.transparent,
       child: cellWidget,
+    );
+  }
+}
+
+class ScrollWidget extends StatelessWidget {
+  final double minWidth;
+  final double width;
+
+  final Widget child;
+
+  final ScrollController? scrollController;
+
+  const ScrollWidget(
+      {Key? key,
+      required this.minWidth,
+      required this.width,
+      required this.child,
+      this.scrollController})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (minWidth < width) return child;
+
+    return MediaQuery(
+      data: MediaQuery.of(context).removePadding(removeBottom: true),
+      child: SafeArea(
+        child: SingleChildScrollView(
+          controller: scrollController,
+          scrollDirection: Axis.horizontal,
+          child: SizedBox(
+            // The table width is the value calculated.
+            width: minWidth,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class ScrollWidgetWithBar extends StatelessWidget {
+  final double minWidth;
+  final double width;
+
+  final Widget child;
+
+  final ScrollController? scrollController;
+
+  const ScrollWidgetWithBar(
+      {Key? key,
+      required this.minWidth,
+      required this.width,
+      required this.child,
+      this.scrollController})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if (minWidth < width) return child;
+
+    return MediaQuery(
+      data: MediaQuery.of(context).removePadding(removeBottom: true),
+      child: SafeArea(
+        child: Scrollbar(
+          controller: scrollController,
+          thumbVisibility: true,
+          child: SingleChildScrollView(
+            controller: scrollController,
+            scrollDirection: Axis.horizontal,
+            child: SizedBox(
+              // The table width is the value calculated.
+              width: minWidth,
+              child: child,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class CustomScrollBar extends StatefulWidget {
+  final bool showScrollBar;
+
+  final Widget child;
+  final ScrollController? controller;
+  final bool? thumbVisibility;
+  final bool? trackVisibility;
+  final bool? showTrackOnHover;
+  final double? hoverThickness;
+  final double? thickness;
+  final Radius? radius;
+  final bool? interactive;
+  final ScrollNotificationPredicate? notificationPredicate;
+  final ScrollbarOrientation? scrollbarOrientation;
+
+  const CustomScrollBar(
+      {Key? key,
+      required this.child,
+      this.showScrollBar = true,
+      this.controller,
+      this.thumbVisibility,
+      this.trackVisibility,
+      this.showTrackOnHover,
+      this.hoverThickness,
+      this.thickness,
+      this.radius,
+      this.interactive,
+      this.notificationPredicate,
+      this.scrollbarOrientation})
+      : super(key: key);
+
+  @override
+  State<CustomScrollBar> createState() => _CustomScrollBarState();
+}
+
+class _CustomScrollBarState extends State<CustomScrollBar> {
+  @override
+  Widget build(BuildContext context) {
+    if (!widget.showScrollBar) return widget.child;
+
+    return Scrollbar(
+      scrollbarOrientation: widget.scrollbarOrientation,
+      thumbVisibility: widget.thumbVisibility,
+      controller: widget.controller,
+      thickness: widget.thickness,
+      radius: widget.radius,
+      interactive: widget.interactive,
+      notificationPredicate: widget.notificationPredicate,
+      trackVisibility: widget.trackVisibility,
+      child: widget.child,
     );
   }
 }

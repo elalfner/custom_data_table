@@ -69,6 +69,8 @@ class CustomTableSearch<T> extends StatefulWidget {
 
   final Function(int page)? onSelectedPage;
 
+  final Function(int perPage)? onPerPageChange;
+
   /// Callback that notifies when the copy button has been pressed.
   ///
   /// If not provided, the copy button is not shown.
@@ -129,6 +131,7 @@ class CustomTableSearch<T> extends StatefulWidget {
     this.onPreviousPage,
     this.onNextPage,
     this.onSelectedPage,
+    this.onPerPageChange,
     this.onCopy,
     this.onPrint,
     this.onExport,
@@ -175,7 +178,7 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
           ),
         ),
         const SizedBox(height: 10),
-        Expanded(
+        Flexible(
           child: CustomDataTable<T>(
             onSort: widget.onSort,
             toMap: widget.toMap,
@@ -190,6 +193,7 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
             onPreviousPage: widget.onPreviousPage,
             onNextPage: widget.onNextPage,
             onSelectedPage: widget.onSelectedPage,
+            onPerPageChange: widget.onPerPageChange,
             paginatorInfo: widget.paginatorInfo,
             onChangeSearchTextField: widget.onChangeSearchTextField,
             dataTableTheme: widget.dataTableTheme,

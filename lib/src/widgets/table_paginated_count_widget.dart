@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'models/paginator_info.dart';
+import '../models/paginator_info.dart';
 
 class TablePaginatedCountWidget extends StatelessWidget {
   final PaginatorInfo paginatorInfo;
@@ -23,7 +23,7 @@ class TablePaginatedCountWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.end,
+      mainAxisSize: MainAxisSize.min,
       children: [
         if (paginatorInfo.totalPages > 0)
           Container(
