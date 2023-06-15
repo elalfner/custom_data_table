@@ -255,22 +255,19 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
             const double headerHeight = 70;
 
-            double? tableheight;
+            double tableheight;
 
-            if (widget.paginatorInfo?.perPage == null) {
+            if (widget.paginatorInfo?.perPage != null) {
               tableheight =
                   (dataTableTheme.dataRowMinHeight ?? dataRowMinHeight) *
                       widget.paginatorInfo!.perPage!;
-            }
-
-            if (widget.data.isNotEmpty) {
+            } else if (widget.data.isNotEmpty) {
               tableheight =
                   (dataTableTheme.dataRowMinHeight ?? dataRowMinHeight) *
                       widget.data.length;
+            } else {
+              tableheight = availableHeight;
             }
-
-            tableheight ??= availableHeight;
-            availableHeight;
 
             // Table layout.
             return Column(
