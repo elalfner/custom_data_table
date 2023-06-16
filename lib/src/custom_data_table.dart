@@ -257,7 +257,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
             double tableheight;
 
-            if (widget.paginatorInfo?.perPage != null) {
+            if (widget.paginatorInfo?.perPage != null &&
+                widget.paginatorInfo?.perPage != 0) {
               tableheight =
                   (dataTableTheme.dataRowMinHeight ?? dataRowMinHeight) *
                       widget.paginatorInfo!.perPage!;

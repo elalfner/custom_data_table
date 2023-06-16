@@ -22,14 +22,14 @@ class PaginatorInfo {
   int? perPage;
 
   PaginatorInfo({
-    this.count = 0,
-    this.total = 0,
-    this.currentPage = 0,
-    this.firstItem = 0,
-    this.hasMorePages = false,
-    this.lastItem = 0,
-    this.lastPage = 0,
-    this.perPage = 0,
+    this.count,
+    this.total,
+    this.currentPage,
+    this.firstItem,
+    this.hasMorePages,
+    this.lastItem,
+    this.lastPage,
+    this.perPage,
   });
 
   PaginatorInfo copyWith({
