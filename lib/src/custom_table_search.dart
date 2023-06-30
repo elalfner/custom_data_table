@@ -161,27 +161,28 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        // SizedBox to tell the widget to take all available width.
-        SizedBox(
-          width: double.infinity,
-          child: SearchWidget(
-            onChangeSearchFilter:
-                widget.onChangeSearchFilter ?? (List<ColumnId> values) {},
-            columns: widget.columns
-                .map((e) =>
-                    ColumnId(name: e.name, key: e.key, canSearch: e.canSearch))
-                .where((element) => element.name.isNotEmpty == true)
-                .toList(),
-            filterSections: widget.filterSections,
-            selectedFilters: selectedFilters,
-            onChangeFilters: widget.onChangeFilters,
-            onChangeDateFilter: widget.onChangeDateFilter,
-            onChangeGeneralSearch: widget.onChangeGeneralSearch,
-            generalSearchController: widget.generalSearchController,
-            decoration: widget.generalSearchDecoration,
+        if (widget.onChangeGeneralSearch != null)
+          // SizedBox to tell the widget to take all available width.
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(bottom: 10),
+            child: SearchWidget(
+              onChangeSearchFilter:
+                  widget.onChangeSearchFilter ?? (List<ColumnId> values) {},
+              columns: widget.columns
+                  .map((e) => ColumnId(
+                      name: e.name, key: e.key, canSearch: e.canSearch))
+                  .where((element) => element.name.isNotEmpty == true)
+                  .toList(),
+              filterSections: widget.filterSections,
+              selectedFilters: selectedFilters,
+              onChangeFilters: widget.onChangeFilters,
+              onChangeDateFilter: widget.onChangeDateFilter,
+              onChangeGeneralSearch: widget.onChangeGeneralSearch,
+              generalSearchController: widget.generalSearchController,
+              decoration: widget.generalSearchDecoration,
+            ),
           ),
-        ),
-        const SizedBox(height: 10),
         Flexible(
           child: CustomDataTable<T>(
             onSort: widget.onSort,
