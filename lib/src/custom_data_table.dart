@@ -874,7 +874,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   }
 
   Widget searchField(ColumnInfo column) {
-    if (column.name.isEmpty) return const SizedBox();
+    if (column.name.isEmpty || !column.canSearchInput) return const SizedBox();
 
     return Container(
       height: 40,

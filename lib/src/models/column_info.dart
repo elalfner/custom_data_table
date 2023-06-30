@@ -28,6 +28,8 @@ class ColumnInfo {
 
   final bool canSearch;
 
+  final bool canSearchInput;
+
   /// Creates a new instance of the [ColumnInfo] class.
   ///
   /// [canSort] by default is `true`. Indicating that data can be sorted by this
@@ -39,6 +41,7 @@ class ColumnInfo {
     this.flex,
     this.canSort = false,
     this.canSearch = false,
+    this.canSearchInput = false,
   });
 }
 
