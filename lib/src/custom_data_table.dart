@@ -1,7 +1,6 @@
-import 'dart:math';
-
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/src/models/sort_info.dart';
+import 'package:custom_data_table/src/utils/debounce.dart';
 import 'package:custom_data_table/src/widgets/per_page_widget.dart';
 import 'package:custom_data_table/src/widgets/table_paginated_count_widget.dart';
 import 'package:flutter/material.dart';
@@ -192,6 +191,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         );
   }
 
+  final debouncer = Debouncer(milliseconds: 500);
+  final debouncerIndividual = Debouncer(milliseconds: 500);
+
   @override
   void initState() {
     _controllers = LinkedScrollControllerGroup();
@@ -211,15 +213,19 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   TextEditingController createTextController() => TextEditingController()
     ..addListener(
       () {
-        widget.onChangeSearchTextField?.call(textControllers.entries
-            .map(
-              (e) => SearchFieldInfo(
-                columnInfo:
-                    columns.firstWhere((element) => element.key == e.key),
-                searchValue: e.value.text,
-              ),
-            )
-            .toList());
+        debouncer.run(
+          () {
+            widget.onChangeSearchTextField?.call(textControllers.entries
+                .map(
+                  (e) => SearchFieldInfo(
+                    columnInfo:
+                        columns.firstWhere((element) => element.key == e.key),
+                    searchValue: e.value.text,
+                  ),
+                )
+                .toList());
+          },
+        );
       },
     );
 
@@ -891,6 +897,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         ),
         style: const TextStyle(
           fontSize: 13,
+        ),
+        onChanged: (value) => debouncerIndividual.run(
+          () => column.onChangeInput?.call(value),
         ),
       ),
     );

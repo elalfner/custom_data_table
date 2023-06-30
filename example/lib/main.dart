@@ -195,18 +195,30 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             CustomFilters(
               sections: [
-                FilterSection<String>(
+                FilterSection<TipoVehiculo>(
                   columnInfo: ColumnId(key: 'type', name: 'Tipo de vehículo'),
                   filters: [
-                    FilterItem(filterName: 'Automóvil', value: 'Auto'),
-                    FilterItem(filterName: 'Motocicleta', value: 'Moto'),
+                    FilterItem(
+                      filterName: 'Particular',
+                      value: TipoVehiculo(name: 'particular'),
+                    ),
+                    FilterItem(
+                      filterName: 'Motocicleta',
+                      value: TipoVehiculo(name: 'moto'),
+                    ),
                   ],
                 ),
-                FilterSection<String>(
+                FilterSection<Clase>(
                   columnInfo: ColumnId(key: 'clase', name: 'Clase'),
                   filters: [
-                    FilterItem(filterName: 'Particular', value: 'particular'),
-                    FilterItem(filterName: 'Público', value: 'publico'),
+                    FilterItem(
+                      filterName: 'Particular',
+                      value: Clase(name: 'particular'),
+                    ),
+                    FilterItem(
+                      filterName: 'Público',
+                      value: Clase(name: 'publico'),
+                    ),
                   ],
                 ),
               ],
@@ -223,13 +235,23 @@ class _MyHomePageState extends State<MyHomePage> {
                 title: 'Usuarios',
                 columns: [
                   ColumnInfo(
-                      name: 'Id',
-                      key: 'id',
-                      canSearch: true,
-                      flex: 1,
-                      width: 100),
+                    name: 'Id',
+                    key: 'id',
+                    canSearch: true,
+                    flex: 1,
+                    width: 100,
+                    canSearchInput: true,
+                  ),
                   ColumnInfo(name: 'Nombre', key: 'name', flex: 2, width: 300),
-                  ColumnInfo(name: 'Teléfono', key: 'phone', width: 110),
+                  ColumnInfo(
+                    name: 'Teléfono',
+                    key: 'phone',
+                    width: 110,
+                    canSearchInput: true,
+                    onChangeInput: (value) {
+                      print(value);
+                    },
+                  ),
                   ColumnInfo(
                     name: 'Email',
                     key: 'email',
@@ -273,10 +295,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   paginatorInfo = paginatorInfo.copyWith(currentPage: page);
                   setState(() {});
                 },
-                generalSearchController: TextEditingController(text: 'Hola'),
+                generalSearchDecoration: const InputDecoration(
+                  hintText: 'Buscar',
+                ),
                 onChangeGeneralSearch: (value) {
                   print(value);
                 },
+                onChangeSearchTextField: (values) {},
                 onPerPageChange: (perPage) {
                   print(perPage);
                 },
@@ -331,4 +356,18 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
     );
   }
+}
+
+class Clase {
+  final String? id;
+  final String? name;
+
+  Clase({this.id, this.name});
+}
+
+class TipoVehiculo {
+  final String? id;
+  final String? name;
+
+  TipoVehiculo({this.id, this.name});
 }

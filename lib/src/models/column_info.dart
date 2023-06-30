@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 /// Information of the column.
 ///
 /// It contains the name that is going to display in the table, and the space that is
@@ -30,6 +32,8 @@ class ColumnInfo {
 
   final bool canSearchInput;
 
+  ValueChanged<String>? onChangeInput;
+
   /// Creates a new instance of the [ColumnInfo] class.
   ///
   /// [canSort] by default is `true`. Indicating that data can be sorted by this
@@ -42,6 +46,7 @@ class ColumnInfo {
     this.canSort = false,
     this.canSearch = false,
     this.canSearchInput = false,
+    this.onChangeInput,
   });
 }
 
