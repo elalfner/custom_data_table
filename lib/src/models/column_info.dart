@@ -37,7 +37,7 @@ class ColumnInfo {
     required this.name,
     required this.width,
     this.flex,
-    this.canSort = true,
+    this.canSort = false,
     this.canSearch = false,
   });
 }
