@@ -45,7 +45,7 @@ class TablePerPageWidget extends StatelessWidget {
               borderRadius: BorderRadius.circular(10),
               underline: const SizedBox(),
               isDense: true,
-              items: {10, 25, 50, 100, paginatorInfo.perPage}
+              items: {10, 25, 50, paginatorInfo.perPage}
                   .where((element) => element != null)
                   .sorted((a, b) => a!.compareTo(b!))
                   .map((e) => DropdownMenuItem(
