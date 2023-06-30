@@ -29,6 +29,8 @@ class SearchWidget extends StatefulWidget {
 
   final TextEditingController? generalSearchController;
 
+  final InputDecoration? decoration;
+
   const SearchWidget({
     Key? key,
     required this.columns,
@@ -43,6 +45,7 @@ class SearchWidget extends StatefulWidget {
     this.onChangeDateFilter,
     this.onChangeGeneralSearch,
     this.generalSearchController,
+    this.decoration,
   }) : super(key: key);
 
   @override
@@ -105,6 +108,8 @@ class _SearchWidgetState extends State<SearchWidget> {
     final searchColumns =
         widget.columns.where((element) => element.canSearch).toList();
 
+    final decoration = widget.decoration;
+
     return Row(
       children: [
         ValueListenableBuilder(
@@ -113,12 +118,13 @@ class _SearchWidgetState extends State<SearchWidget> {
             return Expanded(
               child: TextField(
                 controller: widget.generalSearchController,
-                decoration: InputDecoration(
-                  prefixIcon: const Icon(Icons.search),
+                decoration: (decoration ?? const InputDecoration()).copyWith(
+                  prefixIcon:
+                      decoration?.prefixIcon ?? const Icon(Icons.search),
                   hintText: values.isNotEmpty
                       ? values.map((e) => e.name).join(', ')
-                      : 'Búsqueda',
-                  contentPadding: EdgeInsets.zero,
+                      : (decoration?.hintText ?? 'Búsqueda'),
+                  contentPadding: decoration?.contentPadding ?? EdgeInsets.zero,
                   suffixIcon: controller.value.text.isEmpty
                       ? null
                       : IconButton(
