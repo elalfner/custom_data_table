@@ -33,6 +33,7 @@ class ColumnInfo {
   final bool canSearchInput;
 
   ValueChanged<String>? onChangeInput;
+  TextEditingController? controllerInput;
 
   /// Creates a new instance of the [ColumnInfo] class.
   ///
@@ -47,6 +48,7 @@ class ColumnInfo {
     this.canSearch = false,
     this.canSearchInput = false,
     this.onChangeInput,
+    this.controllerInput,
   });
 }
 

@@ -18,7 +18,6 @@ class SearchWidget extends StatefulWidget {
   final ValueChanged<String>? onChangeGeneralSearch;
 
   final List<FilterSection>? filterSections;
-  final List<FilterSection>? selectedFilters;
   final Function(List<FilterSection> sections)? onChangeFilters;
 
   final bool today;
@@ -36,7 +35,6 @@ class SearchWidget extends StatefulWidget {
     required this.columns,
     required this.onChangeSearchFilter,
     this.filterSections,
-    this.selectedFilters,
     this.onChangeFilters,
     this.today = false,
     this.selectedMonth,
@@ -75,7 +73,6 @@ class _SearchWidgetState extends State<SearchWidget> {
           const SizedBox(height: 10),
           CustomFilters(
             sections: widget.filterSections,
-            selectedFilters: widget.selectedFilters,
             onChange: widget.onChangeFilters,
             onChangeDateFilter: widget.onChangeDateFilter,
           ),
@@ -88,7 +85,6 @@ class _SearchWidgetState extends State<SearchWidget> {
         Expanded(
           child: CustomFilters(
             sections: widget.filterSections,
-            selectedFilters: widget.selectedFilters,
             onChange: widget.onChangeFilters,
             onChangeDateFilter: widget.onChangeDateFilter,
           ),

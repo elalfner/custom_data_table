@@ -183,8 +183,6 @@ class _MyHomePageState extends State<MyHomePage> {
   PaginatorInfo paginatorInfo =
       PaginatorInfo(lastPage: 10, currentPage: 5, perPage: 8);
 
-  List<FilterSection>? selectedFilters;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -196,18 +194,23 @@ class _MyHomePageState extends State<MyHomePage> {
             CustomFilters(
               sections: [
                 FilterSection<TipoVehiculo>(
-                  columnInfo: ColumnId(key: 'type', name: 'Tipo de vehículo'),
-                  filters: [
-                    FilterItem(
-                      filterName: 'Particular',
-                      value: TipoVehiculo(name: 'particular'),
-                    ),
-                    FilterItem(
-                      filterName: 'Motocicleta',
-                      value: TipoVehiculo(name: 'moto'),
-                    ),
-                  ],
-                ),
+                    columnInfo: ColumnId(key: 'type', name: 'Tipo de vehículo'),
+                    filters: [
+                      FilterItem(
+                        filterName: 'Particular',
+                        value: TipoVehiculo(name: 'particular'),
+                      ),
+                      FilterItem(
+                        filterName: 'Motocicleta',
+                        value: TipoVehiculo(name: 'moto'),
+                      ),
+                    ],
+                    selectedFilters: [
+                      FilterItem(
+                        filterName: 'Motocicleta',
+                        value: TipoVehiculo(name: 'moto'),
+                      ),
+                    ]),
                 FilterSection<Clase>(
                   columnInfo: ColumnId(key: 'clase', name: 'Clase'),
                   filters: [
@@ -222,7 +225,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
               ],
-              selectedFilters: selectedFilters,
               onChange: (sections) {
                 print(sections);
               },
@@ -248,6 +250,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     key: 'phone',
                     width: 110,
                     canSearchInput: true,
+                    controllerInput: TextEditingController(text: 'Prueba'),
                     onChangeInput: (value) {
                       print(value);
                     },
@@ -340,6 +343,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     columnInfo: ColumnId(key: 'hola', name: 'hola'),
                     filters: [
                       FilterItem(filterName: 'Hola', value: 'Hola'),
+                      FilterItem(filterName: 'Como', value: 'Como'),
+                    ],
+                    selectedFilters: [
+                      FilterItem(filterName: 'Como', value: 'Como'),
                     ],
                   ),
                 ],

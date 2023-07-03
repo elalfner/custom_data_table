@@ -7,7 +7,6 @@ import 'dates_filter_chip.dart';
 
 class CustomFilters extends StatefulWidget {
   final List<FilterSection>? sections;
-  final List<FilterSection>? selectedFilters;
 
   final Function(List<FilterSection> sections)? onChange;
 
@@ -22,7 +21,6 @@ class CustomFilters extends StatefulWidget {
   const CustomFilters({
     Key? key,
     this.sections,
-    this.selectedFilters,
     this.onChange,
     this.dateFilterType,
     this.date,
@@ -57,7 +55,7 @@ class _CustomFiltersState extends State<CustomFilters> {
 
   @override
   void initState() {
-    selectedFilters = widget.selectedFilters ?? widget.sections ?? [];
+    selectedFilters = widget.sections ?? [];
 
     dateFilterType = widget.dateFilterType;
     date = widget.date;

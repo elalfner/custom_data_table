@@ -204,30 +204,31 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     columns = widget.columns;
 
     textControllers = {
-      for (final col in columns) col.key: createTextController(),
+      for (final col in columns) col.key: createTextController(col),
     };
 
     super.initState();
   }
 
-  TextEditingController createTextController() => TextEditingController()
-    ..addListener(
-      () {
-        debouncer.run(
+  TextEditingController createTextController(ColumnInfo column) =>
+      (column.controllerInput ?? TextEditingController())
+        ..addListener(
           () {
-            widget.onChangeSearchTextField?.call(textControllers.entries
-                .map(
-                  (e) => SearchFieldInfo(
-                    columnInfo:
-                        columns.firstWhere((element) => element.key == e.key),
-                    searchValue: e.value.text,
-                  ),
-                )
-                .toList());
+            debouncer.run(
+              () {
+                widget.onChangeSearchTextField?.call(textControllers.entries
+                    .map(
+                      (e) => SearchFieldInfo(
+                        columnInfo: columns
+                            .firstWhere((element) => element.key == e.key),
+                        searchValue: e.value.text,
+                      ),
+                    )
+                    .toList());
+              },
+            );
           },
         );
-      },
-    );
 
   @override
   void dispose() {

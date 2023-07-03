@@ -150,7 +150,6 @@ class CustomTableSearch<T> extends StatefulWidget {
 }
 
 class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
-  List<FilterSection>? selectedFilters;
 
   @override
   void initState() {
@@ -175,7 +174,6 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
                   .where((element) => element.name.isNotEmpty == true)
                   .toList(),
               filterSections: widget.filterSections,
-              selectedFilters: selectedFilters,
               onChangeFilters: widget.onChangeFilters,
               onChangeDateFilter: widget.onChangeDateFilter,
               onChangeGeneralSearch: widget.onChangeGeneralSearch,
