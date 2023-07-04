@@ -111,6 +111,10 @@ class CustomTableSearch<T> extends StatefulWidget {
   /// If user selects new filters, or deselects filters the Callback is notified.
   final Function(List<FilterSection> sections)? onChangeFilters;
 
+  final DateFilterType? dateFilterType;
+  final DateTime? date;
+  final DateTime? endDate;
+
   final ChangeDateCallback? onChangeDateFilter;
 
   final TextEditingController? generalSearchController;
@@ -139,10 +143,13 @@ class CustomTableSearch<T> extends StatefulWidget {
     this.onExport,
     this.onChangeSearchTextField,
     this.onChangeGeneralSearch,
-    this.onChangeDateFilter,
     this.dataTableTheme,
     this.generalSearchController,
     this.generalSearchDecoration,
+    this.dateFilterType,
+    this.date,
+    this.endDate,
+    this.onChangeDateFilter,
   }) : super(key: key);
 
   @override
@@ -150,7 +157,6 @@ class CustomTableSearch<T> extends StatefulWidget {
 }
 
 class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
-
   @override
   void initState() {
     super.initState();
@@ -175,6 +181,9 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
                   .toList(),
               filterSections: widget.filterSections,
               onChangeFilters: widget.onChangeFilters,
+              dateFilterType: widget.dateFilterType,
+              date: widget.date,
+              endDate: widget.endDate,
               onChangeDateFilter: widget.onChangeDateFilter,
               onChangeGeneralSearch: widget.onChangeGeneralSearch,
               generalSearchController: widget.generalSearchController,

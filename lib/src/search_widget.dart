@@ -20,10 +20,10 @@ class SearchWidget extends StatefulWidget {
   final List<FilterSection>? filterSections;
   final Function(List<FilterSection> sections)? onChangeFilters;
 
-  final bool today;
-  final DateTime? selectedMonth;
-  final DateTime? startDate;
+  final DateFilterType? dateFilterType;
+  final DateTime? date;
   final DateTime? endDate;
+
   final ChangeDateCallback? onChangeDateFilter;
 
   final TextEditingController? generalSearchController;
@@ -36,9 +36,8 @@ class SearchWidget extends StatefulWidget {
     required this.onChangeSearchFilter,
     this.filterSections,
     this.onChangeFilters,
-    this.today = false,
-    this.selectedMonth,
-    this.startDate,
+    this.dateFilterType,
+    this.date,
     this.endDate,
     this.onChangeDateFilter,
     this.onChangeGeneralSearch,
@@ -53,11 +52,6 @@ class SearchWidget extends StatefulWidget {
 class _SearchWidgetState extends State<SearchWidget> {
   ValueNotifier<List<ColumnId>> searchColumnsSelected =
       ValueNotifier<List<ColumnId>>([]);
-
-  bool today = false;
-  DateTime? selectedMonth;
-  DateTime? startDate;
-  DateTime? endDate;
 
   final TextEditingController _generalController = TextEditingController();
 
@@ -75,6 +69,9 @@ class _SearchWidgetState extends State<SearchWidget> {
             sections: widget.filterSections,
             onChange: widget.onChangeFilters,
             onChangeDateFilter: widget.onChangeDateFilter,
+            date: widget.date,
+            endDate: widget.endDate,
+            dateFilterType: widget.dateFilterType,
           ),
         ],
       );
@@ -87,6 +84,9 @@ class _SearchWidgetState extends State<SearchWidget> {
             sections: widget.filterSections,
             onChange: widget.onChangeFilters,
             onChangeDateFilter: widget.onChangeDateFilter,
+            date: widget.date,
+            endDate: widget.endDate,
+            dateFilterType: widget.dateFilterType,
           ),
         ),
         SizedBox(

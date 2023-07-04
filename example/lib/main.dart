@@ -229,6 +229,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 print(sections);
               },
               onChangeDateFilter: (dateFilterType, date, endDate) {},
+              dateFilterType: DateFilterType.period,
+              date: DateTime.now(),
+              endDate: DateTime.now(),
             ),
             const SizedBox(height: 20),
             Expanded(
@@ -351,6 +354,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ],
                 onChangeFilters: (values) {},
+                dateFilterType: DateFilterType.period,
+                date: DateTime.now(),
+                endDate: DateTime.now(),
                 onChangeDateFilter: (dateFilterType, date, endDate) {
                   print(dateFilterType);
                   print(date);
