@@ -75,7 +75,3 @@ class PaginatorInfo {
         "perPage": perPage,
       };
 }
-
-extension PaginatorInfoExtension on PaginatorInfo {
-  int get totalPages => lastPage ?? 0;
-}

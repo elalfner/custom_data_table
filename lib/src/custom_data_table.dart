@@ -54,7 +54,7 @@ class CustomDataTable<T> extends StatefulWidget {
   ///
   /// [sortInfo] contains the information that tell which column has marked to be
   /// sorted, and if te order is ascendant or descendant.
-  final Function(SortInfo sortInfo) onSort;
+  final Function(SortInfo sortInfo)? onSort;
 
   /// Information of pagination.
   ///
@@ -101,7 +101,7 @@ class CustomDataTable<T> extends StatefulWidget {
     required this.toMap,
     this.cell,
     this.onElementPressed,
-    required this.onSort,
+    this.onSort,
     this.paginatorInfo,
     this.onNextPage,
     this.onPreviousPage,
@@ -818,7 +818,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         sortInfo!.asc = !sortInfo!.asc;
                       }
 
-                      widget.onSort(sortInfo!);
+                      widget.onSort?.call(sortInfo!);
 
                       setState(() {});
                     },

@@ -53,7 +53,7 @@ class CustomTableSearch<T> extends StatefulWidget {
   ///
   /// [sortInfo] contains the information that tell which column has marked to be
   /// sorted, and if te order is ascendant or descendant.
-  final Function(SortInfo sortInfo) onSort;
+  final Function(SortInfo sortInfo)? onSort;
 
   /// Information of pagination.
   ///
@@ -127,7 +127,7 @@ class CustomTableSearch<T> extends StatefulWidget {
     required this.columns,
     required this.data,
     required this.toMap,
-    required this.onSort,
+    this.onSort,
     this.cell,
     this.onChangeSearchFilter,
     this.filterSections,
