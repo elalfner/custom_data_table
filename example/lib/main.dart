@@ -234,6 +234,27 @@ class _MyHomePageState extends State<MyHomePage> {
               endDate: DateTime.now(),
             ),
             const SizedBox(height: 20),
+            FiltersView(
+              sections: [
+                FilterSection<String>(
+                  columnInfo: ColumnId(key: 'agente', name: 'Agente'),
+                  filters: [
+                    FilterItem(
+                      filterName: 'Editar agente',
+                      value: 'edit_agent',
+                    ),
+                    FilterItem(
+                      filterName: 'Agregar agente',
+                      value: 'add_agent',
+                    ),
+                  ],
+                ),
+              ],
+              onChange: (sections) {
+                print(sections);
+              },
+            ),
+            const SizedBox(height: 20),
             Expanded(
               child: CustomTableSearch<User>(
                 data: data,

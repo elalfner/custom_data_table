@@ -312,3 +312,36 @@ class _CustomFiltersState extends State<CustomFilters> {
     widget.onChangeDateFilter?.call(dateFilterType, date, endDate);
   }
 }
+
+class FiltersView extends StatelessWidget {
+  final List<FilterSection> sections;
+  final Function(List<FilterSection> sections)? onChange;
+
+  const FiltersView({Key? key, required this.sections, this.onChange})
+      : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (final section in sections)
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: FilterSectionWidget(
+              section: section,
+              selectedFilters: [
+                for (final section in sections) ...section.selectedFilters ?? []
+              ],
+              onChange: (values) {
+                section.selectedFilters = values;
+
+                onChange?.call(sections);
+              },
+            ),
+          ),
+      ],
+    );
+  }
+}
