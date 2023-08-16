@@ -317,8 +317,14 @@ class FiltersView extends StatelessWidget {
   final List<FilterSection> sections;
   final Function(List<FilterSection> sections)? onChange;
 
-  const FiltersView({Key? key, required this.sections, this.onChange})
-      : super(key: key);
+  final bool showTitle;
+
+  const FiltersView({
+    Key? key,
+    required this.sections,
+    this.onChange,
+    this.showTitle = true,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -334,6 +340,7 @@ class FiltersView extends StatelessWidget {
               selectedFilters: [
                 for (final section in sections) ...section.selectedFilters ?? []
               ],
+              showTitle: showTitle,
               onChange: (values) {
                 section.selectedFilters = values;
 

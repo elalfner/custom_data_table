@@ -8,11 +8,14 @@ class FilterSectionWidget<T> extends StatefulWidget {
 
   final List<FilterItem<T>>? selectedFilters;
 
+  final bool showTitle;
+
   const FilterSectionWidget({
     Key? key,
     required this.section,
     required this.onChange,
     this.selectedFilters,
+    this.showTitle = true,
   }) : super(key: key);
 
   @override
@@ -43,8 +46,10 @@ class _FilterSectionWidgetState<T> extends State<FilterSectionWidget<T>> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(section.columnInfo.name),
-        const SizedBox(height: 5),
+        if (widget.showTitle) ...[
+          Text(section.columnInfo.name),
+          const SizedBox(height: 5),
+        ],
         Wrap(
           runSpacing: 5,
           spacing: 5,
