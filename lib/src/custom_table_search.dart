@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'models/sort_info.dart';
 
 class CustomTableSearch<T> extends StatefulWidget {
+  final TableController? controller;
+
   /// Theme of the table.
   ///
   /// Attributes given will override main datatable theme declared in the material
@@ -123,6 +125,7 @@ class CustomTableSearch<T> extends StatefulWidget {
 
   const CustomTableSearch({
     Key? key,
+    this.controller,
     this.title,
     required this.columns,
     required this.data,
@@ -192,6 +195,7 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
           ),
         Flexible(
           child: CustomDataTable<T>(
+            controller: widget.controller,
             onSort: widget.onSort,
             toMap: widget.toMap,
             data: widget.data,

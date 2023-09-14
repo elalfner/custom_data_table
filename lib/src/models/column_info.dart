@@ -35,6 +35,8 @@ class ColumnInfo {
   ValueChanged<String>? onChangeInput;
   TextEditingController? controllerInput;
 
+  Map<String, dynamic>? extra;
+
   /// Creates a new instance of the [ColumnInfo] class.
   ///
   /// [canSort] by default is `true`. Indicating that data can be sorted by this
@@ -49,6 +51,7 @@ class ColumnInfo {
     this.canSearchInput = false,
     this.onChangeInput,
     this.controllerInput,
+    this.extra,
   });
 }
 

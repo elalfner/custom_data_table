@@ -8,6 +8,8 @@ import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 class CustomDataTable<T> extends StatefulWidget {
+  final TableController? controller;
+
   /// Theme of the table.
   ///
   /// Attributes given will override main datatable theme declared in the material
@@ -95,6 +97,7 @@ class CustomDataTable<T> extends StatefulWidget {
 
   const CustomDataTable({
     Key? key,
+    this.controller,
     this.title,
     required this.columns,
     required this.data,
@@ -140,6 +143,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   late LinkedScrollControllerGroup _controllers;
 
   late Map<String, TextEditingController> textControllers;
+
+  final List<TextEditingController> insideControllers = [];
 
   static const double dataRowMinHeight = 40;
 
@@ -196,6 +201,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   @override
   void initState() {
+    widget.controller?.clearColumnSearchFields = _clearColumnSearchFields;
+
     _controllers = LinkedScrollControllerGroup();
     _horizontalScrollController = _controllers.addAndGet();
     _columnsHeaderController = _controllers.addAndGet();
@@ -210,32 +217,37 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     super.initState();
   }
 
-  TextEditingController createTextController(ColumnInfo column) =>
-      (column.controllerInput ?? TextEditingController())
-        ..addListener(
-          () {
-            debouncer.run(
-              () {
-                widget.onChangeSearchTextField?.call(textControllers.entries
-                    .map(
-                      (e) => SearchFieldInfo(
-                        columnInfo: columns
-                            .firstWhere((element) => element.key == e.key),
-                        searchValue: e.value.text,
-                      ),
-                    )
-                    .toList());
-              },
-            );
-          },
-        );
+  void _clearColumnSearchFields() {
+    for (final textController in textControllers.entries) {
+      try {
+        textController.value.clear();
+      } catch (_) {}
+    }
+  }
+
+  TextEditingController createTextController(ColumnInfo column) {
+    final controllerInput = column.controllerInput;
+    if (controllerInput != null) return controllerInput;
+
+    final newController = TextEditingController();
+
+    insideControllers.add(newController);
+
+    return newController;
+  }
 
   @override
   void dispose() {
-    // Dispose scroll controllers.
+    for (final textController in insideControllers) {
+      try {
+        textController.dispose();
+      } catch (_) {}
+    }
 
+    // Dispose scroll controllers.
     _horizontalScrollController.dispose();
     _verticalScrollController.dispose();
+
     super.dispose();
   }
 
@@ -900,7 +912,20 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           fontSize: 13,
         ),
         onChanged: (value) => debouncerIndividual.run(
-          () => column.onChangeInput?.call(value),
+          () {
+            column.onChangeInput?.call(value);
+
+            widget.onChangeSearchTextField?.call(
+              [
+                for (final e in textControllers.entries)
+                  SearchFieldInfo(
+                    columnInfo:
+                        columns.firstWhere((element) => element.key == e.key),
+                    searchValue: e.value.text,
+                  )
+              ],
+            );
+          },
         ),
       ),
     );
@@ -1020,56 +1045,6 @@ class ScrollWidgetWithBar extends StatelessWidget {
   }
 }
 
-class CustomScrollBar extends StatefulWidget {
-  final bool showScrollBar;
-
-  final Widget child;
-  final ScrollController? controller;
-  final bool? thumbVisibility;
-  final bool? trackVisibility;
-  final bool? showTrackOnHover;
-  final double? hoverThickness;
-  final double? thickness;
-  final Radius? radius;
-  final bool? interactive;
-  final ScrollNotificationPredicate? notificationPredicate;
-  final ScrollbarOrientation? scrollbarOrientation;
-
-  const CustomScrollBar(
-      {Key? key,
-      required this.child,
-      this.showScrollBar = true,
-      this.controller,
-      this.thumbVisibility,
-      this.trackVisibility,
-      this.showTrackOnHover,
-      this.hoverThickness,
-      this.thickness,
-      this.radius,
-      this.interactive,
-      this.notificationPredicate,
-      this.scrollbarOrientation})
-      : super(key: key);
-
-  @override
-  State<CustomScrollBar> createState() => _CustomScrollBarState();
-}
-
-class _CustomScrollBarState extends State<CustomScrollBar> {
-  @override
-  Widget build(BuildContext context) {
-    if (!widget.showScrollBar) return widget.child;
-
-    return Scrollbar(
-      scrollbarOrientation: widget.scrollbarOrientation,
-      thumbVisibility: widget.thumbVisibility,
-      controller: widget.controller,
-      thickness: widget.thickness,
-      radius: widget.radius,
-      interactive: widget.interactive,
-      notificationPredicate: widget.notificationPredicate,
-      trackVisibility: widget.trackVisibility,
-      child: widget.child,
-    );
-  }
+class TableController {
+  late VoidCallback clearColumnSearchFields;
 }
