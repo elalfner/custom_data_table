@@ -34,8 +34,11 @@ class FilterItem<T> {
   /// Filter's value to apply.
   final T value;
 
+  final dynamic sendValue;
+
   FilterItem({
     required this.filterName,
     required this.value,
+    this.sendValue,
   });
 }
