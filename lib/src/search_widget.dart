@@ -63,8 +63,10 @@ class _SearchWidgetState extends State<SearchWidget> {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
-          searchBar(),
-          const SizedBox(height: 10),
+          if (widget.onChangeGeneralSearch != null) ...[
+            searchBar(),
+            const SizedBox(height: 10),
+          ],
           CustomFilters(
             sections: widget.filterSections,
             onChange: widget.onChangeFilters,
@@ -89,11 +91,12 @@ class _SearchWidgetState extends State<SearchWidget> {
             dateFilterType: widget.dateFilterType,
           ),
         ),
-        SizedBox(
-          height: 45,
-          width: 300,
-          child: searchBar(),
-        )
+        if (widget.onChangeGeneralSearch != null)
+          SizedBox(
+            height: 45,
+            width: 300,
+            child: searchBar(),
+          )
       ],
     );
   }

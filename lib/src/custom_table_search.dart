@@ -169,7 +169,6 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        if (widget.onChangeGeneralSearch != null)
           // SizedBox to tell the widget to take all available width.
           Container(
             width: double.infinity,
