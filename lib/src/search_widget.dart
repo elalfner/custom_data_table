@@ -30,6 +30,8 @@ class SearchWidget extends StatefulWidget {
 
   final InputDecoration? decoration;
 
+  final String? initialValue;
+
   const SearchWidget({
     Key? key,
     required this.columns,
@@ -43,6 +45,7 @@ class SearchWidget extends StatefulWidget {
     this.onChangeGeneralSearch,
     this.generalSearchController,
     this.decoration,
+    this.initialValue,
   }) : super(key: key);
 
   @override
@@ -64,6 +67,8 @@ class _SearchWidgetState extends State<SearchWidget> {
   @override
   void initState() {
     _usedController = widget.generalSearchController ?? _generalController;
+
+    _usedController.text = widget.initialValue ?? '';
 
     _usedController.addListener(() {
       final showClearButton = _usedController.value.text.isNotEmpty;
@@ -141,7 +146,7 @@ class _SearchWidgetState extends State<SearchWidget> {
           builder: (context, values, child) {
             return Expanded(
               child: TextField(
-                controller: widget.generalSearchController,
+                controller: _usedController,
                 decoration: (decoration ?? const InputDecoration()).copyWith(
                   prefixIcon:
                       decoration?.prefixIcon ?? const Icon(Icons.search),
