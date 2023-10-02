@@ -55,7 +55,34 @@ class _SearchWidgetState extends State<SearchWidget> {
 
   final TextEditingController _generalController = TextEditingController();
 
+  late TextEditingController _usedController;
+
   final debouncer = Debouncer(milliseconds: 500);
+
+  bool? showClearButton;
+
+  @override
+  void initState() {
+    _usedController = widget.generalSearchController ?? _generalController;
+
+    _usedController.addListener(() {
+      final showClearButton = _usedController.value.text.isNotEmpty;
+
+      if (this.showClearButton != showClearButton) {
+        this.showClearButton = showClearButton;
+        setState(() {});
+      }
+    });
+
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _generalController.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,8 +129,6 @@ class _SearchWidgetState extends State<SearchWidget> {
   }
 
   Widget searchBar() {
-    final controller = widget.generalSearchController ?? _generalController;
-
     final searchColumns =
         widget.columns.where((element) => element.canSearch).toList();
 
@@ -124,13 +149,12 @@ class _SearchWidgetState extends State<SearchWidget> {
                       ? values.map((e) => e.name).join(', ')
                       : (decoration?.hintText ?? 'Búsqueda'),
                   contentPadding: decoration?.contentPadding ?? EdgeInsets.zero,
-                  suffixIcon: controller.value.text.isEmpty
+                  suffixIcon: showClearButton != true
                       ? null
                       : IconButton(
                           onPressed: () {
-                            controller.clear();
+                            _usedController.clear();
                             widget.onChangeGeneralSearch?.call('');
-                            setState(() {});
                           },
                           icon: const Icon(Icons.clear),
                         ),
