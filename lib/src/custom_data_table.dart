@@ -290,96 +290,106 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             }
 
             // Table layout.
-            return Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Table title and actions.
-                SizedBox(
-                  height: headerHeight,
-                  child: header(small: small, width: availableWidth),
-                ),
-                ScrollWidget(
-                  scrollController: _columnsHeaderController,
-                  minWidth: tableMinWidth,
-                  width: availableWidth,
-                  child: columnsWidget(),
-                ),
-
-                if (widget.onChangeSearchTextField != null)
-                  ScrollWidget(
-                    scrollController: _columnsFooterController,
-                    minWidth: tableMinWidth,
-                    width: availableWidth,
-                    child: Container(
-                      color: Theme.of(context).cardColor,
-                      child: searchWidget(),
+            return SelectionArea(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Table title and actions.
+                  SelectionContainer.disabled(
+                    child: SizedBox(
+                      height: headerHeight,
+                      child: header(small: small, width: availableWidth),
                     ),
                   ),
-
-                if ((dataTableTheme.dividerThickness ?? 0) > 0)
-                  Divider(
-                    height: 0,
-                    thickness: dataTableTheme.dividerThickness,
-                    color: Theme.of(context).dividerColor,
+                  ScrollWidget(
+                    scrollController: _columnsHeaderController,
+                    minWidth: tableMinWidth,
+                    width: availableWidth,
+                    child: columnsWidget(),
                   ),
 
-                Flexible(
-                  child: SizedBox(
-                    height: tableheight,
-                    child: ScrollWidgetWithBar(
-                      scrollController: _horizontalScrollController,
-                      minWidth: tableMinWidth,
-                      width: availableWidth,
-                      child: ListView.separated(
-                        padding: const EdgeInsets.only(bottom: 10),
-                        controller: _verticalScrollController,
-                        itemCount: widget.data.length,
-                        separatorBuilder: (context, index) =>
-                            (dataTableTheme.dividerThickness ?? 0) > 0
-                                ? Divider(
-                                    height: 0,
-                                    thickness: dataTableTheme.dividerThickness,
-                                    color: Theme.of(context).dividerColor,
-                                  )
-                                : const SizedBox(),
-                        itemBuilder: (context, index) {
-                          final element = widget.data[index];
+                  if (widget.onChangeSearchTextField != null)
+                    SelectionContainer.disabled(
+                      child: ScrollWidget(
+                        scrollController: _columnsFooterController,
+                        minWidth: tableMinWidth,
+                        width: availableWidth,
+                        child: Container(
+                          color: Theme.of(context).cardColor,
+                          child: searchWidget(),
+                        ),
+                      ),
+                    ),
 
-                          if (widget.onElementPressed == null) {
-                            return Container(
+                  if ((dataTableTheme.dividerThickness ?? 0) > 0)
+                    Divider(
+                      height: 0,
+                      thickness: dataTableTheme.dividerThickness,
+                      color: Theme.of(context).dividerColor,
+                    ),
+
+                  Flexible(
+                    child: SizedBox(
+                      height: tableheight,
+                      child: ScrollWidgetWithBar(
+                        scrollController: _horizontalScrollController,
+                        minWidth: tableMinWidth,
+                        width: availableWidth,
+                        child: ListView.separated(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          controller: _verticalScrollController,
+                          itemCount: widget.data.length,
+                          separatorBuilder: (context, index) =>
+                              (dataTableTheme.dividerThickness ?? 0) > 0
+                                  ? Divider(
+                                      height: 0,
+                                      thickness:
+                                          dataTableTheme.dividerThickness,
+                                      color: Theme.of(context).dividerColor,
+                                    )
+                                  : const SizedBox(),
+                          itemBuilder: (context, index) {
+                            final element = widget.data[index];
+
+                            if (widget.onElementPressed == null) {
+                              return Container(
+                                color: index.isOdd
+                                    ? Theme.of(context)
+                                        .dividerColor
+                                        .withOpacity(0.3)
+                                    : Theme.of(context).cardColor,
+                                child: rowElementWidget(element),
+                              );
+                            }
+
+                            return Material(
                               color: index.isOdd
                                   ? Theme.of(context)
                                       .dividerColor
                                       .withOpacity(0.3)
                                   : Theme.of(context).cardColor,
-                              child: rowElementWidget(element),
+                              child: InkWell(
+                                hoverColor: getColor({MaterialState.hovered}),
+                                onTap: widget.onElementPressed == null
+                                    ? null
+                                    : () =>
+                                        widget.onElementPressed?.call(element),
+                                child: rowElementWidget(element),
+                              ),
                             );
-                          }
-
-                          return Material(
-                            color: index.isOdd
-                                ? Theme.of(context)
-                                    .dividerColor
-                                    .withOpacity(0.3)
-                                : Theme.of(context).cardColor,
-                            child: InkWell(
-                              hoverColor: getColor({MaterialState.hovered}),
-                              onTap: widget.onElementPressed == null
-                                  ? null
-                                  : () =>
-                                      widget.onElementPressed?.call(element),
-                              child: rowElementWidget(element),
-                            ),
-                          );
-                        },
+                          },
+                        ),
                       ),
                     ),
                   ),
-                ),
 
-                // Table pages info.
-                if (widget.paginatorInfo != null) footer(),
-              ],
+                  // Table pages info.
+                  if (widget.paginatorInfo != null)
+                    SelectionContainer.disabled(
+                      child: footer(),
+                    ),
+                ],
+              ),
             );
           },
         ),
@@ -757,16 +767,20 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           for (final column in columnsToShow)
-            if (column.flex != null)
+            if (column.flex != null) ...[
               Expanded(
                 flex: column.flex ?? 1,
                 child: cell(element, map, column),
-              )
-            else
+              ),
+              const Text('\t'),
+            ] else ...[
               SizedBox(
                 width: column.width,
                 child: cell(element, map, column),
               ),
+              const Text('\t'),
+            ],
+          const Text('\n'),
         ],
       ),
     );
@@ -786,16 +800,19 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           for (final column in columnsToShow)
-            if (column.flex != null)
+            if (column.flex != null) ...[
               Expanded(
                 flex: column.flex!,
                 child: columnWidget(column),
-              )
-            else
+              ),
+              const Text('\t'),
+            ] else ...[
               SizedBox(
                 width: column.width,
                 child: columnWidget(column),
-              )
+              ),
+              const Text('\t'),
+            ]
         ],
       ),
     );
