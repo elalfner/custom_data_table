@@ -117,43 +117,48 @@ class CustomTableSearch<T> extends StatefulWidget {
   final DateTime? date;
   final DateTime? endDate;
 
+  final DateTime? firstDate;
+  final DateTime? lastDate;
+
   final ChangeDateCallback? onChangeDateFilter;
 
   final TextEditingController? generalSearchController;
 
   final InputDecoration? generalSearchDecoration;
 
-  const CustomTableSearch({
-    Key? key,
-    this.controller,
-    this.title,
-    required this.columns,
-    required this.data,
-    required this.toMap,
-    this.onSort,
-    this.cell,
-    this.onChangeSearchFilter,
-    this.filterSections,
-    this.onChangeFilters,
-    this.onElementPressed,
-    this.paginatorInfo,
-    this.onPreviousPage,
-    this.onNextPage,
-    this.onSelectedPage,
-    this.onPerPageChange,
-    this.onCopy,
-    this.onPrint,
-    this.onExport,
-    this.onChangeSearchTextField,
-    this.onChangeGeneralSearch,
-    this.dataTableTheme,
-    this.generalSearchController,
-    this.generalSearchDecoration,
-    this.dateFilterType,
-    this.date,
-    this.endDate,
-    this.onChangeDateFilter,
-  }) : super(key: key);
+  const CustomTableSearch(
+      {Key? key,
+      this.controller,
+      this.title,
+      required this.columns,
+      required this.data,
+      required this.toMap,
+      this.onSort,
+      this.cell,
+      this.onChangeSearchFilter,
+      this.filterSections,
+      this.onChangeFilters,
+      this.onElementPressed,
+      this.paginatorInfo,
+      this.onPreviousPage,
+      this.onNextPage,
+      this.onSelectedPage,
+      this.onPerPageChange,
+      this.onCopy,
+      this.onPrint,
+      this.onExport,
+      this.onChangeSearchTextField,
+      this.onChangeGeneralSearch,
+      this.dataTableTheme,
+      this.generalSearchController,
+      this.generalSearchDecoration,
+      this.dateFilterType,
+      this.date,
+      this.endDate,
+      this.firstDate,
+      this.lastDate,
+      this.onChangeDateFilter})
+      : super(key: key);
 
   @override
   State<CustomTableSearch<T>> createState() => _CustomTableSearchState<T>();
@@ -169,29 +174,31 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
   Widget build(BuildContext context) {
     return Column(
       children: [
-          // SizedBox to tell the widget to take all available width.
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.only(bottom: 10),
-            child: SearchWidget(
-              onChangeSearchFilter:
-                  widget.onChangeSearchFilter ?? (List<ColumnId> values) {},
-              columns: widget.columns
-                  .map((e) => ColumnId(
-                      name: e.name, key: e.key, canSearch: e.canSearch))
-                  .where((element) => element.name.isNotEmpty == true)
-                  .toList(),
-              filterSections: widget.filterSections,
-              onChangeFilters: widget.onChangeFilters,
-              dateFilterType: widget.dateFilterType,
-              date: widget.date,
-              endDate: widget.endDate,
-              onChangeDateFilter: widget.onChangeDateFilter,
-              onChangeGeneralSearch: widget.onChangeGeneralSearch,
-              generalSearchController: widget.generalSearchController,
-              decoration: widget.generalSearchDecoration,
-            ),
+        // SizedBox to tell the widget to take all available width.
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.only(bottom: 10),
+          child: SearchWidget(
+            onChangeSearchFilter:
+                widget.onChangeSearchFilter ?? (List<ColumnId> values) {},
+            columns: widget.columns
+                .map((e) =>
+                    ColumnId(name: e.name, key: e.key, canSearch: e.canSearch))
+                .where((element) => element.name.isNotEmpty == true)
+                .toList(),
+            filterSections: widget.filterSections,
+            onChangeFilters: widget.onChangeFilters,
+            dateFilterType: widget.dateFilterType,
+            date: widget.date,
+            endDate: widget.endDate,
+            lastDate: widget.lastDate,
+            firstDate: widget.firstDate,
+            onChangeDateFilter: widget.onChangeDateFilter,
+            onChangeGeneralSearch: widget.onChangeGeneralSearch,
+            generalSearchController: widget.generalSearchController,
+            decoration: widget.generalSearchDecoration,
           ),
+        ),
         Flexible(
           child: CustomDataTable<T>(
             controller: widget.controller,

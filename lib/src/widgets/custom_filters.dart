@@ -14,6 +14,9 @@ class CustomFilters extends StatefulWidget {
   final DateTime? date;
   final DateTime? endDate;
 
+  final DateTime? firstDate;
+  final DateTime? lastDate;
+
   final ChangeDateCallback? onChangeDateFilter;
 
   final VoidCallback? onTapDateFilter;
@@ -27,6 +30,8 @@ class CustomFilters extends StatefulWidget {
     this.endDate,
     this.onChangeDateFilter,
     this.onTapDateFilter,
+    this.firstDate,
+    this.lastDate,
   }) : super(key: key);
 
   factory CustomFilters.dateFilter({
@@ -212,6 +217,8 @@ class _CustomFiltersState extends State<CustomFilters> {
             dateFilterType: dateFilterType,
             date: date,
             endDate: endDate,
+            firstDate: widget.firstDate,
+            lastDate: widget.lastDate,
             onTapDateFilter: widget.onTapDateFilter,
             onChangeDateFilter: (dateFilterType, date, endDate) {
               this.dateFilterType = dateFilterType;

@@ -378,6 +378,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 dateFilterType: DateFilterType.period,
                 date: DateTime.now(),
                 endDate: DateTime.now(),
+                lastDate: DateTime.now().add(const Duration(days: 10)),
                 onChangeDateFilter: (dateFilterType, date, endDate) {
                   print(dateFilterType);
                   print(date);

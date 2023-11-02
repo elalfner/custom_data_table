@@ -13,6 +13,10 @@ class DatesFilterChip extends StatelessWidget {
   final DateFilterType? dateFilterType;
   final DateTime? date;
   final DateTime? endDate;
+
+  final DateTime? firstDate;
+  final DateTime? lastDate;
+
   final ChangeDateCallback? onChangeDateFilter;
 
   final VoidCallback? onTapDateFilter;
@@ -24,6 +28,8 @@ class DatesFilterChip extends StatelessWidget {
     this.endDate,
     this.onChangeDateFilter,
     this.onTapDateFilter,
+    this.firstDate,
+    this.lastDate,
   }) : super(key: key);
 
   @override
@@ -57,6 +63,8 @@ class DatesFilterChip extends StatelessWidget {
             dateFilterType: dateFilterType,
             date: date,
             endDate: endDate,
+            firstDate: firstDate,
+            lastDate: lastDate,
           ),
         );
 
@@ -113,7 +121,16 @@ class DateFilterView extends StatefulWidget {
   final DateTime? date;
   final DateTime? endDate;
 
-  const DateFilterView({Key? key, this.dateFilterType, this.date, this.endDate})
+  final DateTime? firstDate;
+  final DateTime? lastDate;
+
+  const DateFilterView(
+      {Key? key,
+      this.dateFilterType,
+      this.date,
+      this.endDate,
+      this.firstDate,
+      this.lastDate})
       : super(key: key);
 
   @override
@@ -221,8 +238,8 @@ class _DateFilterViewState extends State<DateFilterView> {
                           final selectedDate = await showDatePicker(
                             context: context,
                             initialDate: date ?? DateTime.now(),
-                            firstDate: DateTime(startYear),
-                            lastDate: DateTime.now(),
+                            firstDate: widget.firstDate ?? DateTime(startYear),
+                            lastDate: widget.lastDate ?? DateTime.now(),
                           );
 
                           if (selectedDate != null) {

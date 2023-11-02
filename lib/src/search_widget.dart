@@ -24,6 +24,9 @@ class SearchWidget extends StatefulWidget {
   final DateTime? date;
   final DateTime? endDate;
 
+  final DateTime? firstDate;
+  final DateTime? lastDate;
+
   final ChangeDateCallback? onChangeDateFilter;
 
   final TextEditingController? generalSearchController;
@@ -46,6 +49,8 @@ class SearchWidget extends StatefulWidget {
     this.generalSearchController,
     this.decoration,
     this.initialValue,
+    this.firstDate,
+    this.lastDate,
   }) : super(key: key);
 
   @override
@@ -99,14 +104,7 @@ class _SearchWidgetState extends State<SearchWidget> {
             searchBar(),
             const SizedBox(height: 10),
           ],
-          CustomFilters(
-            sections: widget.filterSections,
-            onChange: widget.onChangeFilters,
-            onChangeDateFilter: widget.onChangeDateFilter,
-            date: widget.date,
-            endDate: widget.endDate,
-            dateFilterType: widget.dateFilterType,
-          ),
+          filtersWidget(),
         ],
       );
     }
@@ -114,14 +112,7 @@ class _SearchWidgetState extends State<SearchWidget> {
     return Row(
       children: [
         Expanded(
-          child: CustomFilters(
-            sections: widget.filterSections,
-            onChange: widget.onChangeFilters,
-            onChangeDateFilter: widget.onChangeDateFilter,
-            date: widget.date,
-            endDate: widget.endDate,
-            dateFilterType: widget.dateFilterType,
-          ),
+          child: filtersWidget(),
         ),
         if (widget.onChangeGeneralSearch != null)
           SizedBox(
@@ -130,6 +121,19 @@ class _SearchWidgetState extends State<SearchWidget> {
             child: searchBar(),
           )
       ],
+    );
+  }
+
+  Widget filtersWidget() {
+    return CustomFilters(
+      sections: widget.filterSections,
+      onChange: widget.onChangeFilters,
+      onChangeDateFilter: widget.onChangeDateFilter,
+      date: widget.date,
+      endDate: widget.endDate,
+      firstDate: widget.firstDate,
+      lastDate: widget.lastDate,
+      dateFilterType: widget.dateFilterType,
     );
   }
 
