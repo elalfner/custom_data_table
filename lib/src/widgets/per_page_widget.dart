@@ -37,7 +37,7 @@ class TablePerPageWidget extends StatelessWidget {
             child: DropdownButton<int>(
               value: paginatorInfo.perPage,
               icon: const Padding(
-                padding: EdgeInsets.only(left: 5),
+                padding: EdgeInsets.only(left: 0),
                 child: Icon(Icons.keyboard_arrow_down_rounded),
               ),
               iconSize: 14,

@@ -386,7 +386,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                   // Table pages info.
                   if (widget.paginatorInfo != null)
                     SelectionContainer.disabled(
-                      child: footer(),
+                      child: footer(small: small),
                     ),
                 ],
               ),
@@ -724,34 +724,99 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   ///
   /// Displays pages info. Contains buttons to navigate between pages.
   /// If paginator info is `null`, the footer is not displayed.
-  Widget footer() {
-    return Container(
-      color: Theme.of(context).cardColor,
-      padding: EdgeInsets.symmetric(
-        horizontal: dataTableTheme.horizontalMargin ?? 20,
-        vertical: 10,
-      ),
-      child: Row(
+  Widget footer({required bool small}) {
+    final paginatorInfo = widget.paginatorInfo;
+
+    final children = [
+      if (paginatorInfo != null)
+        RichText(
+          text: TextSpan(
+            style: Theme.of(context).textTheme.bodySmall,
+            text: 'Mostrando ',
+            children: [
+              if (paginatorInfo.perPage != null &&
+                  paginatorInfo.currentPage != null)
+                TextSpan(
+                  text: (((paginatorInfo.currentPage! - 1) *
+                              paginatorInfo.perPage!) +
+                          1)
+                      .toString(),
+                  children: [
+                    const TextSpan(
+                      text: ' a ',
+                    ),
+                    TextSpan(
+                      text:
+                          (paginatorInfo.currentPage! * paginatorInfo.perPage!)
+                              .toString(),
+                    ),
+                    if (paginatorInfo.total != null)
+                      const TextSpan(
+                        text: ' de ',
+                      ),
+                  ],
+                ),
+              if (paginatorInfo.total != null)
+                TextSpan(
+                  text: paginatorInfo.total!.toString(),
+                  children: const [
+                    TextSpan(
+                      text: ' resultados',
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ),
+      Row(
         mainAxisAlignment: MainAxisAlignment.end,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          if (widget.paginatorInfo != null &&
-              widget.paginatorInfo?.perPage != 0)
+          if (paginatorInfo?.perPage != null && paginatorInfo?.perPage != 0)
             Flexible(
               child: TablePerPageWidget(
-                paginatorInfo: widget.paginatorInfo!,
+                paginatorInfo: paginatorInfo!,
                 onChange: widget.onPerPageChange,
               ),
             ),
-          const SizedBox(width: 20),
-          if (widget.paginatorInfo != null)
+          const SizedBox(width: 10),
+          if (paginatorInfo != null)
             TablePaginatedCountWidget(
-              paginatorInfo: widget.paginatorInfo!,
+              paginatorInfo: paginatorInfo,
               loading: false,
               onPressedLast: widget.onPreviousPage,
               onPressedNext: widget.onNextPage,
               onSelectedPage: widget.onSelectedPage,
             ),
         ],
+      )
+    ];
+
+    if (small) {
+      return Container(
+        color: Theme.of(context).cardColor,
+        padding: EdgeInsets.symmetric(
+          horizontal: dataTableTheme.horizontalMargin ?? 20,
+          vertical: 10,
+        ),
+        width: double.infinity,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: children,
+        ),
+      );
+    }
+
+    return Container(
+      color: Theme.of(context).cardColor,
+      padding: EdgeInsets.symmetric(
+        horizontal: dataTableTheme.horizontalMargin ?? 20,
+        vertical: 10,
+      ),
+      width: double.infinity,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: children,
       ),
     );
   }

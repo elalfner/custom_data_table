@@ -46,7 +46,7 @@ class TablePaginatedCountWidget extends StatelessWidget {
             child: DropdownButton<int>(
               value: currentPage,
               icon: const Padding(
-                padding: EdgeInsets.only(left: 5),
+                padding: EdgeInsets.only(left: 0),
                 child: Icon(Icons.keyboard_arrow_down_rounded),
               ),
               iconSize: 14,
@@ -70,23 +70,21 @@ class TablePaginatedCountWidget extends StatelessWidget {
           ),
         ),
         const SizedBox(width: 5),
-        SizedBox(
-          width: 50,
-          child: Text(
-            'de $lastPage',
-            style: Theme.of(context).textTheme.bodySmall,
-          ),
+        Text(
+          'de $lastPage',
+          style: Theme.of(context).textTheme.bodySmall,
         ),
+        const SizedBox(width: 5),
         IconButton(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(5),
           iconSize: 15,
           icon: const Icon(Icons.arrow_back_ios_new_rounded),
           constraints: const BoxConstraints(),
           onPressed: currentPage > 1 && !loading ? onPressedLast : null,
         ),
-        const SizedBox(width: 8),
+        const SizedBox(width: 4),
         IconButton(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(5),
           iconSize: 15,
           icon: const Icon(Icons.arrow_forward_ios_rounded),
           constraints: const BoxConstraints(),

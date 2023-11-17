@@ -180,8 +180,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<FilterItem>? filtersUserType;
 
-  PaginatorInfo paginatorInfo =
-      PaginatorInfo(lastPage: 10, currentPage: 5, perPage: 8);
+  PaginatorInfo paginatorInfo = PaginatorInfo(
+    lastPage: 10,
+    currentPage: 5,
+    perPage: 8,
+    total: 80,
+  );
 
   @override
   Widget build(BuildContext context) {
