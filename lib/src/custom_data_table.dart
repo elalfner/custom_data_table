@@ -1070,7 +1070,10 @@ class ScrollWidget extends StatelessWidget {
     if (minWidth < width) return child;
 
     return MediaQuery(
-      data: MediaQuery.of(context).removePadding(removeBottom: true),
+      data: MediaQuery.of(context).removePadding(
+        removeBottom: true,
+        removeTop: true,
+      ),
       child: SafeArea(
         child: SingleChildScrollView(
           controller: scrollController,
@@ -1107,7 +1110,10 @@ class ScrollWidgetWithBar extends StatelessWidget {
     if (minWidth < width) return child;
 
     return MediaQuery(
-      data: MediaQuery.of(context).removePadding(removeBottom: true),
+      data: MediaQuery.of(context).removePadding(
+        removeBottom: true,
+        removeTop: true,
+      ),
       child: SafeArea(
         child: Scrollbar(
           controller: scrollController,
