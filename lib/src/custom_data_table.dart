@@ -728,43 +728,45 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     final paginatorInfo = widget.paginatorInfo;
 
     final children = [
-      if (paginatorInfo != null)
+      if (paginatorInfo != null &&
+          paginatorInfo.perPage != null &&
+          paginatorInfo.currentPage != null &&
+          paginatorInfo.total != null)
         RichText(
           text: TextSpan(
             style: Theme.of(context).textTheme.bodySmall,
             text: 'Mostrando ',
             children: [
-              if (paginatorInfo.perPage != null &&
-                  paginatorInfo.currentPage != null)
-                TextSpan(
-                  text: (((paginatorInfo.currentPage! - 1) *
-                              paginatorInfo.perPage!) +
-                          1)
-                      .toString(),
-                  children: [
-                    const TextSpan(
-                      text: ' a ',
-                    ),
-                    TextSpan(
-                      text:
-                          (paginatorInfo.currentPage! * paginatorInfo.perPage!)
-                              .toString(),
-                    ),
-                    if (paginatorInfo.total != null)
-                      const TextSpan(
-                        text: ' de ',
+              TextSpan(
+                text: (((paginatorInfo.currentPage! - 1) *
+                            paginatorInfo.perPage!) +
+                        1)
+                    .toString(),
+                children: [
+                  const TextSpan(
+                    text: ' a ',
+                  ),
+                  TextSpan(
+                    text: (paginatorInfo.currentPage! * paginatorInfo.perPage! >
+                                paginatorInfo.total!
+                            ? paginatorInfo.total
+                            : paginatorInfo.currentPage! *
+                                paginatorInfo.perPage!)
+                        .toString(),
+                  ),
+                  const TextSpan(
+                    text: ' de ',
+                  ),
+                  TextSpan(
+                    text: paginatorInfo.total!.toString(),
+                    children: const [
+                      TextSpan(
+                        text: ' resultados',
                       ),
-                  ],
-                ),
-              if (paginatorInfo.total != null)
-                TextSpan(
-                  text: paginatorInfo.total!.toString(),
-                  children: const [
-                    TextSpan(
-                      text: ' resultados',
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
+              ),
             ],
           ),
         ),
