@@ -13,3 +13,6 @@ export 'src/models/filter_item.dart';
 export 'src/models/search_field_info.dart';
 
 export 'src/widgets/custom_filters.dart';
+export 'src/widgets/custom_month_picker.dart';
+
+export 'l10n/app_localizations.dart';

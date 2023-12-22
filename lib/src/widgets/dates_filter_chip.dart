@@ -1,7 +1,8 @@
+import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:custom_data_table/src/utils/date_time_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:month_picker_dialog/month_picker_dialog.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import '../../custom_data_table.dart';
 import '../filters/time_filter.dart';
@@ -59,12 +60,14 @@ class DatesFilterChip extends StatelessWidget {
             maxWidth: 500,
             minWidth: 500,
           ),
-          builder: (_) => DateFilterView(
-            dateFilterType: dateFilterType,
-            date: date,
-            endDate: endDate,
-            firstDate: firstDate,
-            lastDate: lastDate,
+          builder: (_) => PointerInterceptor(
+            child: DateFilterView(
+              dateFilterType: dateFilterType,
+              date: date,
+              endDate: endDate,
+              firstDate: firstDate,
+              lastDate: lastDate,
+            ),
           ),
         );
 

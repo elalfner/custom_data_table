@@ -12,7 +12,10 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   final String defaultLocale = Platform.localeName;
+
+  Intl.systemLocale = defaultLocale;
   Intl.defaultLocale = defaultLocale;
+
   await initializeDateFormatting(defaultLocale, null);
 
   runApp(const MyApp());
@@ -74,8 +77,10 @@ class MyApp extends StatelessWidget {
         GlobalWidgetsLocalizations.delegate,
         GlobalCupertinoLocalizations.delegate,
       ],
+      locale: Intl.defaultLocale == null ? null : Locale(Intl.defaultLocale!),
       supportedLocales: const [
         Locale('es'),
+        Locale('en'),
       ],
       debugShowCheckedModeBanner: false,
 
@@ -195,6 +200,19 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            FilledButton(
+              onPressed: () async {
+                final date = await showMonthPicker(
+                  context: context,
+                  initialDate: DateTime(2022, 1),
+                  firstDate: DateTime(2021, 4),
+                  lastDate: DateTime(2022, 5),
+                );
+
+                print(date);
+              },
+              child: Text('Seleccionar mes'),
+            ),
             CustomFilters(
               sections: [
                 FilterSection<TipoVehiculo>(

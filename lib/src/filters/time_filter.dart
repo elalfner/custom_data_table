@@ -1,6 +1,7 @@
 import 'package:custom_data_table/src/utils/date_time_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 class TimeFilterWidget extends StatelessWidget {
   final DateTime startDate;
@@ -68,6 +69,18 @@ class TimeFilterWidget extends StatelessWidget {
                 firstDate:
                     DateTime.now().subtract(const Duration(days: 365 * 5)),
                 lastDate: dateTime.add(const Duration(days: 365)),
+                builder: (context, child) => PointerInterceptor(
+                  child: Stack(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      child!,
+                    ],
+                  ),
+                ),
               );
 
               if (date == null) return;
@@ -94,9 +107,24 @@ class TimeFilterWidget extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             onTap: () async {
               final time = await showTimePicker(
-                  context: context,
-                  initialTime:
-                      TimeOfDay(hour: dateTime.hour, minute: dateTime.minute));
+                context: context,
+                initialTime: TimeOfDay(
+                  hour: dateTime.hour,
+                  minute: dateTime.minute,
+                ),
+                builder: (context, child) => PointerInterceptor(
+                  child: Stack(
+                    children: [
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      child!,
+                    ],
+                  ),
+                ),
+              );
 
               if (time == null) return;
 

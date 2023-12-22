@@ -9,17 +9,19 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
   collection: ^1.17.0
 
   flutter_localization: ^0.1.12
   intl: ^0.18.0
 
-  month_picker_dialog: ^2.2.1
-
   flutter_feather_icons: ^2.0.0+1
 
   linked_scroll_controller: ^0.2.0
+
+  pointer_interceptor: ^0.10.0
 
 dev_dependencies:
   flutter_test:
@@ -31,6 +33,7 @@ dev_dependencies:
 
 # The following section is specific to Flutter packages.
 flutter:
+  generate: true
 
   # To add assets to your package, add an assets section, like this:
   # assets:

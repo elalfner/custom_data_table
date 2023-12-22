@@ -1,6 +1,7 @@
 import 'package:custom_data_table/src/utils/date_time_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import '../../custom_data_table.dart';
 import 'dates_filter_chip.dart';
@@ -237,13 +238,11 @@ class _CustomFiltersState extends State<CustomFilters> {
   void showFilters() async {
     await showModalBottomSheet(
       context: context,
-      constraints: const BoxConstraints(
-        maxWidth: 500,
-        minWidth: 500,
-      ),
       shape: const RoundedRectangleBorder(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => filtersView(),
+      builder: (context) => PointerInterceptor(
+        child: filtersView(),
+      ),
     );
 
     setState(() {});
