@@ -1,5 +1,7 @@
+import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:custom_data_table/src/helpers/responsive_helpers.dart';
 import 'package:custom_data_table/src/utils/debounce.dart';
+import 'package:custom_data_table/src/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 
 import '../custom_data_table.dart';
@@ -156,7 +158,9 @@ class _SearchWidgetState extends State<SearchWidget> {
                       decoration?.prefixIcon ?? const Icon(Icons.search),
                   hintText: values.isNotEmpty
                       ? values.map((e) => e.name).join(', ')
-                      : (decoration?.hintText ?? 'Búsqueda'),
+                      : (decoration?.hintText ??
+                          context.appLocalizations.searchAdjective
+                              .naturalCapitalized),
                   contentPadding: decoration?.contentPadding ?? EdgeInsets.zero,
                   suffixIcon: showClearButton != true
                       ? null
@@ -177,7 +181,7 @@ class _SearchWidgetState extends State<SearchWidget> {
         ),
         if (searchColumns.isNotEmpty)
           PopUpField<ColumnId>(
-            tooltip: 'Filtrar búsqueda',
+            tooltip: context.appLocalizations.filterSearch.naturalCapitalized,
             allIfEmpty: true,
             items: searchColumns
                 .map(
@@ -303,7 +307,7 @@ class _PopUpFieldState<T> extends State<PopUpField<T>> {
                   (widget.allIfEmpty
                           ? selectedItems.isEmpty
                           : selectedItems.length == items.length)
-                      ? 'Todos'
+                      ? context.appLocalizations.all.naturalCapitalized
                       : selectedItems.map((e) => e.name).join(', '),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,

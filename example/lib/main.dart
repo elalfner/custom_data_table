@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:custom_data_table/custom_data_table.dart';
+import 'package:custom_data_table/l10n/localization_extension.dart';
+import 'package:example/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -344,8 +346,8 @@ class _MyHomePageState extends State<MyHomePage> {
                   paginatorInfo = paginatorInfo.copyWith(currentPage: page);
                   setState(() {});
                 },
-                generalSearchDecoration: const InputDecoration(
-                  hintText: 'Buscar',
+                generalSearchDecoration: InputDecoration(
+                  hintText: context.appLocalizations.search.naturalCapitalized,
                 ),
                 onChangeGeneralSearch: (value) {
                   print(value);

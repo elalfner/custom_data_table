@@ -1,6 +1,30 @@
 {
-  "helloWorld": "Hello World!",
-  "@helloWorld": {
-    "description": "The conventional newborn programmer greeting"
-  }
+  "showing": "showing",
+  "show": "show",
+  "to": "to",
+  "ofLabel": "of",
+  "results": "results",
+  "perPage": "per page",
+  "moreFilters": "more filters",
+  "filterDates": "filter dates",
+  "search": "search",
+  "searchAdjective": "search",
+  "filterSearch": "filter search",
+  "cleanFilters": "clean filters",
+  "today": "today",
+  "onlyToday": "Only Today",
+  "otherDate": "other date",
+  "byDate": "date",
+  "byMonth": "month",
+  "byOtherMonth": "Other Month",
+  "byYear": "year",
+  "byPeriodOfTime": "period of time",
+  "select": "select",
+  "resultsTitle": "results",
+  "showHideColumns": "Show/Hide columns",
+  "moreOptions": "more options",
+  "copy": "copy",
+  "print": "print",
+  "export": "export",
+  "all": "all"
 }

@@ -1,3 +1,4 @@
+import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:flutter/material.dart';
 
 import '../models/paginator_info.dart';
@@ -71,7 +72,7 @@ class TablePaginatedCountWidget extends StatelessWidget {
         ),
         const SizedBox(width: 5),
         Text(
-          'de $lastPage',
+          '${context.appLocalizations.ofLabel} $lastPage',
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(width: 5),

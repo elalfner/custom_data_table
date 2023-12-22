@@ -1,4 +1,6 @@
+import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:custom_data_table/src/utils/date_time_extension.dart';
+import 'package:custom_data_table/src/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -97,7 +99,7 @@ class _CustomFiltersState extends State<CustomFilters> {
             date?.onlyDate == DateTime.now().onlyDate)
           Chip(
             elevation: 1,
-            label: const Text('Sólo Hoy'),
+            label: Text(context.appLocalizations.onlyToday),
             deleteIcon: const Icon(
               Icons.close,
               size: 14,
@@ -118,7 +120,7 @@ class _CustomFiltersState extends State<CustomFilters> {
             date?.onlyDate != DateTime.now().onlyDate)
           Chip(
             elevation: 1,
-            label: Text(DateFormat('dd-MM-yyyy').format(date!)),
+            label: Text(DateFormat.yMd().format(date!)),
             deleteIcon: const Icon(
               Icons.close,
               size: 14,
@@ -198,7 +200,7 @@ class _CustomFiltersState extends State<CustomFilters> {
           ActionChip(
             elevation: 1,
             label: Text(
-              'Más filtros',
+              context.appLocalizations.moreFilters.naturalCapitalized,
               style: TextStyle(
                 color:
                     Theme.of(context).floatingActionButtonTheme.foregroundColor,
@@ -261,7 +263,7 @@ class _CustomFiltersState extends State<CustomFilters> {
             children: [
               Expanded(
                 child: Text(
-                  'Más filtros',
+                  context.appLocalizations.moreFilters.naturalCapitalized,
                   style: Theme.of(context).textTheme.titleLarge,
                   softWrap: false,
                   overflow: TextOverflow.fade,
@@ -274,12 +276,13 @@ class _CustomFiltersState extends State<CustomFilters> {
                   }
                   Navigator.pop(context);
                 },
-                child: const Text('Limpiar filtros'),
+                child: Text(
+                    context.appLocalizations.cleanFilters.naturalCapitalized),
               ),
               const SizedBox(width: 5),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Aceptar'),
+                child: Text(MaterialLocalizations.of(context).okButtonLabel),
               ),
             ],
           ),

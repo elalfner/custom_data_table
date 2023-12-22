@@ -93,11 +93,173 @@ abstract class AppLocalizations {
     Locale('es')
   ];
 
-  /// The conventional newborn programmer greeting
+  /// No description provided for @showing.
   ///
   /// In en, this message translates to:
-  /// **'Hello World!'**
-  String get helloWorld;
+  /// **'showing'**
+  String get showing;
+
+  /// No description provided for @show.
+  ///
+  /// In en, this message translates to:
+  /// **'show'**
+  String get show;
+
+  /// No description provided for @to.
+  ///
+  /// In en, this message translates to:
+  /// **'to'**
+  String get to;
+
+  /// No description provided for @ofLabel.
+  ///
+  /// In en, this message translates to:
+  /// **'of'**
+  String get ofLabel;
+
+  /// No description provided for @results.
+  ///
+  /// In en, this message translates to:
+  /// **'results'**
+  String get results;
+
+  /// No description provided for @perPage.
+  ///
+  /// In en, this message translates to:
+  /// **'per page'**
+  String get perPage;
+
+  /// No description provided for @moreFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'more filters'**
+  String get moreFilters;
+
+  /// No description provided for @filterDates.
+  ///
+  /// In en, this message translates to:
+  /// **'filter dates'**
+  String get filterDates;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'search'**
+  String get search;
+
+  /// No description provided for @searchAdjective.
+  ///
+  /// In en, this message translates to:
+  /// **'search'**
+  String get searchAdjective;
+
+  /// No description provided for @filterSearch.
+  ///
+  /// In en, this message translates to:
+  /// **'filter search'**
+  String get filterSearch;
+
+  /// No description provided for @cleanFilters.
+  ///
+  /// In en, this message translates to:
+  /// **'clean filters'**
+  String get cleanFilters;
+
+  /// No description provided for @today.
+  ///
+  /// In en, this message translates to:
+  /// **'today'**
+  String get today;
+
+  /// No description provided for @onlyToday.
+  ///
+  /// In en, this message translates to:
+  /// **'Only Today'**
+  String get onlyToday;
+
+  /// No description provided for @otherDate.
+  ///
+  /// In en, this message translates to:
+  /// **'other date'**
+  String get otherDate;
+
+  /// No description provided for @byDate.
+  ///
+  /// In en, this message translates to:
+  /// **'date'**
+  String get byDate;
+
+  /// No description provided for @byMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'month'**
+  String get byMonth;
+
+  /// No description provided for @byOtherMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Other Month'**
+  String get byOtherMonth;
+
+  /// No description provided for @byYear.
+  ///
+  /// In en, this message translates to:
+  /// **'year'**
+  String get byYear;
+
+  /// No description provided for @byPeriodOfTime.
+  ///
+  /// In en, this message translates to:
+  /// **'period of time'**
+  String get byPeriodOfTime;
+
+  /// No description provided for @select.
+  ///
+  /// In en, this message translates to:
+  /// **'select'**
+  String get select;
+
+  /// No description provided for @resultsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'results'**
+  String get resultsTitle;
+
+  /// No description provided for @showHideColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'Show/Hide columns'**
+  String get showHideColumns;
+
+  /// No description provided for @moreOptions.
+  ///
+  /// In en, this message translates to:
+  /// **'more options'**
+  String get moreOptions;
+
+  /// No description provided for @copy.
+  ///
+  /// In en, this message translates to:
+  /// **'copy'**
+  String get copy;
+
+  /// No description provided for @print.
+  ///
+  /// In en, this message translates to:
+  /// **'print'**
+  String get print;
+
+  /// No description provided for @export.
+  ///
+  /// In en, this message translates to:
+  /// **'export'**
+  String get export;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'all'**
+  String get all;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

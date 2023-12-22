@@ -1,5 +1,6 @@
 import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:custom_data_table/src/utils/date_time_extension.dart';
+import 'package:custom_data_table/src/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
@@ -38,7 +39,7 @@ class DatesFilterChip extends StatelessWidget {
     return ActionChip(
       elevation: 1,
       label: Text(
-        'Escoger fechas',
+        context.appLocalizations.filterDates.naturalCapitalized,
         style: TextStyle(
           color: Theme.of(context).floatingActionButtonTheme.foregroundColor,
         ),
@@ -172,7 +173,7 @@ class _DateFilterViewState extends State<DateFilterView> {
             children: [
               Expanded(
                 child: Text(
-                  'Filtro de fechas',
+                  context.appLocalizations.filterDates.naturalCapitalized,
                   style: Theme.of(context).textTheme.titleLarge,
                   softWrap: false,
                   overflow: TextOverflow.fade,
@@ -180,7 +181,8 @@ class _DateFilterViewState extends State<DateFilterView> {
               ),
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancelar'),
+                child:
+                    Text(MaterialLocalizations.of(context).cancelButtonLabel),
               ),
               const SizedBox(width: 5),
               ElevatedButton(
@@ -192,7 +194,7 @@ class _DateFilterViewState extends State<DateFilterView> {
                     endDate: endDate,
                   ),
                 ),
-                child: const Text('Aceptar'),
+                child: Text(MaterialLocalizations.of(context).okButtonLabel),
               ),
             ],
           ),
@@ -206,14 +208,15 @@ class _DateFilterViewState extends State<DateFilterView> {
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text('Por día'),
+                  Text(context.appLocalizations.byDate.naturalCapitalized),
                   const SizedBox(height: 5),
                   Wrap(
                     spacing: 5,
                     runSpacing: 5,
                     children: [
                       ChoiceChip(
-                        label: const Text('Hoy'),
+                        label: Text(
+                            context.appLocalizations.today.naturalCapitalized),
                         selected: dateFilterType == DateFilterType.date &&
                             date?.onlyDate == DateTime.now().onlyDate,
                         onSelected: (value) {
@@ -232,11 +235,14 @@ class _DateFilterViewState extends State<DateFilterView> {
                       ChoiceChip(
                         selected: dateFilterType == DateFilterType.date &&
                             date?.onlyDate != DateTime.now().onlyDate,
-                        label: Text(dateFilterType != DateFilterType.date ||
-                                date?.onlyDate == DateTime.now().onlyDate ||
-                                date == null
-                            ? 'Otro día'
-                            : DateFormat('dd-MM-yyyy').format(date!)),
+                        label: Text(
+                          dateFilterType != DateFilterType.date ||
+                                  date?.onlyDate == DateTime.now().onlyDate ||
+                                  date == null
+                              ? context
+                                  .appLocalizations.otherDate.naturalCapitalized
+                              : DateFormat.yMd().format(date!),
+                        ),
                         onSelected: (value) async {
                           final selectedDate = await showDatePicker(
                             context: context,
@@ -260,7 +266,8 @@ class _DateFilterViewState extends State<DateFilterView> {
                     ],
                   ),
                   const SizedBox(height: 10),
-                  Text('Por Mes (${DateTime.now().year})'),
+                  Text(
+                      '${context.appLocalizations.byMonth.naturalCapitalized} (${DateTime.now().year})'),
                   const SizedBox(height: 5),
                   Wrap(
                     spacing: 5,
@@ -291,7 +298,8 @@ class _DateFilterViewState extends State<DateFilterView> {
                     ).toList(),
                   ),
                   const SizedBox(height: 10),
-                  const Text('Por Otro Mes'),
+                  Text(
+                      context.appLocalizations.byOtherMonth.naturalCapitalized),
                   const SizedBox(height: 5),
                   InputChip(
                     selected:
@@ -324,7 +332,7 @@ class _DateFilterViewState extends State<DateFilterView> {
                     },
                   ),
                   const SizedBox(height: 10),
-                  const Text('Por Año'),
+                  Text(context.appLocalizations.byDate.naturalCapitalized),
                   const SizedBox(height: 5),
                   Wrap(
                     spacing: 5,
@@ -355,10 +363,12 @@ class _DateFilterViewState extends State<DateFilterView> {
                     ).toList(),
                   ),
                   const SizedBox(height: 10),
-                  const Text('Por Periodo de tiempo'),
+                  Text(context
+                      .appLocalizations.byPeriodOfTime.naturalCapitalized),
                   const SizedBox(height: 5),
                   ChoiceChip(
-                    label: const Text('Seleccione'),
+                    label: Text(
+                        context.appLocalizations.select.naturalCapitalized),
                     selected: dateFilterType == DateFilterType.period,
                     onSelected: (value) {
                       if (value) {

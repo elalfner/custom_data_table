@@ -1,6 +1,8 @@
 import 'package:custom_data_table/custom_data_table.dart';
+import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:custom_data_table/src/models/sort_info.dart';
 import 'package:custom_data_table/src/utils/debounce.dart';
+import 'package:custom_data_table/src/utils/string_extension.dart';
 import 'package:custom_data_table/src/widgets/per_page_widget.dart';
 import 'package:custom_data_table/src/widgets/table_paginated_count_widget.dart';
 import 'package:flutter/material.dart';
@@ -122,7 +124,7 @@ class CustomDataTable<T> extends StatefulWidget {
 }
 
 class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
-  late List<ColumnInfo> columns;
+  List<ColumnInfo> get columns => widget.columns;
 
   /// Information of current sort options.
   SortInfo? sortInfo;
@@ -207,8 +209,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     _horizontalScrollController = _controllers.addAndGet();
     _columnsHeaderController = _controllers.addAndGet();
     _columnsFooterController = _controllers.addAndGet();
-
-    columns = widget.columns;
 
     textControllers = {
       for (final col in columns) col.key: createTextController(col),
@@ -426,7 +426,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               height: 40,
               // Only allow to hide column that have name.
               child: PopUpField<ColumnInfo>(
-                tooltip: 'Mostrar/Ocultar columnas',
+                tooltip: context.appLocalizations.showHideColumns,
                 items: widget.columns
                     .where((element) => element.name.isNotEmpty == true)
                     .map(
@@ -456,7 +456,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 widget.onPrint != null ||
                 widget.onExport != null)
               PopupMenuButton(
-                tooltip: 'Más opciones',
+                tooltip:
+                    context.appLocalizations.moreOptions.naturalCapitalized,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(20.0),
@@ -468,38 +469,41 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 itemBuilder: (context) {
                   return [
                     if (widget.onCopy != null)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 0,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.copy),
-                            SizedBox(width: 5),
-                            Text('Copiar'),
+                            const Icon(Icons.copy),
+                            const SizedBox(width: 5),
+                            Text(context
+                                .appLocalizations.copy.naturalCapitalized),
                           ],
                         ),
                       ),
                     if (widget.onPrint != null)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 1,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.print),
-                            SizedBox(width: 5),
-                            Text('Imprimir'),
+                            const Icon(Icons.print),
+                            const SizedBox(width: 5),
+                            Text(context
+                                .appLocalizations.print.naturalCapitalized),
                           ],
                         ),
                       ),
                     if (widget.onExport != null)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 2,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.download),
-                            SizedBox(width: 5),
-                            Text('Exportar'),
+                            const Icon(Icons.download),
+                            const SizedBox(width: 5),
+                            Text(context
+                                .appLocalizations.export.naturalCapitalized),
                           ],
                         ),
                       ),
@@ -524,7 +528,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           children: [
             Expanded(
               child: Text(
-                widget.title ?? 'Listado',
+                widget.title ??
+                    context.appLocalizations.resultsTitle.naturalCapitalized,
                 style: Theme.of(context).textTheme.titleLarge,
                 maxLines: 1,
                 softWrap: false,
@@ -536,7 +541,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               height: 40,
               // Only allow to hide column that have name.
               child: PopUpField<ColumnInfo>(
-                tooltip: 'Mostrar/Ocultar columnas',
+                tooltip:
+                    context.appLocalizations.showHideColumns.naturalCapitalized,
                 items: widget.columns
                     .where((element) => element.name.isNotEmpty == true)
                     .map(
@@ -566,7 +572,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 widget.onCopy != null) ...[
               const SizedBox(width: 5),
               PopupMenuButton(
-                tooltip: 'Más opciones',
+                tooltip:
+                    context.appLocalizations.moreOptions.naturalCapitalized,
                 shape: const RoundedRectangleBorder(
                   borderRadius: BorderRadius.all(
                     Radius.circular(20.0),
@@ -578,38 +585,41 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 itemBuilder: (context) {
                   return [
                     if (widget.onCopy != null)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 0,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.copy),
-                            SizedBox(width: 5),
-                            Text('Copiar'),
+                            const Icon(Icons.copy),
+                            const SizedBox(width: 5),
+                            Text(context
+                                .appLocalizations.copy.naturalCapitalized),
                           ],
                         ),
                       ),
                     if (widget.onPrint != null)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 1,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.print),
-                            SizedBox(width: 5),
-                            Text('Imprimir'),
+                            const Icon(Icons.print),
+                            const SizedBox(width: 5),
+                            Text(context
+                                .appLocalizations.print.naturalCapitalized),
                           ],
                         ),
                       ),
                     if (widget.onExport != null)
-                      const PopupMenuItem(
+                      PopupMenuItem(
                         value: 2,
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.download),
-                            SizedBox(width: 5),
-                            Text('Exportar'),
+                            const Icon(Icons.download),
+                            const SizedBox(width: 5),
+                            Text(context
+                                .appLocalizations.export.naturalCapitalized),
                           ],
                         ),
                       ),
@@ -634,7 +644,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         children: [
           Expanded(
             child: Text(
-              widget.title ?? 'Listado',
+              widget.title ?? context.appLocalizations.resultsTitle,
               style: Theme.of(context).textTheme.titleLarge,
               maxLines: 1,
               softWrap: false,
@@ -642,7 +652,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             ),
           ),
           Text(
-            'Mostrar:',
+            '${context.appLocalizations.show.naturalCapitalized}:',
             style: TextStyle(
               color: Theme.of(context).textTheme.bodySmall?.color,
             ),
@@ -653,7 +663,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             height: 40,
             // Only allow to hide column that have name.
             child: PopUpField<ColumnInfo>(
-              tooltip: 'Mostrar/Ocultar columnas',
+              tooltip: context.appLocalizations.showHideColumns,
               items: widget.columns
                   .where((element) => element.name.isNotEmpty == true)
                   .map(
@@ -735,7 +745,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         RichText(
           text: TextSpan(
             style: Theme.of(context).textTheme.bodySmall,
-            text: 'Mostrando ',
+            text: '${context.appLocalizations.showing} '.naturalCapitalized,
             children: [
               TextSpan(
                 text: (((paginatorInfo.currentPage! - 1) *
@@ -743,8 +753,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         1)
                     .toString(),
                 children: [
-                  const TextSpan(
-                    text: ' a ',
+                  TextSpan(
+                    text: ' ${context.appLocalizations.to} ',
                   ),
                   TextSpan(
                     text: (paginatorInfo.currentPage! * paginatorInfo.perPage! >
@@ -754,14 +764,14 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                 paginatorInfo.perPage!)
                         .toString(),
                   ),
-                  const TextSpan(
-                    text: ' de ',
+                  TextSpan(
+                    text: ' ${context.appLocalizations.ofLabel} ',
                   ),
                   TextSpan(
                     text: paginatorInfo.total!.toString(),
-                    children: const [
+                    children: [
                       TextSpan(
-                        text: ' resultados',
+                        text: ' ${context.appLocalizations.results}',
                       ),
                     ],
                   ),
