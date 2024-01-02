@@ -249,6 +249,16 @@ class _DateFilterViewState extends State<DateFilterView> {
                             initialDate: date ?? DateTime.now(),
                             firstDate: widget.firstDate ?? DateTime(startYear),
                             lastDate: widget.lastDate ?? DateTime.now(),
+                            builder: (context, child) => Stack(
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context).pop();
+                                  },
+                                ),
+                                PointerInterceptor(child: child!),
+                              ],
+                            ),
                           );
 
                           if (selectedDate != null) {
@@ -308,7 +318,7 @@ class _DateFilterViewState extends State<DateFilterView> {
                       dateFilterType != DateFilterType.month ||
                               thisYear ||
                               date == null
-                          ? 'Seleccione'
+                          ? context.appLocalizations.select.naturalCapitalized
                           : DateFormat.yMMMM().format(date!),
                     ),
                     onPressed: () async {
@@ -317,6 +327,16 @@ class _DateFilterViewState extends State<DateFilterView> {
                         firstDate: DateTime(2020),
                         lastDate: DateTime.now(),
                         initialDate: date ?? DateTime.now(),
+                        builder: (context, child) => Stack(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            PointerInterceptor(child: child!),
+                          ],
+                        ),
                       );
 
                       if (selectedMonth != null) {

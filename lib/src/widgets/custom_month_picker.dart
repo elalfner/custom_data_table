@@ -321,15 +321,18 @@ Future<DateTime?> showMonthPicker({
   DateTime? initialDate,
   DateTime? firstDate,
   DateTime? lastDate,
+  TransitionBuilder? builder,
 }) async {
+  final dialog = CustomMonthPicker(
+    initialDate: initialDate,
+    firstDate: firstDate,
+    lastDate: lastDate,
+  );
+
   return showDialog(
     context: context,
     builder: (context) {
-      return CustomMonthPicker(
-        initialDate: initialDate,
-        firstDate: firstDate,
-        lastDate: lastDate,
-      );
+      return builder == null ? dialog : builder(context, dialog);
     },
   );
 }
