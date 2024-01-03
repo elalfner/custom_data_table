@@ -1,7 +1,7 @@
 import 'app_localizations.dart';
 
 /// The translations for Spanish Castilian (`es`).
-class AppLocalizationsEs extends AppLocalizations {
+class AppLocalizationsEs extends DataTableLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override

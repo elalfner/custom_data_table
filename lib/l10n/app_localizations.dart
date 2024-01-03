@@ -59,16 +59,16 @@ import 'app_localizations_es.dart';
 /// you wish to add from the pop-up menu in the Value field. This list should
 /// be consistent with the languages listed in the AppLocalizations.supportedLocales
 /// property.
-abstract class AppLocalizations {
-  AppLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+abstract class DataTableLocalizations {
+  DataTableLocalizations(String locale) : localeName = intl.Intl.canonicalizedLocale(locale.toString());
 
   final String localeName;
 
-  static AppLocalizations? of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  static DataTableLocalizations? of(BuildContext context) {
+    return Localizations.of<DataTableLocalizations>(context, DataTableLocalizations);
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate = _AppLocalizationsDelegate();
+  static const LocalizationsDelegate<DataTableLocalizations> delegate = _AppLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -262,12 +262,12 @@ abstract class AppLocalizations {
   String get all;
 }
 
-class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
+class _AppLocalizationsDelegate extends LocalizationsDelegate<DataTableLocalizations> {
   const _AppLocalizationsDelegate();
 
   @override
-  Future<AppLocalizations> load(Locale locale) {
-    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+  Future<DataTableLocalizations> load(Locale locale) {
+    return SynchronousFuture<DataTableLocalizations>(lookupAppLocalizations(locale));
   }
 
   @override
@@ -277,7 +277,7 @@ class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> 
   bool shouldReload(_AppLocalizationsDelegate old) => false;
 }
 
-AppLocalizations lookupAppLocalizations(Locale locale) {
+DataTableLocalizations lookupAppLocalizations(Locale locale) {
 
 
   // Lookup logic when only language code is specified.

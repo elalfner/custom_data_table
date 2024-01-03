@@ -1,7 +1,7 @@
 import 'app_localizations.dart';
 
 /// The translations for English (`en`).
-class AppLocalizationsEn extends AppLocalizations {
+class AppLocalizationsEn extends DataTableLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override

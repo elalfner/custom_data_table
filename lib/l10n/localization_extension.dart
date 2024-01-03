@@ -4,20 +4,20 @@ import 'package:collection/collection.dart';
 import 'app_localizations.dart';
 
 extension BuildContextExtension on BuildContext {
-  AppLocalizations get appLocalizations {
+  DataTableLocalizations get appLocalizations {
     final languageCode = findAncestorWidgetOfExactType<MaterialApp>()
         ?.locale
         ?.languageCode
         .split('_')
         .firstOrNull;
     try {
-      return AppLocalizations.of(this) ??
+      return DataTableLocalizations.of(this) ??
           lookupAppLocalizations(
             (languageCode == null ? null : Locale(languageCode)) ??
                 const Locale('en'),
           );
     } catch (_) {
-      return AppLocalizations.of(this) ??
+      return DataTableLocalizations.of(this) ??
           lookupAppLocalizations(
             const Locale('en'),
           );
