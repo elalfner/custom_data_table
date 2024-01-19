@@ -63,7 +63,7 @@ class _SearchWidgetState extends State<SearchWidget> {
   ValueNotifier<List<ColumnId>> searchColumnsSelected =
       ValueNotifier<List<ColumnId>>([]);
 
-  final TextEditingController _generalController = TextEditingController();
+  late TextEditingController _generalController;
 
   late TextEditingController _usedController;
 
@@ -73,9 +73,8 @@ class _SearchWidgetState extends State<SearchWidget> {
 
   @override
   void initState() {
+    _generalController = TextEditingController(text: widget.initialValue);
     _usedController = widget.generalSearchController ?? _generalController;
-
-    _usedController.text = widget.initialValue ?? '';
 
     _usedController.addListener(() {
       final showClearButton = _usedController.value.text.isNotEmpty;
