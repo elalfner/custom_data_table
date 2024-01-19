@@ -201,6 +201,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   final debouncer = Debouncer(milliseconds: 500);
   final debouncerIndividual = Debouncer(milliseconds: 500);
 
+  Size? rowSize;
+
   @override
   void initState() {
     widget.controller?.clearColumnSearchFields = _clearColumnSearchFields;
@@ -213,6 +215,14 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     textControllers = {
       for (final col in columns) col.key: createTextController(col),
     };
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      var context = rowKey?.currentContext;
+      if (context == null) return;
+
+      rowSize = context.size;
+      setState(() {});
+    });
 
     super.initState();
   }
@@ -276,15 +286,21 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
             double tableheight;
 
-            if (widget.paginatorInfo?.perPage != null &&
-                widget.paginatorInfo?.perPage != 0) {
-              tableheight =
-                  (dataTableTheme.dataRowMinHeight ?? dataRowMinHeight) *
-                      widget.paginatorInfo!.perPage!;
-            } else if (widget.data.isNotEmpty) {
-              tableheight =
-                  (dataTableTheme.dataRowMinHeight ?? dataRowMinHeight) *
-                      widget.data.length;
+            if (rowSize != null) {
+              if (widget.paginatorInfo?.perPage != null &&
+                  widget.paginatorInfo?.perPage != 0) {
+                tableheight = (rowSize?.height ??
+                        dataTableTheme.dataRowMinHeight ??
+                        dataRowMinHeight) *
+                    widget.paginatorInfo!.perPage!;
+              } else if (widget.data.isNotEmpty) {
+                tableheight = (rowSize?.height ??
+                        dataTableTheme.dataRowMinHeight ??
+                        dataRowMinHeight) *
+                    widget.data.length;
+              } else {
+                tableheight = availableHeight;
+              }
             } else {
               tableheight = availableHeight;
             }
@@ -330,7 +346,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
                   Flexible(
                     child: SizedBox(
-                      height: tableheight,
+                      height: tableheight + 10,
                       child: ScrollWidgetWithBar(
                         scrollController: _horizontalScrollController,
                         minWidth: tableMinWidth,
@@ -358,7 +374,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                         .dividerColor
                                         .withOpacity(0.3)
                                     : Theme.of(context).cardColor,
-                                child: rowElementWidget(element),
+                                child: rowElementWidget(element, index),
                               );
                             }
 
@@ -374,7 +390,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                     ? null
                                     : () =>
                                         widget.onElementPressed?.call(element),
-                                child: rowElementWidget(element),
+                                child: rowElementWidget(element, index),
                               ),
                             );
                           },
@@ -833,10 +849,17 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     );
   }
 
-  Widget rowElementWidget(T element) {
+  GlobalKey? rowKey;
+
+  Widget rowElementWidget(T element, int index) {
+    if (index == 0) {
+      rowKey = GlobalKey();
+    }
+
     final map = widget.toMap(element);
 
     return Padding(
+      key: index == 0 ? rowKey : null,
       padding: const EdgeInsets.symmetric(
         horizontal: 10,
       ),
