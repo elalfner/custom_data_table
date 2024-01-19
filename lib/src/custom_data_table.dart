@@ -660,7 +660,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         children: [
           Expanded(
             child: Text(
-              widget.title ?? context.appLocalizations.resultsTitle,
+              widget.title ?? context.appLocalizations.resultsTitle.naturalCapitalized,
               style: Theme.of(context).textTheme.titleLarge,
               maxLines: 1,
               softWrap: false,
