@@ -54,6 +54,11 @@ class CustomDataTable<T> extends StatefulWidget {
   /// If not provided the rows cannot be pressed.
   final Function(T value)? onElementPressed;
 
+  /// Builder that allows to put another widget as parent of a row.
+  ///
+  /// Example. To put a gesture detector in row.
+  final Widget Function(Widget widget)? rowBuilder;
+
   /// Callback to notify when a column has pressed to sort by this column.
   ///
   /// [sortInfo] contains the information that tell which column has marked to be
@@ -106,6 +111,7 @@ class CustomDataTable<T> extends StatefulWidget {
     required this.toMap,
     this.cell,
     this.onElementPressed,
+    this.rowBuilder,
     this.onSort,
     this.paginatorInfo,
     this.onNextPage,
@@ -378,7 +384,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                               );
                             }
 
-                            return Material(
+                            final row = Material(
                               color: index.isOdd
                                   ? Theme.of(context)
                                       .dividerColor
@@ -393,6 +399,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                 child: rowElementWidget(element, index),
                               ),
                             );
+
+                            return widget.rowBuilder?.call(row) ?? row;
                           },
                         ),
                       ),
@@ -660,7 +668,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         children: [
           Expanded(
             child: Text(
-              widget.title ?? context.appLocalizations.resultsTitle.naturalCapitalized,
+              widget.title ??
+                  context.appLocalizations.resultsTitle.naturalCapitalized,
               style: Theme.of(context).textTheme.titleLarge,
               maxLines: 1,
               softWrap: false,
