@@ -57,7 +57,7 @@ class CustomDataTable<T> extends StatefulWidget {
   /// Builder that allows to put another widget as parent of a row.
   ///
   /// Example. To put a gesture detector in row.
-  final Widget Function(Widget widget)? rowBuilder;
+  final Widget Function(T element, Widget widget)? rowBuilder;
 
   /// Callback to notify when a column has pressed to sort by this column.
   ///
@@ -384,7 +384,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                               );
                             }
 
-                            final row = Material(
+                            final background = Material(
                               color: index.isOdd
                                   ? Theme.of(context)
                                       .dividerColor
@@ -396,11 +396,18 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                     ? null
                                     : () =>
                                         widget.onElementPressed?.call(element),
-                                child: rowElementWidget(element, index),
                               ),
                             );
 
-                            return widget.rowBuilder?.call(row) ?? row;
+                            return Stack(
+                              children: [
+                                Positioned.fill(
+                                    child: widget.rowBuilder
+                                            ?.call(element, background) ??
+                                        background),
+                                rowElementWidget(element, index),
+                              ],
+                            );
                           },
                         ),
                       ),
@@ -1079,7 +1086,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             minHeight: dataTableTheme.dataRowMinHeight ?? dataRowMinHeight),
         child: Align(
           alignment: Alignment.centerLeft,
-          child: Text('${map[column.key] ?? ''}',
+          child: Text('${map[column.key] ?? ''}'.replaceAll('\n', ' '),
               style: dataTableTheme.dataTextStyle, maxLines: 1),
         ),
       );

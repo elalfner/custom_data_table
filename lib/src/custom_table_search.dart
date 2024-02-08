@@ -51,6 +51,11 @@ class CustomTableSearch<T> extends StatefulWidget {
   /// If not provided the rows cannot be pressed.
   final Function(T value)? onElementPressed;
 
+  /// Builder that allows to put another widget as parent of a row.
+  ///
+  /// Example. To put a gesture detector in row.
+  final Widget Function(T element, Widget widget)? rowBuilder;
+
   /// Callback to notify when a column has pressed to sort by this column.
   ///
   /// [sortInfo] contains the information that tell which column has marked to be
@@ -126,39 +131,40 @@ class CustomTableSearch<T> extends StatefulWidget {
 
   final InputDecoration? generalSearchDecoration;
 
-  const CustomTableSearch(
-      {Key? key,
-      this.controller,
-      this.title,
-      required this.columns,
-      required this.data,
-      required this.toMap,
-      this.onSort,
-      this.cell,
-      this.onChangeSearchFilter,
-      this.filterSections,
-      this.onChangeFilters,
-      this.onElementPressed,
-      this.paginatorInfo,
-      this.onPreviousPage,
-      this.onNextPage,
-      this.onSelectedPage,
-      this.onPerPageChange,
-      this.onCopy,
-      this.onPrint,
-      this.onExport,
-      this.onChangeSearchTextField,
-      this.onChangeGeneralSearch,
-      this.dataTableTheme,
-      this.generalSearchController,
-      this.generalSearchDecoration,
-      this.dateFilterType,
-      this.date,
-      this.endDate,
-      this.firstDate,
-      this.lastDate,
-      this.onChangeDateFilter})
-      : super(key: key);
+  const CustomTableSearch({
+    Key? key,
+    this.controller,
+    this.title,
+    required this.columns,
+    required this.data,
+    required this.toMap,
+    this.onSort,
+    this.cell,
+    this.onChangeSearchFilter,
+    this.filterSections,
+    this.onChangeFilters,
+    this.onElementPressed,
+    this.rowBuilder,
+    this.paginatorInfo,
+    this.onPreviousPage,
+    this.onNextPage,
+    this.onSelectedPage,
+    this.onPerPageChange,
+    this.onCopy,
+    this.onPrint,
+    this.onExport,
+    this.onChangeSearchTextField,
+    this.onChangeGeneralSearch,
+    this.dataTableTheme,
+    this.generalSearchController,
+    this.generalSearchDecoration,
+    this.dateFilterType,
+    this.date,
+    this.endDate,
+    this.firstDate,
+    this.lastDate,
+    this.onChangeDateFilter,
+  }) : super(key: key);
 
   @override
   State<CustomTableSearch<T>> createState() => _CustomTableSearchState<T>();
@@ -211,6 +217,7 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
             onExport: widget.onExport,
             onCopy: widget.onCopy,
             onElementPressed: widget.onElementPressed,
+            rowBuilder: widget.rowBuilder,
             title: widget.title,
             onPreviousPage: widget.onPreviousPage,
             onNextPage: widget.onNextPage,
