@@ -16,6 +16,7 @@ class CustomDataTable<T> extends StatefulWidget {
   ///
   /// Attributes given will override main datatable theme declared in the material
   /// theme.
+  @Deprecated("Use CustomDatatableTheme widget instead")
   final DataTableThemeData? dataTableTheme;
 
   /// Title of table.
@@ -269,160 +270,169 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: dataTableTheme.decoration ??
-          BoxDecoration(
-            borderRadius: BorderRadius.circular(0),
-          ),
-      child: ClipRRect(
-        borderRadius:
-            (dataTableTheme.decoration as BoxDecoration?)?.borderRadius ??
-                BorderRadius.circular(0),
+    final theme = context.dataTableTheme;
 
-        // Listen to screen size changes to adapt to large and small screens.
-        child: LayoutBuilder(
-          builder: (_, constraints) {
-            final availableWidth = constraints.maxWidth;
-            final availableHeight = constraints.maxHeight;
+    final oddTheme = theme?.oddRowTheme;
+    final evenTheme = theme?.evenRowTheme;
 
-            // `true` if available space is smaller than this value.
-            final small = availableWidth < 600;
+    final dividerTheme = theme?.dividerThemeData ??
+        DividerThemeData(
+          thickness: dataTableTheme.dividerThickness,
+          color: Theme.of(context).dividerColor,
+          space: 0,
+        );
 
-            const double headerHeight = 70;
+    final tableDecoration = theme?.tableDecoration ??
+        dataTableTheme.decoration ??
+        BoxDecoration(
+          borderRadius: BorderRadius.circular(0),
+        );
 
-            double tableheight;
+    final tableBorderRadius =
+        (tableDecoration as BoxDecoration?)?.borderRadius ?? BorderRadius.zero;
 
-            if (rowSize != null) {
-              if (widget.paginatorInfo?.perPage != null &&
-                  widget.paginatorInfo?.perPage != 0) {
-                tableheight = (rowSize?.height ??
-                        dataTableTheme.dataRowMinHeight ??
-                        dataRowMinHeight) *
-                    widget.paginatorInfo!.perPage!;
-              } else if (widget.data.isNotEmpty) {
-                tableheight = (rowSize?.height ??
-                        dataTableTheme.dataRowMinHeight ??
-                        dataRowMinHeight) *
-                    widget.data.length;
+    return DividerTheme(
+      data: dividerTheme,
+      child: Container(
+        decoration: tableDecoration,
+        child: ClipRRect(
+          borderRadius: tableBorderRadius,
+          // Listen to screen size changes to adapt to large and small screens.
+          child: LayoutBuilder(
+            builder: (_, constraints) {
+              final availableWidth = constraints.maxWidth;
+              final availableHeight = constraints.maxHeight;
+
+              // `true` if available space is smaller than this value.
+              final small = availableWidth < 600;
+
+              double tableheight;
+
+              if (rowSize != null) {
+                if (widget.paginatorInfo?.perPage != null &&
+                    widget.paginatorInfo?.perPage != 0) {
+                  tableheight = (rowSize?.height ??
+                          dataTableTheme.dataRowMinHeight ??
+                          dataRowMinHeight) *
+                      widget.paginatorInfo!.perPage!;
+                } else if (widget.data.isNotEmpty) {
+                  tableheight = (rowSize?.height ??
+                          dataTableTheme.dataRowMinHeight ??
+                          dataRowMinHeight) *
+                      widget.data.length;
+                } else {
+                  tableheight = availableHeight;
+                }
               } else {
                 tableheight = availableHeight;
               }
-            } else {
-              tableheight = availableHeight;
-            }
 
-            // Table layout.
-            return SelectionArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Table title and actions.
-                  SelectionContainer.disabled(
-                    child: SizedBox(
-                      height: headerHeight,
-                      child: header(small: small, width: availableWidth),
-                    ),
-                  ),
-                  ScrollWidget(
-                    scrollController: _columnsHeaderController,
-                    minWidth: tableMinWidth,
-                    width: availableWidth,
-                    child: columnsWidget(),
-                  ),
-
-                  if (widget.onChangeSearchTextField != null)
+              // Table layout.
+              return SelectionArea(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Table title and actions.
                     SelectionContainer.disabled(
-                      child: ScrollWidget(
-                        scrollController: _columnsFooterController,
-                        minWidth: tableMinWidth,
-                        width: availableWidth,
-                        child: Container(
-                          color: Theme.of(context).cardColor,
+                      child: SizedBox(
+                        child: header(small: small, width: availableWidth),
+                      ),
+                    ),
+                    ScrollWidget(
+                      scrollController: _columnsHeaderController,
+                      minWidth: tableMinWidth,
+                      width: availableWidth,
+                      child: columnsWidget(),
+                    ),
+
+                    if (widget.onChangeSearchTextField != null)
+                      SelectionContainer.disabled(
+                        child: ScrollWidget(
+                          scrollController: _columnsFooterController,
+                          minWidth: tableMinWidth,
+                          width: availableWidth,
                           child: searchWidget(),
                         ),
                       ),
-                    ),
 
-                  if ((dataTableTheme.dividerThickness ?? 0) > 0)
-                    Divider(
-                      height: 0,
-                      thickness: dataTableTheme.dividerThickness,
-                      color: Theme.of(context).dividerColor,
-                    ),
+                    const Divider(),
 
-                  Flexible(
-                    child: SizedBox(
-                      height: tableheight + 10,
-                      child: ScrollWidgetWithBar(
-                        scrollController: _horizontalScrollController,
-                        minWidth: tableMinWidth,
-                        width: availableWidth,
-                        child: ListView.separated(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          controller: _verticalScrollController,
-                          itemCount: widget.data.length,
-                          separatorBuilder: (context, index) =>
-                              (dataTableTheme.dividerThickness ?? 0) > 0
-                                  ? Divider(
-                                      height: 0,
-                                      thickness:
-                                          dataTableTheme.dividerThickness,
-                                      color: Theme.of(context).dividerColor,
-                                    )
-                                  : const SizedBox(),
-                          itemBuilder: (context, index) {
-                            final element = widget.data[index];
+                    Flexible(
+                      child: SizedBox(
+                        height: tableheight + 10,
+                        child: ScrollWidgetWithBar(
+                          scrollController: _horizontalScrollController,
+                          minWidth: tableMinWidth,
+                          width: availableWidth,
+                          child: ListView.separated(
+                            padding: const EdgeInsets.only(bottom: 10),
+                            controller: _verticalScrollController,
+                            itemCount: widget.data.length,
+                            separatorBuilder: (context, index) =>
+                                const Divider(),
+                            itemBuilder: (context, index) {
+                              final element = widget.data[index];
 
-                            if (widget.onElementPressed == null) {
-                              return Container(
-                                color: index.isOdd
-                                    ? Theme.of(context)
-                                        .dividerColor
-                                        .withOpacity(0.3)
-                                    : Theme.of(context).cardColor,
-                                child: rowElementWidget(element, index),
+                              final rowTheme =
+                                  index.isOdd ? oddTheme : evenTheme;
+
+                              final decoration = rowTheme?.decoration ??
+                                  BoxDecoration(
+                                    color: index.isOdd
+                                        ? Theme.of(context)
+                                            .dividerColor
+                                            .withOpacity(0.3)
+                                        : Theme.of(context).cardColor,
+                                  );
+
+                              if (widget.onElementPressed == null) {
+                                return Container(
+                                  decoration: decoration,
+                                  margin: rowTheme?.margin,
+                                  child: rowElementWidget(element, index),
+                                );
+                              }
+
+                              final background = Container(
+                                decoration: decoration,
+                                margin: rowTheme?.margin,
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: InkWell(
+                                    onTap: widget.onElementPressed == null
+                                        ? null
+                                        : () => widget.onElementPressed
+                                            ?.call(element),
+                                  ),
+                                ),
                               );
-                            }
 
-                            final background = Material(
-                              color: index.isOdd
-                                  ? Theme.of(context)
-                                      .dividerColor
-                                      .withOpacity(0.3)
-                                  : Theme.of(context).cardColor,
-                              child: InkWell(
-                                hoverColor: getColor({MaterialState.hovered}),
-                                onTap: widget.onElementPressed == null
-                                    ? null
-                                    : () =>
-                                        widget.onElementPressed?.call(element),
-                              ),
-                            );
-
-                            return Stack(
-                              children: [
-                                Positioned.fill(
+                              return Stack(
+                                children: [
+                                  Positioned.fill(
                                     child: widget.rowBuilder
                                             ?.call(element, background) ??
-                                        background),
-                                rowElementWidget(element, index),
-                              ],
-                            );
-                          },
+                                        background,
+                                  ),
+                                  rowElementWidget(element, index),
+                                ],
+                              );
+                            },
+                          ),
                         ),
                       ),
                     ),
-                  ),
 
-                  // Table pages info.
-                  if (widget.paginatorInfo != null)
-                    SelectionContainer.disabled(
-                      child: footer(small: small),
-                    ),
-                ],
-              ),
-            );
-          },
+                    // Table pages info.
+                    if (widget.paginatorInfo != null)
+                      SelectionContainer.disabled(
+                        child: footer(small: small),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
         ),
       ),
     );
@@ -439,15 +449,19 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// The columns to show dropdown only shows the columns that have name. If a column
   /// does not have name, it cannot be hidden.
   Widget header({required bool small, required double width}) {
+    final headerDecoration = context.dataTableTheme?.headerDecoration;
+
     if (width < 500) {
       return Container(
         // Mark container to take all width possible.
         width: double.infinity,
-        color: Theme.of(context).cardColor,
-
+        decoration: headerDecoration,
         padding: EdgeInsets.symmetric(
                 horizontal: dataTableTheme.horizontalMargin ?? 20)
-            .copyWith(top: 15, bottom: 10),
+            .copyWith(
+          top: 15,
+          bottom: 10,
+        ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
@@ -550,7 +564,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       return Container(
         // Mark container to take all width possible.
         width: double.infinity,
-        color: Theme.of(context).cardColor,
+        decoration: headerDecoration,
         padding: EdgeInsets.symmetric(
                 horizontal: dataTableTheme.horizontalMargin ?? 20)
             .copyWith(top: 15, bottom: 10),
@@ -666,7 +680,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     return Container(
       // Mark container to take all width possible.
       width: double.infinity,
-      color: Theme.of(context).cardColor,
+      decoration: headerDecoration,
       padding: EdgeInsets.symmetric(
               horizontal: dataTableTheme.horizontalMargin ?? 20)
           .copyWith(top: 15, bottom: 10),
@@ -767,6 +781,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// Displays pages info. Contains buttons to navigate between pages.
   /// If paginator info is `null`, the footer is not displayed.
   Widget footer({required bool small}) {
+    final footerDecoration = context.dataTableTheme?.footerDecoration ??
+        BoxDecoration(
+          color: Theme.of(context).cardColor,
+        );
+
     final paginatorInfo = widget.paginatorInfo;
 
     final children = [
@@ -838,7 +857,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     if (small) {
       return Container(
-        color: Theme.of(context).cardColor,
+        decoration: footerDecoration,
         padding: EdgeInsets.symmetric(
           horizontal: dataTableTheme.horizontalMargin ?? 20,
           vertical: 10,
@@ -852,7 +871,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     }
 
     return Container(
-      color: Theme.of(context).cardColor,
+      decoration: footerDecoration,
       padding: EdgeInsets.symmetric(
         horizontal: dataTableTheme.horizontalMargin ?? 20,
         vertical: 10,
@@ -909,8 +928,15 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// If flex is specified, creates an [Expand] widget with that flex. In the other hand
   /// if only width is specified, it creates a [SizedBox] with the size given.
   Widget columnsWidget() {
+    final columnHeaderDecoration =
+        context.dataTableTheme?.columnHeaderDecoration ??
+            BoxDecoration(
+              color: dataTableTheme.headingRowColor
+                  ?.resolve({MaterialState.selected}),
+            );
+
     return Container(
-      color: dataTableTheme.headingRowColor?.resolve({MaterialState.selected}),
+      decoration: columnHeaderDecoration,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -1003,8 +1029,14 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   }
 
   Widget searchWidget() {
+    final columnSearchDecoration =
+        context.dataTableTheme?.columnSearchDecoration ??
+            BoxDecoration(
+              color: Theme.of(context).cardColor,
+            );
+
     return Container(
-      color: Theme.of(context).cardColor,
+      decoration: columnSearchDecoration,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,

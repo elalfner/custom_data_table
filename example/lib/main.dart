@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:custom_data_table/custom_data_table.dart';
@@ -162,7 +163,35 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const MyHomePage(),
+      home: CustomDatatableTheme(
+        data: CustomDatatableThemeData(
+          tableDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          headerDecoration: const BoxDecoration(),
+          columnSearchDecoration: const BoxDecoration(),
+          columnHeaderDecoration: const BoxDecoration(
+            color: Colors.transparent,
+          ),
+          oddRowTheme: RowTheme(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          evenRowTheme: RowTheme(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          dividerThemeData: const DividerThemeData(
+            thickness: 1,
+            space: 1,
+            color: Colors.transparent,
+          ),
+        ),
+        child: const MyHomePage(),
+      ),
     );
   }
 }
@@ -213,7 +242,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 print(date);
               },
-              child: Text('Seleccionar mes'),
+              child: const Text('Seleccionar mes'),
             ),
             CustomFilters(
               sections: [

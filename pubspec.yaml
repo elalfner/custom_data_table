@@ -1,6 +1,6 @@
 name: custom_data_table
 description: A new Flutter package project.
-version: 0.0.26
+version: 1.0.27
 homepage:
 
 environment:
@@ -22,6 +22,8 @@ dependencies:
   linked_scroll_controller: ^0.2.0
 
   pointer_interceptor: ^0.10.0
+
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
