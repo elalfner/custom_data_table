@@ -12,6 +12,7 @@ class CustomDatatableThemeData {
   final BoxDecoration? headerDecoration;
   final BoxDecoration? footerDecoration;
   final BoxDecoration? columnSearchDecoration;
+  final EdgeInsets? contentPadding;
 
   CustomDatatableThemeData({
     this.oddRowTheme,
@@ -22,5 +23,6 @@ class CustomDatatableThemeData {
     this.headerDecoration,
     this.footerDecoration,
     this.columnSearchDecoration,
+    this.contentPadding,
   });
 }

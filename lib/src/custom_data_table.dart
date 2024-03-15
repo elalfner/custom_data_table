@@ -291,6 +291,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     final tableBorderRadius =
         (tableDecoration as BoxDecoration?)?.borderRadius ?? BorderRadius.zero;
 
+    final contentPadding = theme?.contentPadding;
+
     return DividerTheme(
       data: dividerTheme,
       child: Container(
@@ -334,15 +336,16 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                   children: [
                     // Table title and actions.
                     SelectionContainer.disabled(
-                      child: SizedBox(
-                        child: header(small: small, width: availableWidth),
-                      ),
+                      child: header(small: small, width: availableWidth),
                     ),
                     ScrollWidget(
                       scrollController: _columnsHeaderController,
                       minWidth: tableMinWidth,
                       width: availableWidth,
-                      child: columnsWidget(),
+                      child: Container(
+                        padding: contentPadding,
+                        child: columnsWidget(),
+                      ),
                     ),
 
                     if (widget.onChangeSearchTextField != null)
@@ -351,15 +354,19 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                           scrollController: _columnsFooterController,
                           minWidth: tableMinWidth,
                           width: availableWidth,
-                          child: searchWidget(),
+                          child: Container(
+                            padding: contentPadding,
+                            child: searchWidget(),
+                          ),
                         ),
                       ),
 
                     const Divider(),
 
                     Flexible(
-                      child: SizedBox(
+                      child: Container(
                         height: tableheight + 10,
+                        padding: contentPadding,
                         child: ScrollWidgetWithBar(
                           scrollController: _horizontalScrollController,
                           minWidth: tableMinWidth,
