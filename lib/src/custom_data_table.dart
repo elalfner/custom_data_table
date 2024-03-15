@@ -887,6 +887,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   Widget columnWidget(ColumnInfo column) {
     if (column.name.isEmpty) return const SizedBox();
 
+    final columnTitleTextStyle = context.dataTableTheme?.columnTitleTextStyle ??
+        dataTableTheme.headingTextStyle;
+
     return Row(
       children: [
         Flexible(
@@ -924,7 +927,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                         softWrap: false,
-                        style: dataTableTheme.headingTextStyle,
+                        style: columnTitleTextStyle,
                       ),
                     ),
                     const SizedBox(width: 5),
