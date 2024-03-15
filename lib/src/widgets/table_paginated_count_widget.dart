@@ -62,11 +62,13 @@ class TablePaginatedCountWidget extends StatelessWidget {
                   child: Text('${index + 1}'),
                 ),
               ),
-              onChanged: (value) {
-                if (value == null) return;
+              onChanged: onSelectedPage == null
+                  ? null
+                  : (value) {
+                      if (value == null) return;
 
-                onSelectedPage?.call(value);
-              },
+                      onSelectedPage?.call(value);
+                    },
             ),
           ),
         ),

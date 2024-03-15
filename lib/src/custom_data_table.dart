@@ -3,11 +3,11 @@ import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:custom_data_table/src/models/sort_info.dart';
 import 'package:custom_data_table/src/utils/debounce.dart';
 import 'package:custom_data_table/src/utils/string_extension.dart';
-import 'package:custom_data_table/src/widgets/per_page_widget.dart';
-import 'package:custom_data_table/src/widgets/table_paginated_count_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
+
+import 'widgets/table_footer.dart';
 
 class CustomDataTable<T> extends StatefulWidget {
   final TableController? controller;
@@ -788,106 +788,18 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// Displays pages info. Contains buttons to navigate between pages.
   /// If paginator info is `null`, the footer is not displayed.
   Widget footer({required bool small}) {
-    final footerDecoration = context.dataTableTheme?.footerDecoration ??
-        BoxDecoration(
-          color: Theme.of(context).cardColor,
-        );
-
     final paginatorInfo = widget.paginatorInfo;
 
-    final children = [
-      if (paginatorInfo != null &&
-          paginatorInfo.perPage != null &&
-          paginatorInfo.currentPage != null &&
-          paginatorInfo.total != null)
-        RichText(
-          text: TextSpan(
-            style: Theme.of(context).textTheme.bodySmall,
-            text: '${context.appLocalizations.showing} '.naturalCapitalized,
-            children: [
-              TextSpan(
-                text: (((paginatorInfo.currentPage! - 1) *
-                            paginatorInfo.perPage!) +
-                        1)
-                    .toString(),
-                children: [
-                  TextSpan(
-                    text: ' ${context.appLocalizations.to} ',
-                  ),
-                  TextSpan(
-                    text: (paginatorInfo.currentPage! * paginatorInfo.perPage! >
-                                paginatorInfo.total!
-                            ? paginatorInfo.total
-                            : paginatorInfo.currentPage! *
-                                paginatorInfo.perPage!)
-                        .toString(),
-                  ),
-                  TextSpan(
-                    text: ' ${context.appLocalizations.ofLabel} ',
-                  ),
-                  TextSpan(
-                    text: paginatorInfo.total!.toString(),
-                    children: [
-                      TextSpan(
-                        text: ' ${context.appLocalizations.results}',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (paginatorInfo?.perPage != null && paginatorInfo?.perPage != 0)
-            Flexible(
-              child: TablePerPageWidget(
-                paginatorInfo: paginatorInfo!,
-                onChange: widget.onPerPageChange,
-              ),
-            ),
-          const SizedBox(width: 10),
-          if (paginatorInfo != null)
-            TablePaginatedCountWidget(
-              paginatorInfo: paginatorInfo,
-              loading: false,
-              onPressedLast: widget.onPreviousPage,
-              onPressedNext: widget.onNextPage,
-              onSelectedPage: widget.onSelectedPage,
-            ),
-        ],
-      )
-    ];
+    if (paginatorInfo == null) return const SizedBox();
 
-    if (small) {
-      return Container(
-        decoration: footerDecoration,
-        padding: EdgeInsets.symmetric(
-          horizontal: dataTableTheme.horizontalMargin ?? 20,
-          vertical: 10,
-        ),
-        width: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: children,
-        ),
-      );
-    }
-
-    return Container(
-      decoration: footerDecoration,
-      padding: EdgeInsets.symmetric(
-        horizontal: dataTableTheme.horizontalMargin ?? 20,
-        vertical: 10,
-      ),
-      width: double.infinity,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: children,
-      ),
+    return TableFooter(
+      paginatorInfo: paginatorInfo,
+      small: small,
+      dataTableTheme: dataTableTheme,
+      onNextPage: widget.onNextPage,
+      onPerPageChange: widget.onPerPageChange,
+      onPreviousPage: widget.onPreviousPage,
+      onSelectedPage: widget.onSelectedPage,
     );
   }
 

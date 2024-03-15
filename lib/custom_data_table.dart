@@ -14,6 +14,7 @@ export 'src/models/search_field_info.dart';
 
 export 'src/widgets/custom_filters.dart';
 export 'src/widgets/custom_month_picker.dart';
+export 'src/widgets/table_footer.dart';
 
 export 'src/theme/datatable_theme.dart';
 export 'src/theme/datatable_theme_data.dart';
