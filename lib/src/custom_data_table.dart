@@ -340,7 +340,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               // Table layout.
               return SelectionArea(
                 child: Column(
-                  mainAxisSize: MainAxisSize.min,
                   children: [
                     // Table title and actions.
                     SelectionContainer.disabled(
