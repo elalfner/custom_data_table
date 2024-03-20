@@ -270,7 +270,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   @override
   Widget build(BuildContext context) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      var context = rowKey?.currentContext;
+      var context = rowKey.currentContext;
       if (context == null) return;
 
       rowSize = context.size;
@@ -807,12 +807,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     );
   }
 
-  GlobalKey? rowKey;
+  final rowKey = GlobalKey();
 
   Widget rowElementWidget(T element, int index) {
-    if (index == 0) {
-      rowKey = GlobalKey();
-    }
+    if (index == 0) {}
 
     final map = widget.toMap(element);
 
@@ -894,13 +892,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// sort all data of the table by this column. The information of the column is contained in
   /// [column].
   Widget columnWidget(ColumnInfo column, bool lastColumn) {
-    if (column.name.isEmpty) {
-      return Text(
-        lastColumn ? '\r' : '\t',
-        style: const TextStyle(height: 1),
-      );
-    }
-
     final columnTitleTextStyle = context.dataTableTheme?.columnTitleTextStyle ??
         dataTableTheme.headingTextStyle;
 
@@ -1082,7 +1073,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           ),
           Text(
             lastInRow ? '\r' : '\t',
-            style: const TextStyle(fontSize: 1),
+            style: const TextStyle(fontSize: 5),
           ),
         ],
       ),
