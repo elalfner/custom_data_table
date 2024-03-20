@@ -14,6 +14,7 @@ class CustomDatatableThemeData {
   final BoxDecoration? columnSearchDecoration;
   final EdgeInsets? contentPadding;
   final TextStyle? columnTitleTextStyle;
+  final double? dataRowMinHeight;
 
   CustomDatatableThemeData({
     this.oddRowTheme,
@@ -26,5 +27,6 @@ class CustomDatatableThemeData {
     this.columnSearchDecoration,
     this.contentPadding,
     this.columnTitleTextStyle,
+    this.dataRowMinHeight,
   });
 }

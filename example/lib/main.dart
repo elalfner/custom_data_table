@@ -247,23 +247,24 @@ class _MyHomePageState extends State<MyHomePage> {
             CustomFilters(
               sections: [
                 FilterSection<TipoVehiculo>(
-                    columnInfo: ColumnId(key: 'type', name: 'Tipo de vehículo'),
-                    filters: [
-                      FilterItem(
-                        filterName: 'Particular',
-                        value: TipoVehiculo(name: 'particular'),
-                      ),
-                      FilterItem(
-                        filterName: 'Motocicleta',
-                        value: TipoVehiculo(name: 'moto'),
-                      ),
-                    ],
-                    selectedFilters: [
-                      FilterItem(
-                        filterName: 'Motocicleta',
-                        value: TipoVehiculo(name: 'moto'),
-                      ),
-                    ]),
+                  columnInfo: ColumnId(key: 'type', name: 'Tipo de vehículo'),
+                  filters: [
+                    FilterItem(
+                      filterName: 'Particular',
+                      value: TipoVehiculo(name: 'particular'),
+                    ),
+                    FilterItem(
+                      filterName: 'Motocicleta',
+                      value: TipoVehiculo(name: 'moto'),
+                    ),
+                  ],
+                  selectedFilters: [
+                    FilterItem(
+                      filterName: 'Motocicleta',
+                      value: TipoVehiculo(name: 'moto'),
+                    ),
+                  ],
+                ),
                 FilterSection<Clase>(
                   columnInfo: ColumnId(key: 'clase', name: 'Clase'),
                   filters: [

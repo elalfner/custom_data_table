@@ -7,7 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
-import 'widgets/table_footer.dart';
+import 'package:collection/collection.dart';
 
 class CustomDataTable<T> extends StatefulWidget {
   final TableController? controller;
@@ -155,8 +155,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   final List<TextEditingController> insideControllers = [];
 
-  static const double dataRowMinHeight = 40;
-
   double get tableMinWidth {
     // Table breakpoint to begin to scroll.
     double tableWidth = 0;
@@ -210,6 +208,15 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   Size? rowSize;
 
+  double? get rowHeight {
+    final rowSize = this.rowSize;
+
+    if (rowSize != null) return rowSize.height;
+
+    return context.dataTableTheme?.dataRowMinHeight ??
+        dataTableTheme.dataRowMinHeight;
+  }
+
   @override
   void initState() {
     widget.controller?.clearColumnSearchFields = _clearColumnSearchFields;
@@ -222,14 +229,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     textControllers = {
       for (final col in columns) col.key: createTextController(col),
     };
-
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      var context = rowKey?.currentContext;
-      if (context == null) return;
-
-      rowSize = context.size;
-      setState(() {});
-    });
 
     super.initState();
   }
@@ -270,6 +269,14 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   @override
   Widget build(BuildContext context) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      var context = rowKey?.currentContext;
+      if (context == null) return;
+
+      rowSize = context.size;
+      setState(() {});
+    });
+
     final theme = context.dataTableTheme;
 
     final oddTheme = theme?.oddRowTheme;
@@ -310,23 +317,20 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
               double tableheight;
 
-              if (rowSize != null) {
-                if (widget.paginatorInfo?.perPage != null &&
-                    widget.paginatorInfo?.perPage != 0) {
-                  tableheight = (rowSize?.height ??
-                          dataTableTheme.dataRowMinHeight ??
-                          dataRowMinHeight) *
-                      widget.paginatorInfo!.perPage!;
+              final rowHeight = this.rowHeight;
+
+              final perPage = widget.paginatorInfo?.perPage;
+
+              if (rowHeight == null) {
+                tableheight = availableHeight;
+              } else {
+                if (perPage != null && perPage != 0) {
+                  tableheight = rowHeight * perPage + 10;
                 } else if (widget.data.isNotEmpty) {
-                  tableheight = (rowSize?.height ??
-                          dataTableTheme.dataRowMinHeight ??
-                          dataRowMinHeight) *
-                      widget.data.length;
+                  tableheight = rowHeight * widget.data.length + 10;
                 } else {
                   tableheight = availableHeight;
                 }
-              } else {
-                tableheight = availableHeight;
               }
 
               // Table layout.
@@ -824,17 +828,24 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             if (column.flex != null) ...[
               Expanded(
                 flex: column.flex ?? 1,
-                child: cell(element, map, column),
+                child: cell(
+                  element,
+                  map,
+                  column,
+                  columnsToShow.lastOrNull == column,
+                ),
               ),
-              const Text('\t'),
             ] else ...[
               SizedBox(
                 width: column.width,
-                child: cell(element, map, column),
+                child: cell(
+                  element,
+                  map,
+                  column,
+                  columnsToShow.lastOrNull == column,
+                ),
               ),
-              const Text('\t'),
             ],
-          const Text('\n'),
         ],
       ),
     );
@@ -864,15 +875,13 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             if (column.flex != null) ...[
               Expanded(
                 flex: column.flex!,
-                child: columnWidget(column),
+                child: columnWidget(column, column == columnsToShow.lastOrNull),
               ),
-              const Text('\t'),
             ] else ...[
               SizedBox(
                 width: column.width,
-                child: columnWidget(column),
+                child: columnWidget(column, column == columnsToShow.lastOrNull),
               ),
-              const Text('\t'),
             ]
         ],
       ),
@@ -884,8 +893,13 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// Creates a title with the name of the column. Also, it creates the button to
   /// sort all data of the table by this column. The information of the column is contained in
   /// [column].
-  Widget columnWidget(ColumnInfo column) {
-    if (column.name.isEmpty) return const SizedBox();
+  Widget columnWidget(ColumnInfo column, bool lastColumn) {
+    if (column.name.isEmpty) {
+      return Text(
+        lastColumn ? '\r' : '\t',
+        style: const TextStyle(height: 1),
+      );
+    }
 
     final columnTitleTextStyle = context.dataTableTheme?.columnTitleTextStyle ??
         dataTableTheme.headingTextStyle;
@@ -923,7 +937,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                     // Name of the column.
                     Flexible(
                       child: Text(
-                        column.name,
+                        '${column.name}${lastColumn ? '\r' : '\t'}',
                         overflow: TextOverflow.fade,
                         maxLines: 1,
                         softWrap: false,
@@ -1027,21 +1041,33 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// [map] is the [element] converted to map.
   /// [columnInfo] contains the column id, it allows us to know which attribute is
   /// displaying in the cell.
-  Widget cell(T element, Map<String, dynamic> map, ColumnInfo column) {
+  Widget cell(
+      T element, Map<String, dynamic> map, ColumnInfo column, bool lastInRow) {
     // Calls the function to get cell data.
     final cellWidget = widget.cell?.call(element, map, column.key);
 
     // If data is not specified or child is not given, the cell is displaying the
     // text contained in the map by the column id.
     if (cellWidget == null) {
+      final cellText = '${map[column.key] ?? ''}'.replaceAll('\n', ' ');
+
+      final dataRowMinHeight = context.dataTableTheme?.dataRowMinHeight ??
+          dataTableTheme.dataRowMinHeight;
+
       return Container(
         padding: const EdgeInsets.only(left: 5),
-        constraints: BoxConstraints(
-            minHeight: dataTableTheme.dataRowMinHeight ?? dataRowMinHeight),
+        constraints: dataRowMinHeight == null
+            ? null
+            : BoxConstraints(
+                minHeight: dataRowMinHeight,
+              ),
         child: Align(
           alignment: Alignment.centerLeft,
-          child: Text('${map[column.key] ?? ''}'.replaceAll('\n', ' '),
-              style: dataTableTheme.dataTextStyle, maxLines: 1),
+          child: Text(
+            '$cellText${lastInRow ? '\r' : '\t'}',
+            style: dataTableTheme.dataTextStyle,
+            maxLines: 1,
+          ),
         ),
       );
     }
@@ -1049,7 +1075,17 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     // Display widget specified in child if not null.
     return Material(
       color: Colors.transparent,
-      child: cellWidget,
+      child: Row(
+        children: [
+          Expanded(
+            child: cellWidget,
+          ),
+          Text(
+            lastInRow ? '\r' : '\t',
+            style: const TextStyle(fontSize: 1),
+          ),
+        ],
+      ),
     );
   }
 }
