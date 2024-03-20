@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:example/utils/string_extension.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -13,7 +14,13 @@ import 'models/user.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final String defaultLocale = Platform.localeName;
+  String defaultLocale;
+
+  if (kIsWeb) {
+    defaultLocale = Intl.defaultLocale ?? "en";
+  } else {
+    defaultLocale = Platform.localeName;
+  }
 
   Intl.systemLocale = defaultLocale;
   Intl.defaultLocale = defaultLocale;
