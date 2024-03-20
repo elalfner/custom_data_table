@@ -345,24 +345,24 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                     SelectionContainer.disabled(
                       child: header(small: small, width: availableWidth),
                     ),
-                    ScrollWidget(
-                      scrollController: _columnsHeaderController,
-                      minWidth: tableMinWidth,
-                      width: availableWidth,
-                      child: Container(
-                        padding: contentPadding,
+                    Container(
+                      padding: contentPadding,
+                      child: ScrollWidget(
+                        scrollController: _columnsHeaderController,
+                        minWidth: tableMinWidth,
+                        width: availableWidth,
                         child: columnsWidget(),
                       ),
                     ),
 
                     if (widget.onChangeSearchTextField != null)
                       SelectionContainer.disabled(
-                        child: ScrollWidget(
-                          scrollController: _columnsFooterController,
-                          minWidth: tableMinWidth,
-                          width: availableWidth,
-                          child: Container(
-                            padding: contentPadding,
+                        child: Container(
+                          padding: contentPadding,
+                          child: ScrollWidget(
+                            scrollController: _columnsFooterController,
+                            minWidth: tableMinWidth,
+                            width: availableWidth,
                             child: searchWidget(),
                           ),
                         ),
@@ -440,7 +440,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                     // Table pages info.
                     if (widget.paginatorInfo != null)
                       SelectionContainer.disabled(
-                        child: footer(small: small),
+                        child: footer(availableWidth: availableWidth),
                       ),
                   ],
                 ),
@@ -794,14 +794,14 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   ///
   /// Displays pages info. Contains buttons to navigate between pages.
   /// If paginator info is `null`, the footer is not displayed.
-  Widget footer({required bool small}) {
+  Widget footer({required double availableWidth}) {
     final paginatorInfo = widget.paginatorInfo;
 
     if (paginatorInfo == null) return const SizedBox();
 
     return TableFooter(
       paginatorInfo: paginatorInfo,
-      small: small,
+      availableWidth: availableWidth,
       dataTableTheme: dataTableTheme,
       onNextPage: widget.onNextPage,
       onPerPageChange: widget.onPerPageChange,

@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'per_page_widget.dart';
 import 'table_paginated_count_widget.dart';
 
-class TableFooter extends StatelessWidget {
+class TableFooter extends StatefulWidget {
   final PaginatorInfo paginatorInfo;
 
   final Function(int perPage)? onPerPageChange;
@@ -19,7 +19,7 @@ class TableFooter extends StatelessWidget {
 
   final Function(int page)? onSelectedPage;
 
-  final bool small;
+  final double? availableWidth;
   final DataTableThemeData? dataTableTheme;
 
   const TableFooter({
@@ -29,29 +29,50 @@ class TableFooter extends StatelessWidget {
     this.onPreviousPage,
     this.onNextPage,
     this.onSelectedPage,
-    this.small = false,
+    this.availableWidth,
     this.dataTableTheme,
   });
 
   @override
+  State<TableFooter> createState() => _TableFooterState();
+}
+
+class _TableFooterState extends State<TableFooter> {
+  @override
   Widget build(BuildContext context) {
+    final availableWidth = widget.availableWidth;
+    if (availableWidth != null) {
+      return content(availableWidth);
+    }
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return content(constraints.maxWidth);
+      },
+    );
+  }
+
+  Widget content(double availableWidth) {
+    // `true` if available space is smaller than this value.
+    final small = availableWidth < 600;
+
     final footerDecoration = context.dataTableTheme?.footerDecoration ??
         BoxDecoration(
           color: Theme.of(context).cardColor,
         );
 
     final children = [
-      if (paginatorInfo.perPage != null &&
-          paginatorInfo.currentPage != null &&
-          paginatorInfo.total != null)
+      if (widget.paginatorInfo.perPage != null &&
+          widget.paginatorInfo.currentPage != null &&
+          widget.paginatorInfo.total != null)
         RichText(
           text: TextSpan(
             style: Theme.of(context).textTheme.bodySmall,
             text: '${context.appLocalizations.showing} '.naturalCapitalized,
             children: [
               TextSpan(
-                text: (((paginatorInfo.currentPage! - 1) *
-                            paginatorInfo.perPage!) +
+                text: (((widget.paginatorInfo.currentPage! - 1) *
+                            widget.paginatorInfo.perPage!) +
                         1)
                     .toString(),
                 children: [
@@ -59,18 +80,19 @@ class TableFooter extends StatelessWidget {
                     text: ' ${context.appLocalizations.to} ',
                   ),
                   TextSpan(
-                    text: (paginatorInfo.currentPage! * paginatorInfo.perPage! >
-                                paginatorInfo.total!
-                            ? paginatorInfo.total
-                            : paginatorInfo.currentPage! *
-                                paginatorInfo.perPage!)
+                    text: (widget.paginatorInfo.currentPage! *
+                                    widget.paginatorInfo.perPage! >
+                                widget.paginatorInfo.total!
+                            ? widget.paginatorInfo.total
+                            : widget.paginatorInfo.currentPage! *
+                                widget.paginatorInfo.perPage!)
                         .toString(),
                   ),
                   TextSpan(
                     text: ' ${context.appLocalizations.ofLabel} ',
                   ),
                   TextSpan(
-                    text: paginatorInfo.total!.toString(),
+                    text: widget.paginatorInfo.total!.toString(),
                     children: [
                       TextSpan(
                         text: ' ${context.appLocalizations.results}',
@@ -86,20 +108,21 @@ class TableFooter extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (paginatorInfo.perPage != null && paginatorInfo.perPage != 0)
+          if (widget.paginatorInfo.perPage != null &&
+              widget.paginatorInfo.perPage != 0)
             Flexible(
               child: TablePerPageWidget(
-                paginatorInfo: paginatorInfo,
-                onChange: onPerPageChange,
+                paginatorInfo: widget.paginatorInfo,
+                onChange: widget.onPerPageChange,
               ),
             ),
           const SizedBox(width: 10),
           TablePaginatedCountWidget(
-            paginatorInfo: paginatorInfo,
+            paginatorInfo: widget.paginatorInfo,
             loading: false,
-            onPressedLast: onPreviousPage,
-            onPressedNext: onNextPage,
-            onSelectedPage: onSelectedPage,
+            onPressedLast: widget.onPreviousPage,
+            onPressedNext: widget.onNextPage,
+            onSelectedPage: widget.onSelectedPage,
           ),
         ],
       )
@@ -109,7 +132,7 @@ class TableFooter extends StatelessWidget {
       return Container(
         decoration: footerDecoration,
         padding: EdgeInsets.symmetric(
-          horizontal: dataTableTheme?.horizontalMargin ?? 20,
+          horizontal: widget.dataTableTheme?.horizontalMargin ?? 20,
           vertical: 10,
         ),
         width: double.infinity,
@@ -123,7 +146,7 @@ class TableFooter extends StatelessWidget {
     return Container(
       decoration: footerDecoration,
       padding: EdgeInsets.symmetric(
-        horizontal: dataTableTheme?.horizontalMargin ?? 20,
+        horizontal: widget.dataTableTheme?.horizontalMargin ?? 20,
         vertical: 10,
       ),
       width: double.infinity,
