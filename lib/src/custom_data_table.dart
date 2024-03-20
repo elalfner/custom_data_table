@@ -273,8 +273,12 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       var context = rowKey.currentContext;
       if (context == null) return;
 
-      rowSize = context.size;
-      setState(() {});
+      final rowSize = context.size;
+
+      if (rowSize != this.rowSize) {
+        this.rowSize = rowSize;
+        setState(() {});
+      }
     });
 
     final theme = context.dataTableTheme;
