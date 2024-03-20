@@ -306,148 +306,164 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     return DividerTheme(
       data: dividerTheme,
-      child: Container(
-        decoration: tableDecoration,
-        child: ClipRRect(
-          borderRadius: tableBorderRadius,
-          // Listen to screen size changes to adapt to large and small screens.
-          child: LayoutBuilder(
-            builder: (_, constraints) {
-              final availableWidth = constraints.maxWidth;
-              final availableHeight = constraints.maxHeight;
+      child: LayoutBuilder(
+        builder: (_, constraints) {
+          final availableWidth = constraints.maxWidth;
+          final availableHeight = constraints.maxHeight;
 
-              // `true` if available space is smaller than this value.
-              final small = availableWidth < 600;
+          // `true` if available space is smaller than this value.
+          final small = availableWidth < 600;
 
-              double tableheight;
+          double tableheight;
 
-              final rowHeight = this.rowHeight;
+          final rowHeight = this.rowHeight;
 
-              final perPage = widget.paginatorInfo?.perPage;
+          final perPage = widget.paginatorInfo?.perPage;
 
-              if (rowHeight == null) {
-                tableheight = availableHeight;
-              } else {
-                if (perPage != null && perPage != 0) {
-                  tableheight = rowHeight * perPage + 10;
-                } else if (widget.data.isNotEmpty) {
-                  tableheight = rowHeight * widget.data.length + 10;
-                } else {
-                  tableheight = availableHeight;
-                }
-              }
+          if (rowHeight == null) {
+            tableheight = availableHeight;
+          } else {
+            if (perPage != null && perPage != 0) {
+              tableheight = rowHeight * perPage + 10;
+            } else if (widget.data.isNotEmpty) {
+              tableheight = rowHeight * widget.data.length + 10;
+            } else {
+              tableheight = availableHeight;
+            }
+          }
 
-              // Table layout.
-              return SelectionArea(
-                child: Column(
-                  children: [
-                    // Table title and actions.
-                    SelectionContainer.disabled(
-                      child: header(small: small, width: availableWidth),
-                    ),
-                    Container(
-                      padding: contentPadding,
-                      child: ScrollWidget(
-                        scrollController: _columnsHeaderController,
-                        minWidth: tableMinWidth,
-                        width: availableWidth,
-                        child: columnsWidget(),
-                      ),
-                    ),
-
-                    if (widget.onChangeSearchTextField != null)
-                      SelectionContainer.disabled(
-                        child: Container(
-                          padding: contentPadding,
-                          child: ScrollWidget(
-                            scrollController: _columnsFooterController,
-                            minWidth: tableMinWidth,
-                            width: availableWidth,
-                            child: searchWidget(),
+          // Table layout.
+          return ClipRRect(
+            borderRadius: tableBorderRadius,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: Container(
+                    decoration: tableDecoration,
+                    child: SelectionArea(
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          // Table title and actions.
+                          SelectionContainer.disabled(
+                            child: header(small: small, width: availableWidth),
                           ),
-                        ),
-                      ),
+                          Container(
+                            padding: contentPadding,
+                            child: ScrollWidget(
+                              scrollController: _columnsHeaderController,
+                              minWidth: tableMinWidth,
+                              width: availableWidth,
+                              child: columnsWidget(),
+                            ),
+                          ),
 
-                    const Divider(),
-
-                    Flexible(
-                      child: Container(
-                        height: tableheight + 10,
-                        padding: contentPadding,
-                        child: ScrollWidgetWithBar(
-                          scrollController: _horizontalScrollController,
-                          minWidth: tableMinWidth,
-                          width: availableWidth,
-                          child: ListView.separated(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            controller: _verticalScrollController,
-                            itemCount: widget.data.length,
-                            separatorBuilder: (context, index) =>
-                                const Divider(),
-                            itemBuilder: (context, index) {
-                              final element = widget.data[index];
-
-                              final rowTheme =
-                                  index.isOdd ? oddTheme : evenTheme;
-
-                              final decoration = rowTheme?.decoration ??
-                                  BoxDecoration(
-                                    color: index.isOdd
-                                        ? Theme.of(context)
-                                            .dividerColor
-                                            .withOpacity(0.3)
-                                        : Theme.of(context).cardColor,
-                                  );
-
-                              if (widget.onElementPressed == null) {
-                                return Container(
-                                  decoration: decoration,
-                                  margin: rowTheme?.margin,
-                                  child: rowElementWidget(element, index),
-                                );
-                              }
-
-                              final background = Container(
-                                decoration: decoration,
-                                margin: rowTheme?.margin,
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    onTap: widget.onElementPressed == null
-                                        ? null
-                                        : () => widget.onElementPressed
-                                            ?.call(element),
-                                  ),
+                          if (widget.onChangeSearchTextField != null)
+                            SelectionContainer.disabled(
+                              child: Container(
+                                padding: contentPadding,
+                                child: ScrollWidget(
+                                  scrollController: _columnsFooterController,
+                                  minWidth: tableMinWidth,
+                                  width: availableWidth,
+                                  child: searchWidget(),
                                 ),
-                              );
+                              ),
+                            ),
 
-                              return Stack(
-                                children: [
-                                  Positioned.fill(
-                                    child: widget.rowBuilder
-                                            ?.call(element, background) ??
-                                        background,
-                                  ),
-                                  rowElementWidget(element, index),
-                                ],
-                              );
-                            },
+                          const Divider(),
+
+                          Flexible(
+                            child: Container(
+                              constraints: BoxConstraints(
+                                maxHeight: tableheight + 10,
+                              ),
+                              padding: contentPadding,
+                              child: ScrollWidgetWithBar(
+                                scrollController: _horizontalScrollController,
+                                minWidth: tableMinWidth,
+                                width: availableWidth,
+                                child: ListView.separated(
+                                  padding: const EdgeInsets.only(bottom: 10),
+                                  controller: _verticalScrollController,
+                                  itemCount: widget.data.length,
+                                  separatorBuilder: (context, index) =>
+                                      const Divider(),
+                                  itemBuilder: (context, index) {
+                                    final element = widget.data[index];
+
+                                    final rowTheme =
+                                        index.isOdd ? oddTheme : evenTheme;
+
+                                    final decoration = rowTheme?.decoration ??
+                                        BoxDecoration(
+                                          color: index.isOdd
+                                              ? Theme.of(context)
+                                                  .dividerColor
+                                                  .withOpacity(0.3)
+                                              : Theme.of(context).cardColor,
+                                        );
+
+                                    if (widget.onElementPressed == null) {
+                                      return Container(
+                                        decoration: decoration,
+                                        margin: rowTheme?.margin,
+                                        child: rowElementWidget(element, index),
+                                      );
+                                    }
+
+                                    final rowBorderRadius =
+                                        decoration.borderRadius ??
+                                            BorderRadius.zero;
+
+                                    final background = Container(
+                                      decoration: decoration,
+                                      margin: rowTheme?.margin,
+                                      child: Material(
+                                        color: Colors.transparent,
+                                        borderRadius: rowBorderRadius,
+                                        child: InkWell(
+                                          borderRadius: rowBorderRadius
+                                              .resolve(TextDirection.ltr),
+                                          onTap: widget.onElementPressed == null
+                                              ? null
+                                              : () => widget.onElementPressed
+                                                  ?.call(element),
+                                        ),
+                                      ),
+                                    );
+
+                                    return Stack(
+                                      children: [
+                                        Positioned.fill(
+                                          child: widget.rowBuilder
+                                                  ?.call(element, background) ??
+                                              background,
+                                        ),
+                                        rowElementWidget(element, index),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
                           ),
-                        ),
+
+                          // Table pages info.
+                          if (widget.paginatorInfo != null)
+                            SelectionContainer.disabled(
+                              child: footer(availableWidth: availableWidth),
+                            ),
+                        ],
                       ),
                     ),
-
-                    // Table pages info.
-                    if (widget.paginatorInfo != null)
-                      SelectionContainer.disabled(
-                        child: footer(availableWidth: availableWidth),
-                      ),
-                  ],
+                  ),
                 ),
-              );
-            },
-          ),
-        ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

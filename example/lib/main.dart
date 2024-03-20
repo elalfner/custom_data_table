@@ -110,7 +110,7 @@ class MyApp extends StatelessWidget {
           ),
           dividerThickness: 0.7,
           dataRowColor: MaterialStateProperty.resolveWith(
-            (states) {
+                (states) {
               if (states.contains(MaterialState.hovered)) {
                 return Colors.grey[200];
               }
@@ -118,7 +118,7 @@ class MyApp extends StatelessWidget {
             },
           ),
           headingRowColor: MaterialStateProperty.resolveWith(
-            (states) {
+                (states) {
               if (states.contains(MaterialState.selected)) {
                 return theme.colorScheme.secondaryContainer;
               }
@@ -169,38 +169,34 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: Builder(
-        builder: (context) {
-          final appTheme = Theme.of(context);
-          
-          return CustomDatatableTheme(
-            data: CustomDatatableThemeData(
-              dividerThemeData: const DividerThemeData(
-                space: 0,
-                thickness: 0,
-                color: Colors.transparent,
-              ),
-              evenRowTheme: RowTheme(
-                decoration: BoxDecoration(
-                  color: appTheme.colorScheme.surface,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              oddRowTheme: RowTheme(
-                decoration: BoxDecoration(
-                  color: Colors.transparent,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              contentPadding: const EdgeInsets.symmetric(horizontal: 30),
-              footerDecoration: const BoxDecoration(),
-              columnTitleTextStyle: appTheme.textTheme.bodyMedium?.copyWith(
-                color: appTheme.colorScheme.primary,
-              ),
+      home: CustomDatatableTheme(
+        data: CustomDatatableThemeData(
+          tableDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+          ),
+          headerDecoration: const BoxDecoration(),
+          columnSearchDecoration: const BoxDecoration(),
+          columnHeaderDecoration: const BoxDecoration(
+            color: Colors.transparent,
+          ),
+          oddRowTheme: RowTheme(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(10),
             ),
-            child: const MyHomePage(),
-          );
-        }
+          ),
+          evenRowTheme: RowTheme(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          dividerThemeData: const DividerThemeData(
+            thickness: 1,
+            space: 1,
+            color: Colors.transparent,
+          ),
+        ),
+        child: const MyHomePage(),
       ),
     );
   }
@@ -320,20 +316,57 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: CustomDataTable<User>(
+              child: CustomTableSearch<User>(
                 data: data,
                 title: 'Usuarios',
                 columns: [
-                  ColumnInfo(name: 'Id', key: 'id', width: 300, flex: 1),
                   ColumnInfo(
-                    name: 'Nombre',
-                    key: 'name',
-                      width: 300,
-                      flex: 1
+                    name: 'Id',
+                    key: 'id',
+                    canSearch: true,
+                    flex: 1,
+                    width: 100,
+                    canSearchInput: true,
                   ),
-
+                  ColumnInfo(name: 'Nombre', key: 'name', flex: 2, width: 300),
+                  ColumnInfo(
+                    name: 'Teléfono',
+                    key: 'phone',
+                    width: 110,
+                    canSearchInput: true,
+                    controllerInput: TextEditingController(text: 'Prueba'),
+                    onChangeInput: (value) {
+                      print(value);
+                    },
+                  ),
+                  ColumnInfo(
+                    name: 'Email',
+                    key: 'email',
+                    width: 110,
+                    canSearch: true,
+                    canSort: false,
+                  ),
+                  ColumnInfo(name: 'Tipo', key: 'userType', width: 100),
+                  ColumnInfo(name: '', key: 'button', flex: 1, width: 100),
                 ],
                 toMap: (element) => element.toJsonTable(),
+                onChangeSearchFilter: (values) {
+                  print(values);
+                },
+                cell: (element, map, key) {
+                  switch (key) {
+                    case 'button':
+                      return IconButton(
+                        padding: EdgeInsets.zero,
+                        onPressed: () => print(element.id),
+                        icon: const Icon(Icons.block),
+                        color: Colors.pink,
+                        splashRadius: 20,
+                      );
+                  }
+
+                  return null;
+                },
                 paginatorInfo: paginatorInfo,
                 onPreviousPage: () {
                   paginatorInfo = paginatorInfo.copyWith(
@@ -348,6 +381,12 @@ class _MyHomePageState extends State<MyHomePage> {
                 onSelectedPage: (page) {
                   paginatorInfo = paginatorInfo.copyWith(currentPage: page);
                   setState(() {});
+                },
+                generalSearchDecoration: InputDecoration(
+                  hintText: context.appLocalizations.search.naturalCapitalized,
+                ),
+                onChangeGeneralSearch: (value) {
+                  print(value);
                 },
                 onChangeSearchTextField: (values) {},
                 onPerPageChange: (perPage) {
@@ -365,10 +404,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     case 'name':
                       if (sortInfo.asc) {
                         data.sort(
-                            (a, b) => (a.name ?? '').compareTo(b.name ?? ''));
+                                (a, b) => (a.name ?? '').compareTo(b.name ?? ''));
                       } else {
                         data.sort(
-                            (b, a) => (a.name ?? '').compareTo(b.name ?? ''));
+                                (b, a) => (a.name ?? '').compareTo(b.name ?? ''));
                       }
                       break;
                     case 'userType':
@@ -383,6 +422,28 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 onPrint: () {},
                 onElementPressed: (value) {},
+                filterSections: [
+                  FilterSection(
+                    columnInfo: ColumnId(key: 'hola', name: 'hola'),
+                    filters: [
+                      FilterItem(filterName: 'Hola', value: 'Hola'),
+                      FilterItem(filterName: 'Como', value: 'Como'),
+                    ],
+                    selectedFilters: [
+                      FilterItem(filterName: 'Como', value: 'Como'),
+                    ],
+                  ),
+                ],
+                onChangeFilters: (values) {},
+                dateFilterType: DateFilterType.period,
+                date: DateTime.now(),
+                endDate: DateTime.now(),
+                lastDate: DateTime.now().add(const Duration(days: 10)),
+                onChangeDateFilter: (dateFilterType, date, endDate) {
+                  print(dateFilterType);
+                  print(date);
+                  print(endDate);
+                },
               ),
             ),
           ],
