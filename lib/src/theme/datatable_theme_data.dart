@@ -15,6 +15,8 @@ class CustomDatatableThemeData {
   final EdgeInsets? contentPadding;
   final TextStyle? columnTitleTextStyle;
   final double? dataRowMinHeight;
+  final InputDecorationTheme? selectColumnsInputTheme;
+  final Widget? selectColumnsInputBackground;
 
   CustomDatatableThemeData({
     this.oddRowTheme,
@@ -28,5 +30,7 @@ class CustomDatatableThemeData {
     this.contentPadding,
     this.columnTitleTextStyle,
     this.dataRowMinHeight,
+    this.selectColumnsInputTheme,
+    this.selectColumnsInputBackground,
   });
 }

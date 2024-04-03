@@ -346,8 +346,15 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           // Table title and actions.
-                          SelectionContainer.disabled(
-                            child: header(small: small, width: availableWidth),
+                          Theme(
+                            data: Theme.of(context).copyWith(
+                              inputDecorationTheme:
+                                  theme?.selectColumnsInputTheme,
+                            ),
+                            child: SelectionContainer.disabled(
+                              child:
+                                  header(small: small, width: availableWidth),
+                            ),
                           ),
                           Container(
                             padding: contentPadding,
