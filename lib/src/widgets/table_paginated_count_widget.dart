@@ -38,6 +38,7 @@ class TablePaginatedCountWidget extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
+          height: 30,
           padding: const EdgeInsets.symmetric(horizontal: 5),
           decoration: BoxDecoration(
             color: Theme.of(context).inputDecorationTheme.fillColor,
@@ -54,7 +55,6 @@ class TablePaginatedCountWidget extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
               borderRadius: BorderRadius.circular(10),
               underline: const SizedBox(),
-              isDense: true,
               items: List.generate(
                 lastPage,
                 (index) => DropdownMenuItem(
