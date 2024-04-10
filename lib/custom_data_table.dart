@@ -14,5 +14,6 @@ export 'src/models/search_field_info.dart';
 
 export 'src/widgets/custom_filters.dart';
 export 'src/widgets/custom_month_picker.dart';
+export 'src/widgets/both_directions_listview_builder.dart';
 
 export 'l10n/app_localizations.dart';
