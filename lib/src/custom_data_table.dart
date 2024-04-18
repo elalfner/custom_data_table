@@ -24,6 +24,8 @@ class CustomDataTable<T> extends StatefulWidget {
   /// if `null` shows `Listado` in the title.
   final String? title;
 
+  final Widget? titleWidget;
+
   /// List of columns the table has.
   ///
   /// Each element of the list contains the name of the column, key to identify it, and the
@@ -107,6 +109,7 @@ class CustomDataTable<T> extends StatefulWidget {
     Key? key,
     this.controller,
     this.title,
+    this.titleWidget,
     required this.columns,
     required this.data,
     required this.toMap,
@@ -486,7 +489,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// The columns to show dropdown only shows the columns that have name. If a column
   /// does not have name, it cannot be hidden.
   Widget header({required bool small, required double width}) {
-    final headerDecoration = context.dataTableTheme?.headerDecoration;
+    final theme = context.dataTableTheme;
+
+    final headerDecoration = theme?.headerDecoration;
 
     if (width < 500) {
       return Container(
@@ -506,32 +511,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             SizedBox(
               width: 150,
               height: 40,
-              // Only allow to hide column that have name.
-              child: PopUpField<ColumnInfo>(
-                tooltip: context.appLocalizations.showHideColumns,
-                items: widget.columns
-                    .where((element) => element.name.isNotEmpty == true)
-                    .map(
-                      (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-                    )
-                    .toList(),
-                selectedFields: widget.columns
-                    .where((element) => element.name.isNotEmpty == true)
-                    .map(
-                      (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-                    )
-                    .toList(),
-                onChange: (values) {
-                  // Notify new selected items.
-                  columnsSelected = values;
-
-                  columnsSelected?.addAll(
-                    widget.columns.where((element) => element.name.isEmpty),
-                  );
-
-                  setState(() {});
-                },
-              ),
+              child: hideShowColumnsWidget(),
             ),
             const SizedBox(width: 5),
             if (widget.onCopy != null ||
@@ -609,45 +589,22 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Expanded(
-              child: Text(
-                widget.title ??
-                    context.appLocalizations.resultsTitle.naturalCapitalized,
-                style: Theme.of(context).textTheme.titleLarge,
-                maxLines: 1,
-                softWrap: false,
-                overflow: TextOverflow.fade,
-              ),
+              child: widget.titleWidget ??
+                  Text(
+                    widget.title ??
+                        context
+                            .appLocalizations.resultsTitle.naturalCapitalized,
+                    style: theme?.tableTitleTextStyle ??
+                        Theme.of(context).textTheme.titleLarge,
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.fade,
+                  ),
             ),
             SizedBox(
               width: 180,
               height: 40,
-              // Only allow to hide column that have name.
-              child: PopUpField<ColumnInfo>(
-                tooltip:
-                    context.appLocalizations.showHideColumns.naturalCapitalized,
-                items: widget.columns
-                    .where((element) => element.name.isNotEmpty == true)
-                    .map(
-                      (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-                    )
-                    .toList(),
-                selectedFields: widget.columns
-                    .where((element) => element.name.isNotEmpty == true)
-                    .map(
-                      (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-                    )
-                    .toList(),
-                onChange: (values) {
-                  // Notify new selected items.
-                  columnsSelected = values;
-
-                  columnsSelected?.addAll(
-                    widget.columns.where((element) => element.name.isEmpty),
-                  );
-
-                  setState(() {});
-                },
-              ),
+              child: hideShowColumnsWidget(),
             ),
             if (widget.onExport != null ||
                 widget.onPrint != null ||
@@ -725,14 +682,16 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: Text(
-              widget.title ??
-                  context.appLocalizations.resultsTitle.naturalCapitalized,
-              style: Theme.of(context).textTheme.titleLarge,
-              maxLines: 1,
-              softWrap: false,
-              overflow: TextOverflow.fade,
-            ),
+            child: widget.titleWidget ??
+                Text(
+                  widget.title ??
+                      context.appLocalizations.resultsTitle.naturalCapitalized,
+                  style: theme?.tableTitleTextStyle ??
+                      Theme.of(context).textTheme.titleLarge,
+                  maxLines: 1,
+                  softWrap: false,
+                  overflow: TextOverflow.fade,
+                ),
           ),
           Text(
             '${context.appLocalizations.show.naturalCapitalized}:',
@@ -745,31 +704,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             width: 180,
             height: 40,
             // Only allow to hide column that have name.
-            child: PopUpField<ColumnInfo>(
-              tooltip: context.appLocalizations.showHideColumns,
-              items: widget.columns
-                  .where((element) => element.name.isNotEmpty == true)
-                  .map(
-                    (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-                  )
-                  .toList(),
-              selectedFields: widget.columns
-                  .where((element) => element.name.isNotEmpty == true)
-                  .map(
-                    (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-                  )
-                  .toList(),
-              onChange: (values) {
-                // Notify new selected items.
-                columnsSelected = values;
-
-                columnsSelected?.addAll(
-                  widget.columns.where((element) => element.name.isEmpty),
-                );
-
-                setState(() {});
-              },
-            ),
+            child: hideShowColumnsWidget(),
           ),
           if (widget.onExport != null ||
               widget.onPrint != null ||
@@ -810,6 +745,35 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           ],
         ],
       ),
+    );
+  }
+
+  Widget hideShowColumnsWidget() {
+    // Only allow to hide column that have name.
+    return PopUpField<ColumnInfo>(
+      tooltip: context.appLocalizations.showHideColumns,
+      items: widget.columns
+          .where((element) => element.name.isNotEmpty == true)
+          .map(
+            (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
+          )
+          .toList(),
+      selectedFields: widget.columns
+          .where((element) => element.name.isNotEmpty == true)
+          .map(
+            (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
+          )
+          .toList(),
+      onChange: (values) {
+        // Notify new selected items.
+        columnsSelected = values;
+
+        columnsSelected?.addAll(
+          widget.columns.where((element) => element.name.isEmpty),
+        );
+
+        setState(() {});
+      },
     );
   }
 
