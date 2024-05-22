@@ -21,3 +21,5 @@ export 'src/theme/datatable_theme_data.dart';
 export 'src/widgets/both_directions_listview_builder.dart';
 
 export 'l10n/app_localizations.dart';
+
+export 'src/widgets/dates_filter_chip.dart';

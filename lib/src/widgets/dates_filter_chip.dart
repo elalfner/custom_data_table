@@ -53,95 +53,107 @@ class DatesFilterChip extends StatelessWidget {
       onPressed: () async {
         onTapDateFilter?.call();
 
-        final _DateSelection? selection = await showModalBottomSheet(
-          isDismissible: false,
-          context: context,
-          isScrollControlled: true,
-          constraints: const BoxConstraints(
-            maxWidth: 500,
-            minWidth: 500,
+        final customDateFilters = await showCustomDateFilters(
+          context,
+          initialDateSelection: DateSelection(
+            dateFilterType: dateFilterType,
+            date: date,
+            endDate: endDate,
           ),
-          builder: (_) => PointerInterceptor(
-            child: DateFilterView(
-              dateFilterType: dateFilterType,
-              date: date,
-              endDate: endDate,
-              firstDate: firstDate,
-              lastDate: lastDate,
-            ),
-          ),
+          firstDate: firstDate,
+          lastDate: lastDate,
         );
 
-        final selectionDate = selection?.date;
-        final selectionEndDate = selection?.endDate;
-
-        if (selection == null || selectionDate == null) {
-          onChangeDateFilter?.call(
-            selection?.dateFilterType,
-            selectionDate,
-            selectionEndDate,
-          );
-
-          return;
-        }
-
-        DateTime? fromDate;
-        DateTime? toDate;
-
-        switch (selection.dateFilterType) {
-          case DateFilterType.date:
-            fromDate = selectionDate.onlyDate;
-            toDate = fromDate.add(const Duration(days: 1));
-
-            break;
-          case DateFilterType.month:
-            fromDate = selectionDate.onlyDate;
-            toDate = fromDate.copyWith(month: fromDate.month + 1);
-
-            break;
-          case DateFilterType.year:
-            fromDate = selectionDate.onlyDate;
-            toDate = fromDate.copyWith(year: fromDate.year + 1);
-
-            break;
-          default:
-            fromDate = selectionDate;
-            toDate = selectionEndDate;
-        }
-
         onChangeDateFilter?.call(
-          selection.dateFilterType,
-          fromDate,
-          toDate,
+          customDateFilters.dateFilterType,
+          customDateFilters.date,
+          customDateFilters.endDate,
         );
       },
     );
   }
 }
 
-class DateFilterView extends StatefulWidget {
-  final DateFilterType? dateFilterType;
+Future<DateSelection> showCustomDateFilters(
+  BuildContext context, {
+  DateSelection? initialDateSelection,
+  DateTime? firstDate,
+  DateTime? lastDate,
+}) async {
+  final DateSelection? selection = await showModalBottomSheet(
+    isDismissible: false,
+    context: context,
+    isScrollControlled: true,
+    constraints: const BoxConstraints(
+      maxWidth: 500,
+      minWidth: 500,
+    ),
+    builder: (_) => PointerInterceptor(
+      child: _DateFilterView(
+        dateSelection: initialDateSelection,
+        firstDate: firstDate,
+        lastDate: lastDate,
+      ),
+    ),
+  );
 
-  final DateTime? date;
-  final DateTime? endDate;
+  final selectionDate = selection?.date;
+  final selectionEndDate = selection?.endDate;
+
+  if (selection == null || selectionDate == null) {
+    return DateSelection(
+      dateFilterType: selection?.dateFilterType,
+      date: selectionDate,
+      endDate: selectionEndDate,
+    );
+  }
+
+  DateTime? fromDate;
+  DateTime? toDate;
+
+  switch (selection.dateFilterType) {
+    case DateFilterType.date:
+      fromDate = selectionDate.onlyDate;
+      toDate = fromDate.add(const Duration(days: 1));
+
+      break;
+    case DateFilterType.month:
+      fromDate = selectionDate.onlyDate;
+      toDate = fromDate.copyWith(month: fromDate.month + 1);
+
+      break;
+    case DateFilterType.year:
+      fromDate = selectionDate.onlyDate;
+      toDate = fromDate.copyWith(year: fromDate.year + 1);
+
+      break;
+    default:
+      fromDate = selectionDate;
+      toDate = selectionEndDate;
+  }
+
+  return DateSelection(
+    dateFilterType: selection.dateFilterType,
+    date: fromDate,
+    endDate: toDate,
+  );
+}
+
+class _DateFilterView extends StatefulWidget {
+  final DateSelection? dateSelection;
 
   final DateTime? firstDate;
   final DateTime? lastDate;
 
-  const DateFilterView(
-      {Key? key,
-      this.dateFilterType,
-      this.date,
-      this.endDate,
-      this.firstDate,
-      this.lastDate})
+  const _DateFilterView(
+      {Key? key, this.dateSelection, this.firstDate, this.lastDate})
       : super(key: key);
 
   @override
-  State<DateFilterView> createState() => _DateFilterViewState();
+  State<_DateFilterView> createState() => _DateFilterViewState();
 }
 
-class _DateFilterViewState extends State<DateFilterView> {
+class _DateFilterViewState extends State<_DateFilterView> {
   static const startYear = 2020;
 
   DateFilterType? dateFilterType;
@@ -151,10 +163,11 @@ class _DateFilterViewState extends State<DateFilterView> {
 
   @override
   void initState() {
-    dateFilterType = widget.dateFilterType;
+    final dateSelection = widget.dateSelection;
+    dateFilterType = dateSelection?.dateFilterType;
 
-    date = widget.date;
-    endDate = widget.endDate;
+    date = dateSelection?.date;
+    endDate = dateSelection?.endDate;
 
     super.initState();
   }
@@ -188,7 +201,7 @@ class _DateFilterViewState extends State<DateFilterView> {
               ElevatedButton(
                 onPressed: () => Navigator.pop(
                   context,
-                  _DateSelection(
+                  DateSelection(
                     dateFilterType: dateFilterType,
                     date: date,
                     endDate: endDate,
@@ -439,11 +452,40 @@ class _DateFilterViewState extends State<DateFilterView> {
   }
 }
 
-class _DateSelection {
+class DateSelection {
   DateFilterType? dateFilterType;
 
   DateTime? date;
   DateTime? endDate;
 
-  _DateSelection({this.dateFilterType, this.date, this.endDate});
+  DateSelection({this.dateFilterType, this.date, this.endDate});
+
+  String? label(BuildContext context) {
+    if (dateFilterType == DateFilterType.date &&
+        date?.onlyDate == DateTime.now().onlyDate) {
+      return context.appLocalizations.onlyToday;
+    }
+
+    if (dateFilterType == DateFilterType.date &&
+        date != null &&
+        date?.onlyDate != DateTime.now().onlyDate) {
+      return DateFormat.yMd().format(date!);
+    }
+
+    if (dateFilterType == DateFilterType.month && date != null) {
+      return DateFormat.yMMMM().format(date!);
+    }
+
+    if (dateFilterType == DateFilterType.year && date != null) {
+      return DateFormat.y().format(date!);
+    }
+
+    if (dateFilterType == DateFilterType.period &&
+        date != null &&
+        endDate != null) {
+      return '${DateFormat.yMd().add_Hm().format(date!)} - ${DateFormat.yMd().add_Hm().format(endDate!)}';
+    }
+
+    return null;
+  }
 }

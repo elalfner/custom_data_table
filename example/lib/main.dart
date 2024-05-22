@@ -110,7 +110,7 @@ class MyApp extends StatelessWidget {
           ),
           dividerThickness: 0.7,
           dataRowColor: MaterialStateProperty.resolveWith(
-                (states) {
+            (states) {
               if (states.contains(MaterialState.hovered)) {
                 return Colors.grey[200];
               }
@@ -118,7 +118,7 @@ class MyApp extends StatelessWidget {
             },
           ),
           headingRowColor: MaterialStateProperty.resolveWith(
-                (states) {
+            (states) {
               if (states.contains(MaterialState.selected)) {
                 return theme.colorScheme.secondaryContainer;
               }
@@ -237,6 +237,14 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            FilledButton(
+              onPressed: () async {
+                final a = await showCustomDateFilters(context);
+
+                print(a.label(context));
+              },
+              child: Text('Show date filter'),
+            ),
             FilledButton(
               onPressed: () async {
                 final date = await showMonthPicker(
@@ -404,10 +412,10 @@ class _MyHomePageState extends State<MyHomePage> {
                     case 'name':
                       if (sortInfo.asc) {
                         data.sort(
-                                (a, b) => (a.name ?? '').compareTo(b.name ?? ''));
+                            (a, b) => (a.name ?? '').compareTo(b.name ?? ''));
                       } else {
                         data.sort(
-                                (b, a) => (a.name ?? '').compareTo(b.name ?? ''));
+                            (b, a) => (a.name ?? '').compareTo(b.name ?? ''));
                       }
                       break;
                     case 'userType':
