@@ -23,3 +23,5 @@ export 'src/widgets/both_directions_listview_builder.dart';
 export 'l10n/app_localizations.dart';
 
 export 'src/widgets/dates_filter_chip.dart';
+
+export 'src/utils/date_time_extension.dart';

@@ -87,4 +87,7 @@ class AppLocalizationsEs extends DataTableLocalizations {
 
   @override
   String get all => 'todos';
+
+  @override
+  String get thisWeek => 'Esta semana';
 }

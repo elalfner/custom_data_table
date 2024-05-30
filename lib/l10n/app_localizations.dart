@@ -260,6 +260,12 @@ abstract class DataTableLocalizations {
   /// In en, this message translates to:
   /// **'all'**
   String get all;
+
+  /// No description provided for @thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get thisWeek;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<DataTableLocalizations> {

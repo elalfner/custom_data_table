@@ -26,5 +26,6 @@
   "copy": "copy",
   "print": "print",
   "export": "export",
-  "all": "all"
+  "all": "all",
+  "thisWeek": "This week"
 }
