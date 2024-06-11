@@ -11,6 +11,7 @@ export 'src/models/column_info.dart';
 export 'src/models/paginator_info.dart';
 export 'src/models/filter_item.dart';
 export 'src/models/search_field_info.dart';
+export 'src/models/sort_info.dart';
 
 export 'src/widgets/custom_filters.dart';
 export 'src/widgets/custom_month_picker.dart';
