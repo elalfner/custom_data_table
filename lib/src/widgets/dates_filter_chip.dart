@@ -1,5 +1,4 @@
 import 'package:custom_data_table/l10n/localization_extension.dart';
-import 'package:custom_data_table/src/utils/date_time_extension.dart';
 import 'package:custom_data_table/src/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -323,7 +322,7 @@ class _DateFilterViewState extends State<_DateFilterView> {
                     onSelected: (bool selected) async {
                       final selectedMonth = await showMonthPicker(
                         context: context,
-                        firstDate: DateTime(2020),
+                        firstDate: widget.firstDate ?? DateTime(startYear),
                         lastDate: DateTime.now(),
                         initialDate: date ?? DateTime.now(),
                         builder: (context, child) => Stack(
@@ -358,7 +357,9 @@ class _DateFilterViewState extends State<_DateFilterView> {
                     spacing: 5,
                     runSpacing: 5,
                     children: List<Widget>.generate(
-                      DateTime.now().year - startYear + 1,
+                      DateTime.now().year -
+                          (widget.firstDate ?? DateTime(startYear)).year +
+                          1,
                       (int index) {
                         final year = DateTime(DateTime.now().year - index);
 
