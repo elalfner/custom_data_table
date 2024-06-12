@@ -105,6 +105,8 @@ class CustomDataTable<T> extends StatefulWidget {
   /// If not provided, it does not show the search fields.
   final Function(List<SearchFieldInfo> values)? onChangeSearchTextField;
 
+  final SortInfo? sortInfo;
+
   const CustomDataTable({
     Key? key,
     this.controller,
@@ -127,6 +129,7 @@ class CustomDataTable<T> extends StatefulWidget {
     this.onExport,
     this.onChangeSearchTextField,
     this.dataTableTheme,
+    this.sortInfo,
   }) : super(key: key);
 
   @override
@@ -232,6 +235,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     textControllers = {
       for (final col in columns) col.key: createTextController(col),
     };
+
+    sortInfo = widget.sortInfo;
 
     super.initState();
   }
@@ -863,12 +868,14 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             if (column.flex != null) ...[
               Expanded(
                 flex: column.flex!,
-                child: columnWidget(column, column == columnsToShow.lastOrNull),
+                child: columnWidget(
+                    column, column.key == columnsToShow.lastOrNull?.key),
               ),
             ] else ...[
               SizedBox(
                 width: column.width,
-                child: columnWidget(column, column == columnsToShow.lastOrNull),
+                child: columnWidget(
+                    column, column.key == columnsToShow.lastOrNull?.key),
               ),
             ]
         ],
@@ -900,7 +907,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                       // If there is no column marked as sort, this column is marked as
                       // sorting ascendant.
 
-                      if (sortInfo?.columnInfo != column) {
+                      if (sortInfo?.columnInfo.key != column.key) {
                         sortInfo = SortInfo(columnInfo: column, asc: true);
                       } else {
                         sortInfo!.asc = !sortInfo!.asc;
@@ -928,7 +935,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                     const SizedBox(width: 5),
 
                     // Indicates if the column is sorted asc, desc or if it is not sorted.
-                    if (column == sortInfo?.columnInfo)
+                    if (column.key == sortInfo?.columnInfo.key)
                       Icon(
                         sortInfo?.asc == true
                             ? Icons.keyboard_arrow_down_rounded
