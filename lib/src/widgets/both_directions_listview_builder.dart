@@ -43,12 +43,14 @@ class _BothDirectionsListViewBuilderState
       int itemsVisible = maxItemsVisible;
       if (lastIndex < maxItemsVisible) itemsVisible = lastIndex + 1;
 
-      viewPort = initIndex * ((itemsVisible - 1) / itemsVisible) / lastIndex;
+      viewPort = lastIndex == 0
+          ? 0
+          : initIndex * ((itemsVisible - 1) / itemsVisible) / lastIndex;
     } else {
       viewPort = ((initIndex) / (lastIndex + 1));
     }
 
-    if (viewPort.isNegative) viewPort = 0;
+    if (viewPort.isNegative || viewPort.isNaN) viewPort = 0;
 
     return Scaffold(
       body: CustomScrollView(

@@ -48,16 +48,21 @@ class _TablePaginatedCountWidgetState extends State<TablePaginatedCountWidget> {
 
     if (currentPage > lastPage) currentPage = lastPage;
 
+    final canSelect =
+        widget.onSelectedPage != null && widget.paginatorInfo.currentPage != 1;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Material(
           key: buttonKey,
-          color: Theme.of(context).inputDecorationTheme.fillColor,
+          color: !canSelect
+              ? null
+              : Theme.of(context).inputDecorationTheme.fillColor,
           borderRadius: BorderRadius.circular(5),
           child: InkWell(
             borderRadius: BorderRadius.circular(5),
-            onTap: widget.onSelectedPage == null ? null : showDialogPage,
+            onTap: !canSelect ? null : showDialogPage,
             child: Container(
               height: 30,
               padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -68,10 +73,11 @@ class _TablePaginatedCountWidgetState extends State<TablePaginatedCountWidget> {
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(width: 3),
-                  const Icon(
-                    Icons.keyboard_arrow_down_rounded,
-                    size: 14,
-                  ),
+                  if (canSelect)
+                    const Icon(
+                      Icons.keyboard_arrow_down_rounded,
+                      size: 14,
+                    ),
                 ],
               ),
             ),

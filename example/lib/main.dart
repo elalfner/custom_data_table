@@ -223,8 +223,8 @@ class _MyHomePageState extends State<MyHomePage> {
   List<FilterItem>? filtersUserType;
 
   PaginatorInfo paginatorInfo = PaginatorInfo(
-    lastPage: 10,
-    currentPage: 5,
+    lastPage: 1,
+    currentPage: 1,
     perPage: 8,
     total: 80,
   );
