@@ -133,6 +133,8 @@ class CustomTableSearch<T> extends StatefulWidget {
 
   final SortInfo? sortInfo;
 
+  final bool isLoading;
+
   const CustomTableSearch({
     Key? key,
     this.controller,
@@ -167,6 +169,7 @@ class CustomTableSearch<T> extends StatefulWidget {
     this.lastDate,
     this.onChangeDateFilter,
     this.sortInfo,
+    this.isLoading = false,
   }) : super(key: key);
 
   @override
@@ -230,6 +233,7 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
             onChangeSearchTextField: widget.onChangeSearchTextField,
             dataTableTheme: widget.dataTableTheme,
             sortInfo: widget.sortInfo,
+            isLoading: widget.isLoading,
           ),
         ),
       ],

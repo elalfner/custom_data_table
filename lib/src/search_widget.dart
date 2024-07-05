@@ -116,9 +116,10 @@ class _SearchWidgetState extends State<SearchWidget> {
           child: filtersWidget(),
         ),
         if (widget.onChangeGeneralSearch != null)
-          SizedBox(
+          Container(
             height: 45,
             width: 300,
+            margin: const EdgeInsets.only(bottom: 10),
             child: searchBar(),
           )
       ],

@@ -107,6 +107,8 @@ class CustomDataTable<T> extends StatefulWidget {
 
   final SortInfo? sortInfo;
 
+  final bool isLoading;
+
   const CustomDataTable({
     Key? key,
     this.controller,
@@ -130,6 +132,7 @@ class CustomDataTable<T> extends StatefulWidget {
     this.onChangeSearchTextField,
     this.dataTableTheme,
     this.sortInfo,
+    this.isLoading = false,
   }) : super(key: key);
 
   @override
@@ -341,142 +344,174 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           }
 
           // Table layout.
-          return ClipRRect(
-            borderRadius: tableBorderRadius,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: Container(
-                    decoration: tableDecoration,
-                    child: SelectionArea(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          // Table title and actions.
-                          Theme(
-                            data: Theme.of(context).copyWith(
-                              inputDecorationTheme:
-                                  theme?.selectColumnsInputTheme,
-                            ),
-                            child: SelectionContainer.disabled(
-                              child:
-                                  header(small: small, width: availableWidth),
-                            ),
-                          ),
-                          Container(
-                            padding: contentPadding,
-                            child: ScrollWidget(
-                              scrollController: _columnsHeaderController,
-                              minWidth: tableMinWidth,
-                              width: availableWidth,
-                              child: columnsWidget(),
-                            ),
-                          ),
-
-                          if (widget.onChangeSearchTextField != null)
-                            SelectionContainer.disabled(
-                              child: Container(
+          return Stack(
+            clipBehavior: Clip.none,
+            children: [
+              ClipRRect(
+                borderRadius: tableBorderRadius,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Flexible(
+                      child: Container(
+                        decoration: tableDecoration,
+                        child: SelectionArea(
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Table title and actions.
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  inputDecorationTheme:
+                                      theme?.selectColumnsInputTheme,
+                                ),
+                                child: SelectionContainer.disabled(
+                                  child: header(
+                                      small: small, width: availableWidth),
+                                ),
+                              ),
+                              Container(
                                 padding: contentPadding,
                                 child: ScrollWidget(
-                                  scrollController: _columnsFooterController,
+                                  scrollController: _columnsHeaderController,
                                   minWidth: tableMinWidth,
                                   width: availableWidth,
-                                  child: searchWidget(),
+                                  child: columnsWidget(),
                                 ),
                               ),
-                            ),
 
-                          const Divider(),
+                              if (widget.onChangeSearchTextField != null)
+                                SelectionContainer.disabled(
+                                  child: Container(
+                                    padding: contentPadding,
+                                    child: ScrollWidget(
+                                      scrollController:
+                                          _columnsFooterController,
+                                      minWidth: tableMinWidth,
+                                      width: availableWidth,
+                                      child: searchWidget(),
+                                    ),
+                                  ),
+                                ),
 
-                          Flexible(
-                            child: Container(
-                              constraints: BoxConstraints(
-                                maxHeight: tableheight + 10,
-                              ),
-                              padding: contentPadding,
-                              child: ScrollWidgetWithBar(
-                                scrollController: _horizontalScrollController,
-                                minWidth: tableMinWidth,
-                                width: availableWidth,
-                                child: ListView.separated(
-                                  padding: const EdgeInsets.only(bottom: 10),
-                                  controller: _verticalScrollController,
-                                  itemCount: widget.data.length,
-                                  separatorBuilder: (context, index) =>
-                                      const Divider(),
-                                  itemBuilder: (context, index) {
-                                    final element = widget.data[index];
+                              const Divider(),
 
-                                    final rowTheme =
-                                        index.isOdd ? oddTheme : evenTheme;
+                              Flexible(
+                                child: Container(
+                                  constraints: BoxConstraints(
+                                    maxHeight: tableheight + 10,
+                                  ),
+                                  padding: contentPadding,
+                                  child: ScrollWidgetWithBar(
+                                    scrollController:
+                                        _horizontalScrollController,
+                                    minWidth: tableMinWidth,
+                                    width: availableWidth,
+                                    child: ListView.separated(
+                                      padding:
+                                          const EdgeInsets.only(bottom: 10),
+                                      controller: _verticalScrollController,
+                                      itemCount: widget.data.length,
+                                      separatorBuilder: (context, index) =>
+                                          const Divider(),
+                                      itemBuilder: (context, index) {
+                                        final element = widget.data[index];
 
-                                    final decoration = rowTheme?.decoration ??
-                                        BoxDecoration(
-                                          color: index.isOdd
-                                              ? Theme.of(context)
-                                                  .dividerColor
-                                                  .withOpacity(0.3)
-                                              : Theme.of(context).cardColor,
+                                        final rowTheme =
+                                            index.isOdd ? oddTheme : evenTheme;
+
+                                        final decoration =
+                                            rowTheme?.decoration ??
+                                                BoxDecoration(
+                                                  color: index.isOdd
+                                                      ? Theme.of(context)
+                                                          .dividerColor
+                                                          .withOpacity(0.3)
+                                                      : Theme.of(context)
+                                                          .cardColor,
+                                                );
+
+                                        if (widget.onElementPressed == null) {
+                                          return Container(
+                                            decoration: decoration,
+                                            margin: rowTheme?.margin,
+                                            child: rowElementWidget(
+                                                element, index),
+                                          );
+                                        }
+
+                                        final rowBorderRadius =
+                                            decoration.borderRadius ??
+                                                BorderRadius.zero;
+
+                                        final background = Container(
+                                          decoration: decoration,
+                                          margin: rowTheme?.margin,
+                                          child: Material(
+                                            color: Colors.transparent,
+                                            borderRadius: rowBorderRadius,
+                                            child: InkWell(
+                                              borderRadius: rowBorderRadius
+                                                  .resolve(TextDirection.ltr),
+                                              onTap: widget.onElementPressed ==
+                                                      null
+                                                  ? null
+                                                  : () => widget
+                                                      .onElementPressed
+                                                      ?.call(element),
+                                            ),
+                                          ),
                                         );
 
-                                    if (widget.onElementPressed == null) {
-                                      return Container(
-                                        decoration: decoration,
-                                        margin: rowTheme?.margin,
-                                        child: rowElementWidget(element, index),
-                                      );
-                                    }
-
-                                    final rowBorderRadius =
-                                        decoration.borderRadius ??
-                                            BorderRadius.zero;
-
-                                    final background = Container(
-                                      decoration: decoration,
-                                      margin: rowTheme?.margin,
-                                      child: Material(
-                                        color: Colors.transparent,
-                                        borderRadius: rowBorderRadius,
-                                        child: InkWell(
-                                          borderRadius: rowBorderRadius
-                                              .resolve(TextDirection.ltr),
-                                          onTap: widget.onElementPressed == null
-                                              ? null
-                                              : () => widget.onElementPressed
-                                                  ?.call(element),
-                                        ),
-                                      ),
-                                    );
-
-                                    return Stack(
-                                      children: [
-                                        Positioned.fill(
-                                          child: widget.rowBuilder
-                                                  ?.call(element, background) ??
-                                              background,
-                                        ),
-                                        rowElementWidget(element, index),
-                                      ],
-                                    );
-                                  },
+                                        return Stack(
+                                          children: [
+                                            Positioned.fill(
+                                              child: widget.rowBuilder?.call(
+                                                      element, background) ??
+                                                  background,
+                                            ),
+                                            rowElementWidget(element, index),
+                                          ],
+                                        );
+                                      },
+                                    ),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ),
 
-                          // Table pages info.
-                          if (widget.paginatorInfo != null)
-                            SelectionContainer.disabled(
-                              child: footer(availableWidth: availableWidth),
-                            ),
-                        ],
+                              // Table pages info.
+                              if (widget.paginatorInfo != null)
+                                SelectionContainer.disabled(
+                                  child: footer(availableWidth: availableWidth),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (widget.isLoading)
+                Positioned(
+                  top: -10,
+                  right: 0,
+                  left: 0,
+                  child: Center(
+                    child: Container(
+                      width: 200,
+                      constraints: const BoxConstraints(
+                        minWidth: 200,
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: LinearProgressIndicator(
+                        borderRadius: BorderRadius.circular(200),
+                        backgroundColor: Colors.transparent,
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
+            ],
           );
         },
       ),
