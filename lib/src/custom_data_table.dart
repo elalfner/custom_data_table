@@ -634,7 +634,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         context
                             .appLocalizations.resultsTitle.naturalCapitalized,
                     style: theme?.tableTitleTextStyle ??
-                        Theme.of(context).textTheme.titleLarge,
+                        Theme.of(context).textTheme.titleMedium,
                     maxLines: 1,
                     softWrap: false,
                     overflow: TextOverflow.fade,
@@ -726,7 +726,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                   widget.title ??
                       context.appLocalizations.resultsTitle.naturalCapitalized,
                   style: theme?.tableTitleTextStyle ??
-                      Theme.of(context).textTheme.titleLarge,
+                      Theme.of(context).textTheme.titleMedium,
                   maxLines: 1,
                   softWrap: false,
                   overflow: TextOverflow.fade,
