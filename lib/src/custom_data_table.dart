@@ -347,14 +347,13 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           return Stack(
             clipBehavior: Clip.none,
             children: [
-              ClipRRect(
-                borderRadius: tableBorderRadius,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Flexible(
-                      child: Container(
-                        decoration: tableDecoration,
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Flexible(
+                    child: Container(
+                      decoration: tableDecoration,
+                      child: ClipRRect(
                         child: SelectionArea(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -489,8 +488,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
               if (widget.isLoading)
                 Positioned(
