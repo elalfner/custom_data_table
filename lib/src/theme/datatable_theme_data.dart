@@ -35,4 +35,41 @@ class CustomDatatableThemeData {
     this.selectColumnsInputBackground,
     this.tableTitleTextStyle,
   });
+
+  CustomDatatableThemeData copyWith({
+    RowTheme? oddRowTheme,
+    RowTheme? evenRowTheme,
+    DividerThemeData? dividerThemeData,
+    BoxDecoration? tableDecoration,
+    BoxDecoration? columnHeaderDecoration,
+    BoxDecoration? headerDecoration,
+    BoxDecoration? footerDecoration,
+    BoxDecoration? columnSearchDecoration,
+    EdgeInsets? contentPadding,
+    TextStyle? columnTitleTextStyle,
+    double? dataRowMinHeight,
+    InputDecorationTheme? selectColumnsInputTheme,
+    Widget? selectColumnsInputBackground,
+    TextStyle? tableTitleTextStyle,
+  }) =>
+      CustomDatatableThemeData(
+        oddRowTheme: oddRowTheme ?? this.oddRowTheme,
+        evenRowTheme: evenRowTheme ?? this.evenRowTheme,
+        dividerThemeData: dividerThemeData ?? this.dividerThemeData,
+        tableDecoration: tableDecoration ?? this.tableDecoration,
+        columnHeaderDecoration:
+            columnHeaderDecoration ?? this.columnHeaderDecoration,
+        headerDecoration: headerDecoration ?? this.headerDecoration,
+        footerDecoration: footerDecoration ?? this.footerDecoration,
+        columnSearchDecoration:
+            columnSearchDecoration ?? this.columnSearchDecoration,
+        contentPadding: contentPadding ?? this.contentPadding,
+        columnTitleTextStyle: columnTitleTextStyle ?? this.columnTitleTextStyle,
+        dataRowMinHeight: dataRowMinHeight ?? this.dataRowMinHeight,
+        selectColumnsInputTheme:
+            selectColumnsInputTheme ?? this.selectColumnsInputTheme,
+        selectColumnsInputBackground:
+            selectColumnsInputBackground ?? this.selectColumnsInputBackground,
+        tableTitleTextStyle: tableTitleTextStyle ?? this.tableTitleTextStyle,
+      );
 }
