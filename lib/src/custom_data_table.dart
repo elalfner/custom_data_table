@@ -1,6 +1,5 @@
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/l10n/localization_extension.dart';
-import 'package:custom_data_table/src/models/sort_info.dart';
 import 'package:custom_data_table/src/utils/debounce.dart';
 import 'package:custom_data_table/src/utils/string_extension.dart';
 import 'package:flutter/material.dart';
@@ -175,9 +174,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     return tableWidth;
   }
-
-  Color getColor(Set<MaterialState> states) =>
-      dataTableTheme.dataRowColor?.resolve(states) ?? Colors.transparent;
 
   DataTableThemeData get dataTableTheme {
     final decoration =
@@ -452,6 +448,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                             child: InkWell(
                                               borderRadius: rowBorderRadius
                                                   .resolve(TextDirection.ltr),
+                                              hoverColor: rowTheme?.hoverColor,
                                               onTap: widget.onElementPressed ==
                                                       null
                                                   ? null
@@ -1095,19 +1092,16 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     }
 
     // Display widget specified in child if not null.
-    return Material(
-      color: Colors.transparent,
-      child: Row(
-        children: [
-          Expanded(
-            child: cellWidget,
-          ),
-          Text(
-            lastInRow ? '\r' : '\t',
-            style: const TextStyle(fontSize: 5),
-          ),
-        ],
-      ),
+    return Row(
+      children: [
+        Expanded(
+          child: cellWidget,
+        ),
+        Text(
+          lastInRow ? '\r' : '\t',
+          style: const TextStyle(fontSize: 5),
+        ),
+      ],
     );
   }
 }
