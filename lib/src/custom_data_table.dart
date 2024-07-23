@@ -1193,7 +1193,14 @@ class ScrollWidgetWithBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (minWidth < width) return child;
+    if (minWidth < width) {
+      return Scrollbar(
+        scrollbarOrientation: ScrollbarOrientation.right,
+        controller: vScrollController,
+        thumbVisibility: true,
+        child: child,
+      );
+    }
 
     return MediaQuery(
       data: MediaQuery.of(context).removePadding(
