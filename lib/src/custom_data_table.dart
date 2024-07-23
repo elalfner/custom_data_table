@@ -321,21 +321,21 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           // `true` if available space is smaller than this value.
           final small = availableWidth < 600;
 
-          double tableheight;
+          double tableHeight;
 
           final rowHeight = this.rowHeight;
 
           final perPage = widget.paginatorInfo?.perPage;
 
           if (rowHeight == null) {
-            tableheight = availableHeight;
+            tableHeight = availableHeight;
           } else {
             if (perPage != null && perPage != 0) {
-              tableheight = rowHeight * perPage + 10;
+              tableHeight = rowHeight * perPage + 10;
             } else if (widget.data.isNotEmpty) {
-              tableheight = rowHeight * widget.data.length + 10;
+              tableHeight = rowHeight * widget.data.length + 10;
             } else {
-              tableheight = availableHeight;
+              tableHeight = availableHeight;
             }
           }
 
@@ -362,7 +362,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                 ),
                                 child: SelectionContainer.disabled(
                                   child: header(
-                                      small: small, width: availableWidth),
+                                    small: small,
+                                    width: availableWidth,
+                                  ),
                                 ),
                               ),
                               Container(
@@ -394,82 +396,95 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                               Flexible(
                                 child: Container(
                                   constraints: BoxConstraints(
-                                    maxHeight: tableheight + 10,
+                                    maxHeight: tableHeight + 10,
                                   ),
                                   padding: contentPadding,
                                   child: ScrollWidgetWithBar(
-                                    scrollController:
+                                    hScrollController:
                                         _horizontalScrollController,
+                                    vScrollController:
+                                        _verticalScrollController,
                                     minWidth: tableMinWidth,
                                     width: availableWidth,
-                                    child: ListView.separated(
-                                      padding:
-                                          const EdgeInsets.only(bottom: 10),
-                                      controller: _verticalScrollController,
-                                      itemCount: widget.data.length,
-                                      separatorBuilder: (context, index) =>
-                                          const Divider(),
-                                      itemBuilder: (context, index) {
-                                        final element = widget.data[index];
+                                    child: ScrollConfiguration(
+                                      behavior: ScrollConfiguration.of(context)
+                                          .copyWith(
+                                        scrollbars: false,
+                                      ),
+                                      child: ListView.separated(
+                                        padding:
+                                            const EdgeInsets.only(bottom: 10),
+                                        controller: _verticalScrollController,
+                                        itemCount: widget.data.length,
+                                        separatorBuilder: (context, index) =>
+                                            const Divider(),
+                                        itemBuilder: (context, index) {
+                                          final element = widget.data[index];
 
-                                        final rowTheme =
-                                            index.isOdd ? oddTheme : evenTheme;
+                                          final rowTheme = index.isOdd
+                                              ? oddTheme
+                                              : evenTheme;
 
-                                        final decoration =
-                                            rowTheme?.decoration ??
-                                                BoxDecoration(
-                                                  color: index.isOdd
-                                                      ? Theme.of(context)
-                                                          .dividerColor
-                                                          .withOpacity(0.3)
-                                                      : Theme.of(context)
-                                                          .cardColor,
-                                                );
+                                          final decoration =
+                                              rowTheme?.decoration ??
+                                                  BoxDecoration(
+                                                    color: index.isOdd
+                                                        ? Theme.of(context)
+                                                            .dividerColor
+                                                            .withOpacity(0.3)
+                                                        : Theme.of(context)
+                                                            .cardColor,
+                                                  );
 
-                                        if (widget.onElementPressed == null) {
-                                          return Container(
+                                          if (widget.onElementPressed == null) {
+                                            return Container(
+                                              decoration: decoration,
+                                              margin: rowTheme?.margin,
+                                              child: rowElementWidget(
+                                                element,
+                                                index,
+                                              ),
+                                            );
+                                          }
+
+                                          final rowBorderRadius =
+                                              decoration.borderRadius ??
+                                                  BorderRadius.zero;
+
+                                          final background = Container(
                                             decoration: decoration,
                                             margin: rowTheme?.margin,
-                                            child: rowElementWidget(
-                                                element, index),
+                                            child: Material(
+                                              color: Colors.transparent,
+                                              borderRadius: rowBorderRadius,
+                                              child: InkWell(
+                                                borderRadius: rowBorderRadius
+                                                    .resolve(TextDirection.ltr),
+                                                hoverColor:
+                                                    rowTheme?.hoverColor,
+                                                onTap:
+                                                    widget.onElementPressed ==
+                                                            null
+                                                        ? null
+                                                        : () => widget
+                                                            .onElementPressed
+                                                            ?.call(element),
+                                              ),
+                                            ),
                                           );
-                                        }
 
-                                        final rowBorderRadius =
-                                            decoration.borderRadius ??
-                                                BorderRadius.zero;
-
-                                        final background = Container(
-                                          decoration: decoration,
-                                          margin: rowTheme?.margin,
-                                          child: Material(
-                                            color: Colors.transparent,
-                                            borderRadius: rowBorderRadius,
-                                            child: InkWell(
-                                              borderRadius: rowBorderRadius
-                                                  .resolve(TextDirection.ltr),
-                                              hoverColor: rowTheme?.hoverColor,
-                                              onTap: widget.onElementPressed ==
-                                                      null
-                                                  ? null
-                                                  : () => widget
-                                                      .onElementPressed
-                                                      ?.call(element),
-                                            ),
-                                          ),
-                                        );
-
-                                        return Stack(
-                                          children: [
-                                            Positioned.fill(
-                                              child: widget.rowBuilder?.call(
-                                                      element, background) ??
-                                                  background,
-                                            ),
-                                            rowElementWidget(element, index),
-                                          ],
-                                        );
-                                      },
+                                          return Stack(
+                                            children: [
+                                              Positioned.fill(
+                                                child: widget.rowBuilder?.call(
+                                                        element, background) ??
+                                                    background,
+                                              ),
+                                              rowElementWidget(element, index),
+                                            ],
+                                          );
+                                        },
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -1152,15 +1167,17 @@ class ScrollWidgetWithBar extends StatelessWidget {
 
   final Widget child;
 
-  final ScrollController? scrollController;
+  final ScrollController? hScrollController;
+  final ScrollController? vScrollController;
 
-  const ScrollWidgetWithBar(
-      {Key? key,
-      required this.minWidth,
-      required this.width,
-      required this.child,
-      this.scrollController})
-      : super(key: key);
+  const ScrollWidgetWithBar({
+    Key? key,
+    required this.minWidth,
+    required this.width,
+    required this.child,
+    this.hScrollController,
+    this.vScrollController,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -1173,15 +1190,21 @@ class ScrollWidgetWithBar extends StatelessWidget {
       ),
       child: SafeArea(
         child: Scrollbar(
-          controller: scrollController,
+          scrollbarOrientation: ScrollbarOrientation.right,
+          controller: vScrollController,
           thumbVisibility: true,
-          child: SingleChildScrollView(
-            controller: scrollController,
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              // The table width is the value calculated.
-              width: minWidth,
-              child: child,
+          notificationPredicate: (notif) => notif.depth == 1,
+          child: Scrollbar(
+            controller: hScrollController,
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              controller: hScrollController,
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                // The table width is the value calculated.
+                width: minWidth,
+                child: child,
+              ),
             ),
           ),
         ),
