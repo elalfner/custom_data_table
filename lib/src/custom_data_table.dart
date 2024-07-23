@@ -167,8 +167,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     // Table breakpoint to begin to scroll.
     double tableWidth = 0;
 
+    final columns = columnsToShow;
+
     // Sum all widths.
-    for (final column in columnsToShow) {
+    for (final column in columns) {
       tableWidth += column.width;
     }
 
@@ -350,6 +352,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                     child: Container(
                       decoration: tableDecoration,
                       child: ClipRRect(
+                        borderRadius: tableBorderRadius,
                         child: SelectionArea(
                           child: Column(
                             mainAxisSize: MainAxisSize.min,
@@ -901,7 +904,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         context.dataTableTheme?.columnHeaderDecoration ??
             BoxDecoration(
               color: dataTableTheme.headingRowColor
-                  ?.resolve({MaterialState.selected}),
+                  ?.resolve({WidgetState.selected}),
             );
 
     return Container(
@@ -1030,37 +1033,46 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   Widget searchField(ColumnInfo column) {
     if (column.name.isEmpty || !column.canSearchInput) return const SizedBox();
 
+    final theme = context.dataTableTheme;
+
     return Container(
       height: 40,
       padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: TextFormField(
-        controller: textControllers[column.key],
-        decoration: InputDecoration(
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-          hintText: column.name,
-          hintStyle: const TextStyle(
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          inputDecorationTheme: theme?.columnSearchInputTheme ??
+              const InputDecorationTheme(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                hintStyle: TextStyle(
+                  fontSize: 13,
+                ),
+              ),
+        ),
+        child: TextFormField(
+          controller: textControllers[column.key],
+          decoration: InputDecoration(
+            hintText: column.name,
+          ),
+          style: const TextStyle(
             fontSize: 13,
           ),
-        ),
-        style: const TextStyle(
-          fontSize: 13,
-        ),
-        onChanged: (value) => debouncerIndividual.run(
-          () {
-            column.onChangeInput?.call(value);
+          onChanged: (value) => debouncerIndividual.run(
+            () {
+              column.onChangeInput?.call(value);
 
-            widget.onChangeSearchTextField?.call(
-              [
-                for (final e in textControllers.entries)
-                  SearchFieldInfo(
-                    columnInfo:
-                        columns.firstWhere((element) => element.key == e.key),
-                    searchValue: e.value.text,
-                  )
-              ],
-            );
-          },
+              widget.onChangeSearchTextField?.call(
+                [
+                  for (final e in textControllers.entries)
+                    SearchFieldInfo(
+                      columnInfo:
+                          columns.firstWhere((element) => element.key == e.key),
+                      searchValue: e.value.text,
+                    )
+                ],
+              );
+            },
+          ),
         ),
       ),
     );

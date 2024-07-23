@@ -16,6 +16,7 @@ class CustomDatatableThemeData {
   final TextStyle? columnTitleTextStyle;
   final double? dataRowMinHeight;
   final InputDecorationTheme? selectColumnsInputTheme;
+  final InputDecorationTheme? columnSearchInputTheme;
   final Widget? selectColumnsInputBackground;
   final TextStyle? tableTitleTextStyle;
 
@@ -32,6 +33,7 @@ class CustomDatatableThemeData {
     this.columnTitleTextStyle,
     this.dataRowMinHeight,
     this.selectColumnsInputTheme,
+    this.columnSearchInputTheme,
     this.selectColumnsInputBackground,
     this.tableTitleTextStyle,
   });
