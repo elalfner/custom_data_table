@@ -667,6 +667,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   Widget rowWidget(
       BoxConstraints constraints, T element, int index, bool scrollable) {
+    final anyFlex = columnsToShow.any((element) => element.flex != null);
+
     return Container(
       decoration: index.isEven
           ? context.dataTableTheme?.evenRowTheme?.decoration
@@ -679,9 +681,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             Builder(
               builder: (context) {
                 final width = col.width;
-                final flex = col.flex;
+                final flex = anyFlex ? col.flex : width.toInt();
 
-                if (scrollable || flex == null) {
+                if (scrollable || flex == null || col.hasFixedWidth == true) {
                   return SizedBox(
                     width: width,
                     child: cell(element, widget.toMap(element), col),
@@ -740,6 +742,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     final padding =
         context.dataTableTheme?.columnHeaderPadding ?? _defaultContentPadding;
 
+    final anyFlex = columnsToShow.any((element) => element.flex != null);
+
     return Container(
       decoration: columnHeaderDecoration,
       padding: padding,
@@ -751,9 +755,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               Builder(
                 builder: (context) {
                   final width = col.width;
-                  final flex = col.flex;
+                  final flex = anyFlex ? col.flex : width.toInt();
 
-                  if (scrollable || flex == null) {
+                  if (scrollable || flex == null || col.hasFixedWidth == true) {
                     return SizedBox(
                       width: width,
                       child: columnWidget(col),
@@ -864,6 +868,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               color: Theme.of(context).cardColor,
             );
 
+    final anyFlex = columnsToShow.any((element) => element.flex != null);
+
     return Container(
       decoration: columnSearchDecoration,
       padding:
@@ -875,9 +881,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             Builder(
               builder: (context) {
                 final width = col.width;
-                final flex = col.flex;
+                final flex = anyFlex ? col.flex : width.toInt();
 
-                if (scrollable || flex == null) {
+                if (scrollable || flex == null || col.hasFixedWidth == true) {
                   return SizedBox(
                     width: width,
                     child: columnFieldWidget(col),

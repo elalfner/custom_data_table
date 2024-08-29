@@ -25,6 +25,8 @@ class ColumnInfo {
   /// If `null`, the column width is represented by [width].
   final int? flex;
 
+  final bool hasFixedWidth;
+
   /// `true` if the data can be sorted by this column.
   final bool canSort;
 
@@ -45,6 +47,7 @@ class ColumnInfo {
     required this.key,
     required this.name,
     required this.width,
+    this.hasFixedWidth = false,
     this.flex,
     this.canSort = false,
     this.canSearch = false,
