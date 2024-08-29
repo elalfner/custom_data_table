@@ -4,74 +4,104 @@ import 'package:flutter/material.dart';
 export 'row_theme.dart';
 
 class CustomDatatableThemeData {
+  final double? dataRowHeight;
+
   final RowTheme? oddRowTheme;
   final RowTheme? evenRowTheme;
+
   final DividerThemeData? dividerThemeData;
+
   final BoxDecoration? tableDecoration;
-  final BoxDecoration? columnHeaderDecoration;
   final BoxDecoration? headerDecoration;
-  final BoxDecoration? footerDecoration;
+  final BoxDecoration? columnHeaderDecoration;
   final BoxDecoration? columnSearchDecoration;
-  final EdgeInsets? contentPadding;
-  final TextStyle? columnTitleTextStyle;
-  final double? dataRowMinHeight;
+  final BoxDecoration? footerDecoration;
+
+  final EdgeInsets? titlePadding;
+  final EdgeInsets? columnHeaderPadding;
+  final EdgeInsets? columnSearchPadding;
+  final EdgeInsets? rowPadding;
+  final EdgeInsets? footerPadding;
+
   final InputDecorationTheme? selectColumnsInputTheme;
   final InputDecorationTheme? columnSearchInputTheme;
   final Widget? selectColumnsInputBackground;
-  final TextStyle? tableTitleTextStyle;
+
+  final TextStyle? titleTextStyle;
+  final TextStyle? columnTitleTextStyle;
+  final TextStyle? contentTextStyle;
 
   CustomDatatableThemeData({
+    this.dataRowHeight,
     this.oddRowTheme,
     this.evenRowTheme,
     this.dividerThemeData,
     this.tableDecoration,
-    this.columnHeaderDecoration,
     this.headerDecoration,
-    this.footerDecoration,
+    this.columnHeaderDecoration,
     this.columnSearchDecoration,
-    this.contentPadding,
-    this.columnTitleTextStyle,
-    this.dataRowMinHeight,
+    this.footerDecoration,
+    this.titlePadding,
+    this.columnHeaderPadding,
+    this.columnSearchPadding,
+    this.rowPadding,
+    this.footerPadding,
     this.selectColumnsInputTheme,
     this.columnSearchInputTheme,
     this.selectColumnsInputBackground,
-    this.tableTitleTextStyle,
+    this.titleTextStyle,
+    this.columnTitleTextStyle,
+    this.contentTextStyle,
   });
 
   CustomDatatableThemeData copyWith({
+    double? dataRowHeight,
     RowTheme? oddRowTheme,
     RowTheme? evenRowTheme,
     DividerThemeData? dividerThemeData,
     BoxDecoration? tableDecoration,
-    BoxDecoration? columnHeaderDecoration,
     BoxDecoration? headerDecoration,
-    BoxDecoration? footerDecoration,
+    BoxDecoration? columnHeaderDecoration,
     BoxDecoration? columnSearchDecoration,
-    EdgeInsets? contentPadding,
-    TextStyle? columnTitleTextStyle,
-    double? dataRowMinHeight,
+    BoxDecoration? footerDecoration,
+    EdgeInsets? tablePadding,
+    EdgeInsets? titlePadding,
+    EdgeInsets? columnHeaderPadding,
+    EdgeInsets? columnSearchPadding,
+    EdgeInsets? rowPadding,
+    EdgeInsets? footerPadding,
     InputDecorationTheme? selectColumnsInputTheme,
+    InputDecorationTheme? columnSearchInputTheme,
     Widget? selectColumnsInputBackground,
-    TextStyle? tableTitleTextStyle,
+    TextStyle? titleTextStyle,
+    TextStyle? columnTitleTextStyle,
+    TextStyle? contentTextStyle,
   }) =>
       CustomDatatableThemeData(
+        dataRowHeight: dataRowHeight ?? this.dataRowHeight,
         oddRowTheme: oddRowTheme ?? this.oddRowTheme,
         evenRowTheme: evenRowTheme ?? this.evenRowTheme,
         dividerThemeData: dividerThemeData ?? this.dividerThemeData,
         tableDecoration: tableDecoration ?? this.tableDecoration,
+        headerDecoration: headerDecoration ?? this.headerDecoration,
         columnHeaderDecoration:
             columnHeaderDecoration ?? this.columnHeaderDecoration,
-        headerDecoration: headerDecoration ?? this.headerDecoration,
-        footerDecoration: footerDecoration ?? this.footerDecoration,
         columnSearchDecoration:
             columnSearchDecoration ?? this.columnSearchDecoration,
-        contentPadding: contentPadding ?? this.contentPadding,
-        columnTitleTextStyle: columnTitleTextStyle ?? this.columnTitleTextStyle,
-        dataRowMinHeight: dataRowMinHeight ?? this.dataRowMinHeight,
+        footerDecoration: footerDecoration ?? this.footerDecoration,
+        titlePadding: titlePadding ?? this.titlePadding,
+        columnHeaderPadding: columnHeaderPadding ?? this.columnHeaderPadding,
+        columnSearchPadding: columnSearchPadding ?? this.columnSearchPadding,
+        rowPadding: rowPadding ?? this.rowPadding,
+        footerPadding: footerPadding ?? this.footerPadding,
         selectColumnsInputTheme:
             selectColumnsInputTheme ?? this.selectColumnsInputTheme,
+        columnSearchInputTheme:
+            columnSearchInputTheme ?? this.columnSearchInputTheme,
         selectColumnsInputBackground:
             selectColumnsInputBackground ?? this.selectColumnsInputBackground,
-        tableTitleTextStyle: tableTitleTextStyle ?? this.tableTitleTextStyle,
+        titleTextStyle: titleTextStyle ?? this.titleTextStyle,
+        columnTitleTextStyle: columnTitleTextStyle ?? this.columnTitleTextStyle,
+        contentTextStyle: contentTextStyle ?? this.contentTextStyle,
       );
 }

@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/l10n/localization_extension.dart';
+import 'package:example/example_2.dart';
 import 'package:example/utils/string_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -172,7 +173,8 @@ class MyApp extends StatelessWidget {
       home: CustomDatatableTheme(
         data: CustomDatatableThemeData(
           tableDecoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(30),
+            borderRadius: BorderRadius.circular(20),
+            color: Theme.of(context).colorScheme.surfaceContainer,
           ),
           headerDecoration: const BoxDecoration(),
           columnSearchDecoration: const BoxDecoration(),
@@ -195,6 +197,17 @@ class MyApp extends StatelessWidget {
             space: 1,
             color: Colors.transparent,
           ),
+          footerDecoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+          ),
+          titlePadding:
+              const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          columnHeaderPadding: const EdgeInsets.only(right: 10, left: 10),
+          rowPadding: const EdgeInsets.symmetric(horizontal: 10),
+          footerPadding:
+              const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+          columnSearchPadding:
+              const EdgeInsets.only(right: 10, left: 10, bottom: 10),
         ),
         child: const MyHomePage(),
       ),

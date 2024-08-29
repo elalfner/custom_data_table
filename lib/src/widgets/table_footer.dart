@@ -20,7 +20,6 @@ class TableFooter extends StatefulWidget {
   final Function(int page)? onSelectedPage;
 
   final double? availableWidth;
-  final DataTableThemeData? dataTableTheme;
 
   const TableFooter({
     super.key,
@@ -30,7 +29,6 @@ class TableFooter extends StatefulWidget {
     this.onNextPage,
     this.onSelectedPage,
     this.availableWidth,
-    this.dataTableTheme,
   });
 
   @override
@@ -56,10 +54,7 @@ class _TableFooterState extends State<TableFooter> {
     // `true` if available space is smaller than this value.
     final small = availableWidth < 600;
 
-    final footerDecoration = context.dataTableTheme?.footerDecoration ??
-        BoxDecoration(
-          color: Theme.of(context).cardColor,
-        );
+    final footerDecoration = context.dataTableTheme?.footerDecoration;
 
     final children = [
       if (widget.paginatorInfo.perPage != null &&
@@ -128,13 +123,13 @@ class _TableFooterState extends State<TableFooter> {
       )
     ];
 
+    final padding = context.dataTableTheme?.footerPadding ??
+        const EdgeInsets.symmetric(horizontal: 15, vertical: 5);
+
     if (small) {
       return Container(
         decoration: footerDecoration,
-        padding: EdgeInsets.symmetric(
-          horizontal: widget.dataTableTheme?.horizontalMargin ?? 20,
-          vertical: 10,
-        ),
+        padding: padding,
         width: double.infinity,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -144,11 +139,8 @@ class _TableFooterState extends State<TableFooter> {
     }
 
     return Container(
+      padding: padding,
       decoration: footerDecoration,
-      padding: EdgeInsets.symmetric(
-        horizontal: widget.dataTableTheme?.horizontalMargin ?? 20,
-        vertical: 10,
-      ),
       width: double.infinity,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
