@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'models/sort_info.dart';
 
+@Deprecated('Use CustomDataTable instead')
 class CustomTableSearch<T> extends StatefulWidget {
   final TableController? controller;
 
@@ -118,9 +119,7 @@ class CustomTableSearch<T> extends StatefulWidget {
   /// If user selects new filters, or deselects filters the Callback is notified.
   final Function(List<FilterSection> sections)? onChangeFilters;
 
-  final DateFilterType? dateFilterType;
-  final DateTime? date;
-  final DateTime? endDate;
+  final DateSelection? initialDateFilter;
 
   final DateTime? firstDate;
   final DateTime? lastDate;
@@ -162,9 +161,7 @@ class CustomTableSearch<T> extends StatefulWidget {
     this.dataTableTheme,
     this.generalSearchController,
     this.generalSearchDecoration,
-    this.dateFilterType,
-    this.date,
-    this.endDate,
+    this.initialDateFilter,
     this.firstDate,
     this.lastDate,
     this.onChangeDateFilter,
@@ -200,9 +197,7 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
                 .toList(),
             filterSections: widget.filterSections,
             onChangeFilters: widget.onChangeFilters,
-            dateFilterType: widget.dateFilterType,
-            date: widget.date,
-            endDate: widget.endDate,
+            initialDateFilter: widget.initialDateFilter,
             lastDate: widget.lastDate,
             firstDate: widget.firstDate,
             onChangeDateFilter: widget.onChangeDateFilter,
@@ -234,6 +229,7 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
             dataTableTheme: widget.dataTableTheme,
             sortInfo: widget.sortInfo,
             isLoading: widget.isLoading,
+            initialDateFilter: widget.initialDateFilter,
           ),
         ),
       ],

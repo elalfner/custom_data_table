@@ -5,7 +5,6 @@ import 'package:custom_data_table/src/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 
 import '../custom_data_table.dart';
-import 'widgets/dates_filter_chip.dart';
 
 class SearchWidget extends StatefulWidget {
   /// List of columns the table has.
@@ -22,9 +21,7 @@ class SearchWidget extends StatefulWidget {
   final List<FilterSection>? filterSections;
   final Function(List<FilterSection> sections)? onChangeFilters;
 
-  final DateFilterType? dateFilterType;
-  final DateTime? date;
-  final DateTime? endDate;
+  final DateSelection? initialDateFilter;
 
   final DateTime? firstDate;
   final DateTime? lastDate;
@@ -43,9 +40,7 @@ class SearchWidget extends StatefulWidget {
     required this.onChangeSearchFilter,
     this.filterSections,
     this.onChangeFilters,
-    this.dateFilterType,
-    this.date,
-    this.endDate,
+    this.initialDateFilter,
     this.onChangeDateFilter,
     this.onChangeGeneralSearch,
     this.generalSearchController,
@@ -131,11 +126,9 @@ class _SearchWidgetState extends State<SearchWidget> {
       sections: widget.filterSections,
       onChange: widget.onChangeFilters,
       onChangeDateFilter: widget.onChangeDateFilter,
-      date: widget.date,
-      endDate: widget.endDate,
+      initialDateFilter: widget.initialDateFilter,
       firstDate: widget.firstDate,
       lastDate: widget.lastDate,
-      dateFilterType: widget.dateFilterType,
     );
   }
 

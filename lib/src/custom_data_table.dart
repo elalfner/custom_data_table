@@ -1,10 +1,7 @@
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:custom_data_table/src/utils/debounce.dart';
-import 'package:custom_data_table/src/utils/string_extension.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 class CustomDataTable<T> extends StatefulWidget {
@@ -119,9 +116,7 @@ class CustomDataTable<T> extends StatefulWidget {
   /// If user selects new filters, or deselects filters the Callback is notified.
   final Function(List<FilterSection> sections)? onChangeFilters;
 
-  final DateFilterType? dateFilterType;
-  final DateTime? date;
-  final DateTime? endDate;
+  final DateSelection? initialDateFilter;
 
   final DateTime? firstDate;
   final DateTime? lastDate;
@@ -155,9 +150,7 @@ class CustomDataTable<T> extends StatefulWidget {
     this.onChangeGeneralSearch,
     this.filterSections,
     this.onChangeFilters,
-    this.dateFilterType,
-    this.date,
-    this.endDate,
+    this.initialDateFilter,
     this.firstDate,
     this.lastDate,
     this.onChangeDateFilter,
@@ -199,6 +192,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   late double rowMinHeight;
 
+  DateSelection? dateFilter;
+
   @override
   void initState() {
     widget.controller?.clearColumnSearchFields = _clearColumnSearchFields;
@@ -222,6 +217,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             ((dividerHeight ?? 0) * (widget.data.length - 1)));
 
     selectedColumns = [...columns];
+
+    dateFilter = widget.initialDateFilter;
 
     super.initState();
   }
@@ -432,8 +429,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     final headerDecoration = theme?.headerDecoration;
 
-    final width = constraints.maxWidth;
-
     final padding = theme?.titlePadding ??
         const EdgeInsets.symmetric(horizontal: 20, vertical: 15);
 
@@ -526,16 +521,22 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                 ),
                               ),
                             ),
-                          TextButton.icon(
-                            style: IconButton.styleFrom(
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onSurface,
-                            ),
-                            label: const Text('Fechas'),
-                            onPressed: () {},
-                            icon: const Icon(
-                              Icons.date_range,
-                              size: 15,
+                          Padding(
+                            padding: const EdgeInsets.only(right: 5),
+                            child: Badge(
+                              isLabelVisible: dateFilter != null,
+                              child: TextButton.icon(
+                                style: IconButton.styleFrom(
+                                  foregroundColor:
+                                      Theme.of(context).colorScheme.onSurface,
+                                ),
+                                label: const Text('Fechas'),
+                                onPressed: () => showDateFilters(),
+                                icon: const Icon(
+                                  Icons.date_range,
+                                  size: 15,
+                                ),
+                              ),
                             ),
                           ),
                           MenuAnchor(
@@ -620,254 +621,16 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               padding: padding.copyWith(top: 0, bottom: 10),
               child: SelectedFiltersWidget(
                 selectedFilters: filters,
+                dateFilters: dateFilter,
                 onChange: widget.onChangeFilters,
-              ),
-            ),
-        ],
-      ),
-    );
+                onDateFilterClear: () {
+                  dateFilter = null;
+                  setState(() {});
 
-    if (width < 500) {
-      return Container(
-        // Mark container to take all width possible.
-        width: double.infinity,
-        decoration: headerDecoration,
-        padding: padding,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Spacer(),
-            SizedBox(
-              width: 150,
-              height: 40,
-              child: hideShowColumnsWidget(),
-            ),
-            const SizedBox(width: 5),
-            if (widget.onCopy != null ||
-                widget.onPrint != null ||
-                widget.onExport != null)
-              PopupMenuButton(
-                tooltip:
-                    context.appLocalizations.moreOptions.naturalCapitalized,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(20.0),
-                  ),
-                ),
-                onSelected: (value) {
-                  if (value == 0) {}
-                },
-                itemBuilder: (context) {
-                  return [
-                    if (widget.onCopy != null)
-                      PopupMenuItem(
-                        value: 0,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.copy),
-                            const SizedBox(width: 5),
-                            Text(context
-                                .appLocalizations.copy.naturalCapitalized),
-                          ],
-                        ),
-                      ),
-                    if (widget.onPrint != null)
-                      PopupMenuItem(
-                        value: 1,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.print),
-                            const SizedBox(width: 5),
-                            Text(context
-                                .appLocalizations.print.naturalCapitalized),
-                          ],
-                        ),
-                      ),
-                    if (widget.onExport != null)
-                      PopupMenuItem(
-                        value: 2,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.download),
-                            const SizedBox(width: 5),
-                            Text(context
-                                .appLocalizations.export.naturalCapitalized),
-                          ],
-                        ),
-                      ),
-                  ];
+                  widget.onChangeDateFilter?.call(null);
                 },
               ),
-          ],
-        ),
-      );
-    }
-
-    if (width < 600) {
-      return Container(
-        // Mark container to take all width possible.
-        width: double.infinity,
-        decoration: headerDecoration,
-        padding: padding,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: widget.titleWidget ??
-                  Text(
-                    widget.title ??
-                        context
-                            .appLocalizations.resultsTitle.naturalCapitalized,
-                    style: theme?.titleTextStyle ??
-                        Theme.of(context).textTheme.titleMedium,
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.fade,
-                  ),
             ),
-            SizedBox(
-              width: 180,
-              height: 40,
-              child: hideShowColumnsWidget(),
-            ),
-            if (widget.onExport != null ||
-                widget.onPrint != null ||
-                widget.onCopy != null) ...[
-              const SizedBox(width: 5),
-              PopupMenuButton(
-                tooltip:
-                    context.appLocalizations.moreOptions.naturalCapitalized,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(20.0),
-                  ),
-                ),
-                onSelected: (value) {
-                  if (value == 0) {}
-                },
-                itemBuilder: (context) {
-                  return [
-                    if (widget.onCopy != null)
-                      PopupMenuItem(
-                        value: 0,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.copy),
-                            const SizedBox(width: 5),
-                            Text(context
-                                .appLocalizations.copy.naturalCapitalized),
-                          ],
-                        ),
-                      ),
-                    if (widget.onPrint != null)
-                      PopupMenuItem(
-                        value: 1,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.print),
-                            const SizedBox(width: 5),
-                            Text(context
-                                .appLocalizations.print.naturalCapitalized),
-                          ],
-                        ),
-                      ),
-                    if (widget.onExport != null)
-                      PopupMenuItem(
-                        value: 2,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.download),
-                            const SizedBox(width: 5),
-                            Text(context
-                                .appLocalizations.export.naturalCapitalized),
-                          ],
-                        ),
-                      ),
-                  ];
-                },
-              ),
-            ],
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      // Mark container to take all width possible.
-      width: double.infinity,
-      padding: padding,
-      decoration: headerDecoration,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: widget.titleWidget ??
-                Text(
-                  widget.title ??
-                      context.appLocalizations.resultsTitle.naturalCapitalized,
-                  style: theme?.titleTextStyle ??
-                      Theme.of(context).textTheme.titleMedium,
-                  maxLines: 1,
-                  softWrap: false,
-                  overflow: TextOverflow.fade,
-                ),
-          ),
-          Text(
-            '${context.appLocalizations.show.naturalCapitalized}:',
-            style: TextStyle(
-              color: Theme.of(context).textTheme.bodySmall?.color,
-            ),
-          ),
-          const SizedBox(width: 5),
-          SizedBox(
-            width: 180,
-            height: 40,
-            // Only allow to hide column that have name.
-            child: hideShowColumnsWidget(),
-          ),
-          if (widget.onExport != null ||
-              widget.onPrint != null ||
-              widget.onCopy != null) ...[
-            const SizedBox(width: 5),
-            Material(
-              color: Colors.transparent,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.onCopy != null)
-                    IconButton(
-                      splashRadius: 20,
-                      onPressed: widget.onCopy,
-                      icon: const Icon(
-                        FeatherIcons.copy,
-                      ),
-                    ),
-                  if (widget.onPrint != null)
-                    IconButton(
-                      splashRadius: 20,
-                      onPressed: widget.onPrint,
-                      icon: const Icon(
-                        FeatherIcons.printer,
-                      ),
-                    ),
-                  if (widget.onExport != null)
-                    IconButton(
-                      splashRadius: 20,
-                      onPressed: widget.onExport,
-                      icon: const Icon(
-                        FeatherIcons.download,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
         ],
       ),
     );
@@ -888,6 +651,20 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     }
 
     widget.onChangeFilters?.call(newFilters);
+  }
+
+  void showDateFilters() async {
+    final customDateFilters = await showCustomDateFilters(
+      context,
+      initialDateFilter: dateFilter,
+      firstDate: widget.firstDate,
+      lastDate: widget.lastDate,
+    );
+
+    if (customDateFilters != null) {
+      dateFilter = customDateFilters;
+      setState(() {});
+    }
   }
 
   Widget tableContent(BoxConstraints constraints, bool scrollable) {
@@ -971,7 +748,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         // Notify new selected items.
         selectedColumns = values;
 
-        selectedColumns?.addAll(
+        selectedColumns.addAll(
           widget.columns.where((element) => element.name.isEmpty),
         );
 

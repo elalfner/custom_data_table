@@ -274,7 +274,7 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () async {
                 final a = await showCustomDateFilters(context);
 
-                print(a.label(context));
+                print(a?.label(context));
               },
               child: Text('Show date filter'),
             ),
@@ -329,10 +329,12 @@ class _MyHomePageState extends State<MyHomePage> {
               onChange: (sections) {
                 print(sections);
               },
-              onChangeDateFilter: (dateFilterType, date, endDate) {},
-              dateFilterType: DateFilterType.period,
-              date: DateTime.now(),
-              endDate: DateTime.now(),
+              onChangeDateFilter: (dateFilter) {},
+              initialDateFilter: DateSelection(
+                dateFilterType: DateFilterType.period,
+                date: DateTime.now(),
+                endDate: DateTime.now(),
+              ),
             ),
             const SizedBox(height: 20),
             FiltersView(
@@ -468,15 +470,13 @@ class _MyHomePageState extends State<MyHomePage> {
                   filters = values;
                   setState(() {});
                 },
-                dateFilterType: DateFilterType.period,
-                date: DateTime.now(),
-                endDate: DateTime.now(),
+                initialDateFilter: DateSelection(
+                  dateFilterType: DateFilterType.period,
+                  date: DateTime.now(),
+                  endDate: DateTime.now(),
+                ),
                 lastDate: DateTime.now().add(const Duration(days: 10)),
-                onChangeDateFilter: (dateFilterType, date, endDate) {
-                  print(dateFilterType);
-                  print(date);
-                  print(endDate);
-                },
+                onChangeDateFilter: (dateFilter) {},
               ),
             ),
           ],
