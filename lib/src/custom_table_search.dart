@@ -25,6 +25,7 @@ class CustomTableSearch<T> extends StatefulWidget {
   /// Title of table.
   ///
   /// if `null` shows `Listado` in the title.
+  @Deprecated('Title does not show in the table anymore.')
   final String? title;
 
   /// Data to show in the table.

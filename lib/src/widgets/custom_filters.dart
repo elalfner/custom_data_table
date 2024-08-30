@@ -391,7 +391,7 @@ class SelectFiltersDialog extends StatelessWidget {
 }
 
 class SelectedFiltersWidget extends StatefulWidget {
-  final List<FilterSection> selectedFilters;
+  final List<FilterSection>? selectedFilters;
   final DateSelection? dateFilters;
 
   final Function(List<FilterSection> selectedFilters)? onChange;
@@ -399,7 +399,7 @@ class SelectedFiltersWidget extends StatefulWidget {
 
   const SelectedFiltersWidget({
     super.key,
-    required this.selectedFilters,
+    this.selectedFilters,
     this.dateFilters,
     this.onChange,
     this.onDateFilterClear,
@@ -412,31 +412,34 @@ class SelectedFiltersWidget extends StatefulWidget {
 class _SelectedFiltersWidgetState extends State<SelectedFiltersWidget> {
   @override
   Widget build(BuildContext context) {
+    final selectedFilters = widget.selectedFilters;
     final dateFilters = widget.dateFilters;
 
     return Row(
       children: [
-        for (final FilterSection section in widget.selectedFilters)
-          for (final FilterItem filter in section.selectedFilters ?? [])
-            Padding(
-              padding: const EdgeInsets.only(right: 5),
-              child: Chip(
-                label: Text('${section.columnInfo.name}: ${filter.filterName}'),
-                visualDensity:
-                    const VisualDensity(horizontal: -4, vertical: -4),
-                padding: EdgeInsets.zero,
-                labelPadding: const EdgeInsets.only(left: 8),
-                deleteIcon: const Icon(
-                  Icons.close,
-                  size: 14,
-                ),
-                onDeleted: () {
-                  section.selectedFilters?.remove(filter);
+        if (selectedFilters != null)
+          for (final FilterSection section in selectedFilters)
+            for (final FilterItem filter in section.selectedFilters ?? [])
+              Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: Chip(
+                  label:
+                      Text('${section.columnInfo.name}: ${filter.filterName}'),
+                  visualDensity:
+                      const VisualDensity(horizontal: -4, vertical: -4),
+                  padding: EdgeInsets.zero,
+                  labelPadding: const EdgeInsets.only(left: 8),
+                  deleteIcon: const Icon(
+                    Icons.close,
+                    size: 14,
+                  ),
+                  onDeleted: () {
+                    section.selectedFilters?.remove(filter);
 
-                  widget.onChange?.call(widget.selectedFilters);
-                },
+                    widget.onChange?.call(selectedFilters);
+                  },
+                ),
               ),
-            ),
         if (dateFilters != null) ...selectedDatesFilter(dateFilters),
       ],
     );

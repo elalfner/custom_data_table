@@ -1,6 +1,7 @@
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:custom_data_table/src/utils/debounce.dart';
+import 'package:custom_data_table/src/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
@@ -17,6 +18,7 @@ class CustomDataTable<T> extends StatefulWidget {
   /// Title of table.
   ///
   /// if `null` shows `Listado` in the title.
+  @Deprecated('Title does not show in the table anymore.')
   final String? title;
 
   final Widget? titleWidget;
@@ -123,6 +125,8 @@ class CustomDataTable<T> extends StatefulWidget {
 
   final ChangeDateCallback? onChangeDateFilter;
 
+  final TextEditingController? generalSearchController;
+
   const CustomDataTable({
     Key? key,
     this.controller,
@@ -154,6 +158,7 @@ class CustomDataTable<T> extends StatefulWidget {
     this.firstDate,
     this.lastDate,
     this.onChangeDateFilter,
+    this.generalSearchController,
   }) : super(key: key);
 
   @override
@@ -194,6 +199,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   DateSelection? dateFilter;
 
+  TextEditingController? _newGeneralSearchController;
+  late TextEditingController _generalSearchController;
+
   @override
   void initState() {
     widget.controller?.clearColumnSearchFields = _clearColumnSearchFields;
@@ -219,6 +227,17 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     selectedColumns = [...columns];
 
     dateFilter = widget.initialDateFilter;
+
+    final generalSearchController = widget.generalSearchController;
+
+    if (generalSearchController != null) {
+      _generalSearchController = generalSearchController;
+    } else {
+      final textController = TextEditingController();
+
+      _newGeneralSearchController = textController;
+      _generalSearchController = textController;
+    }
 
     super.initState();
   }
@@ -253,6 +272,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     // Dispose scroll controllers.
     _hContentScrollController.dispose();
     _verticalScrollController.dispose();
+
+    _newGeneralSearchController?.dispose();
 
     super.dispose();
   }
@@ -436,6 +457,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     final selectedColumns = this.selectedColumns;
 
+    final showExportButton = widget.onExport != null ||
+        widget.onPrint != null ||
+        widget.onCopy != null;
+
     return Padding(
       padding: padding.copyWith(right: 0, left: 0),
       child: Column(
@@ -513,7 +538,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                   foregroundColor:
                                       Theme.of(context).colorScheme.onSurface,
                                 ),
-                                label: const Text('Filtrar'),
+                                label: Text('Filtrar'),
                                 onPressed: () => showFilters(filters),
                                 icon: const Icon(
                                   Icons.filter_list,
@@ -521,54 +546,61 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                 ),
                               ),
                             ),
-                          Padding(
-                            padding: const EdgeInsets.only(right: 5),
-                            child: Badge(
-                              isLabelVisible: dateFilter != null,
-                              child: TextButton.icon(
-                                style: IconButton.styleFrom(
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.onSurface,
-                                ),
-                                label: const Text('Fechas'),
-                                onPressed: () => showDateFilters(),
-                                icon: const Icon(
-                                  Icons.date_range,
-                                  size: 15,
+                          if (widget.onChangeDateFilter != null)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 5),
+                              child: Badge(
+                                isLabelVisible: dateFilter != null,
+                                child: TextButton.icon(
+                                  style: IconButton.styleFrom(
+                                    foregroundColor:
+                                        Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  label: Text(context.appLocalizations
+                                      .filterDates.naturalCapitalized),
+                                  onPressed: () => showDateFilters(),
+                                  icon: const Icon(
+                                    Icons.date_range,
+                                    size: 15,
+                                  ),
                                 ),
                               ),
                             ),
-                          ),
-                          IconButton(
-                            style: IconButton.styleFrom(
-                              foregroundColor:
-                                  Theme.of(context).colorScheme.onSurface,
-                            ),
-                            onPressed: () {},
-                            icon: const Icon(
-                              Icons.copy,
-                              size: 20,
-                            ),
-                          ),
-                          MenuAnchor(
-                            menuChildren: [
-                              MenuItemButton(
-                                leadingIcon: const Icon(Icons.print),
-                                onPressed: () {},
-                                child: const Text('Imprimir'),
+                          if (widget.onCopy != null)
+                            IconButton(
+                              style: IconButton.styleFrom(
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.onSurface,
                               ),
-                            ],
-                            builder: (context, controller, child) {
-                              return FilledButton.icon(
-                                label: const Text('Exportar'),
-                                onPressed: () => controller.open(),
-                                icon: const Icon(
-                                  Icons.ios_share_outlined,
-                                  size: 15,
-                                ),
-                              );
-                            },
-                          ),
+                              onPressed: widget.onCopy,
+                              icon: const Icon(
+                                Icons.copy,
+                                size: 20,
+                              ),
+                            ),
+                          if (showExportButton)
+                            MenuAnchor(
+                              menuChildren: [
+                                if (widget.onPrint != null)
+                                  MenuItemButton(
+                                    leadingIcon: const Icon(Icons.print),
+                                    onPressed: widget.onPrint,
+                                    child: Text(context.appLocalizations.print
+                                        .naturalCapitalized),
+                                  ),
+                              ],
+                              builder: (context, controller, child) {
+                                return FilledButton.icon(
+                                  label: Text(context.appLocalizations.print
+                                      .naturalCapitalized),
+                                  onPressed: () => controller.open(),
+                                  icon: const Icon(
+                                    Icons.ios_share_outlined,
+                                    size: 15,
+                                  ),
+                                );
+                              },
+                            ),
                         ],
                       ),
                     ),
@@ -579,6 +611,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                       child: SizedBox(
                         width: 250,
                         child: TextField(
+                          controller: _generalSearchController,
+                          autofocus: true,
                           decoration: InputDecoration(
                             hintText: 'Buscar',
                             prefixIcon: const Icon(Icons.search),
@@ -587,6 +621,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                               onPressed: () {
                                 searching = false;
                                 setState(() {});
+
+                                _generalSearchController.clear();
 
                                 widget.onChangeGeneralSearch?.call('');
                               },
@@ -617,7 +653,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               ),
             ),
           ),
-          if (filters != null)
+          if (filters != null || dateFilter != null)
             SingleChildScrollView(
               padding: padding.copyWith(top: 0, bottom: 10),
               child: SelectedFiltersWidget(
@@ -661,6 +697,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       firstDate: widget.firstDate,
       lastDate: widget.lastDate,
     );
+
+    widget.onChangeDateFilter?.call(customDateFilters);
 
     dateFilter = customDateFilters;
     setState(() {});
@@ -1149,6 +1187,7 @@ class _SelectColumnsToShowDialogState extends State<SelectColumnsToShowDialog> {
       title: const Text(
         'Columnas a mostrar',
       ),
+      scrollable: true,
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [

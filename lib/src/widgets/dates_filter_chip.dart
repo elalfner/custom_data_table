@@ -74,7 +74,7 @@ Future<DateSelection?> showCustomDateFilters(
   DateTime? firstDate,
   DateTime? lastDate,
 }) async {
-  final DateSelection? selection = await showDialog(
+  return await showDialog(
     context: context,
     barrierDismissible: false,
     builder: (_) => _DateFilterView(
@@ -82,25 +82,6 @@ Future<DateSelection?> showCustomDateFilters(
       firstDate: firstDate,
       lastDate: lastDate,
     ),
-  );
-
-  if (selection == null) return null;
-
-  final selectionDate = selection.date;
-  final selectionEndDate = selection.endDate;
-
-  if (selectionDate == null) {
-    return DateSelection(
-      dateFilterType: selection.dateFilterType,
-      date: selectionDate,
-      endDate: selectionEndDate,
-    );
-  }
-
-  return DateSelection(
-    dateFilterType: selection.dateFilterType,
-    date: selectionDate,
-    endDate: selectionEndDate,
   );
 }
 
@@ -121,31 +102,28 @@ class _DateFilterView extends StatefulWidget {
 class _DateFilterViewState extends State<_DateFilterView> {
   static const startYear = 2020;
 
-  DateFilterType? dateFilterType;
-
-  DateTime? date;
-  DateTime? endDate;
+  DateSelection? dateFilter;
 
   bool get isWeek {
-    final date = this.date;
+    final date = dateFilter?.date;
     if (date == null) return false;
 
-    return date.startOfWeek == date && date.endOfWeek == endDate;
+    return date.startOfWeek == date && date.endOfWeek == dateFilter?.endDate;
   }
 
   @override
   void initState() {
-    final dateSelection = widget.dateFilter;
-    dateFilterType = dateSelection?.dateFilterType;
-
-    date = dateSelection?.date;
-    endDate = dateSelection?.endDate;
+    dateFilter = widget.dateFilter;
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final date = dateFilter?.date;
+    final endDate = dateFilter?.endDate;
+    final dateFilterType = dateFilter?.dateFilterType;
+
     final thisYear = date?.year == DateTime.now().year;
 
     return PointerInterceptor(
@@ -189,13 +167,15 @@ class _DateFilterViewState extends State<_DateFilterView> {
                         date?.onlyDate == DateTime.now().onlyDate,
                     onSelected: (value) {
                       if (value) {
-                        dateFilterType = DateFilterType.date;
-                        date = DateTime.now().onlyDate;
-                        endDate = date?.endOfDay;
+                        final newDate = DateTime.now().onlyDate;
+
+                        dateFilter = DateSelection(
+                          dateFilterType: DateFilterType.date,
+                          date: newDate,
+                          endDate: newDate.endOfDay,
+                        );
                       } else {
-                        dateFilterType = null;
-                        date = null;
-                        endDate = null;
+                        dateFilter = null;
                       }
 
                       setState(() {});
@@ -210,7 +190,7 @@ class _DateFilterViewState extends State<_DateFilterView> {
                               date == null
                           ? context
                               .appLocalizations.otherDate.naturalCapitalized
-                          : DateFormat.yMd().format(date!),
+                          : DateFormat.yMd().format(date),
                     ),
                     onSelected: (value) async {
                       final selectedDate = await showDatePicker(
@@ -231,13 +211,13 @@ class _DateFilterViewState extends State<_DateFilterView> {
                       );
 
                       if (selectedDate != null) {
-                        dateFilterType = DateFilterType.date;
-                        date = selectedDate;
-                        endDate = selectedDate.endOfDay;
+                        dateFilter = DateSelection(
+                          dateFilterType: DateFilterType.date,
+                          date: selectedDate,
+                          endDate: selectedDate.endOfDay,
+                        );
                       } else {
-                        dateFilterType = null;
-                        date = null;
-                        endDate = null;
+                        dateFilter = null;
                       }
 
                       setState(() {});
@@ -263,13 +243,13 @@ class _DateFilterViewState extends State<_DateFilterView> {
                           month == date?.onlyMonth,
                       onSelected: (bool selected) {
                         if (selected) {
-                          dateFilterType = DateFilterType.month;
-                          date = month.onlyMonth;
-                          endDate = month.endOfMonth;
+                          dateFilter = DateSelection(
+                            dateFilterType: DateFilterType.month,
+                            date: month.onlyMonth,
+                            endDate: month.endOfMonth,
+                          );
                         } else {
-                          dateFilterType = null;
-                          date = null;
-                          endDate = null;
+                          dateFilter = null;
                         }
 
                         setState(() {});
@@ -288,7 +268,7 @@ class _DateFilterViewState extends State<_DateFilterView> {
                           thisYear ||
                           date == null
                       ? context.appLocalizations.select.naturalCapitalized
-                      : DateFormat.yMMMM().format(date!),
+                      : DateFormat.yMMMM().format(date),
                 ),
                 onSelected: (bool selected) async {
                   final selectedMonth = await showMonthPicker(
@@ -309,13 +289,13 @@ class _DateFilterViewState extends State<_DateFilterView> {
                   );
 
                   if (selectedMonth != null) {
-                    dateFilterType = DateFilterType.month;
-                    date = selectedMonth.onlyMonth;
-                    endDate = selectedMonth.endOfMonth;
+                    dateFilter = DateSelection(
+                      dateFilterType: DateFilterType.month,
+                      date: selectedMonth.onlyMonth,
+                      endDate: selectedMonth.endOfMonth,
+                    );
                   } else {
-                    dateFilterType = null;
-                    date = null;
-                    endDate = null;
+                    dateFilter = null;
                   }
 
                   setState(() {});
@@ -340,13 +320,13 @@ class _DateFilterViewState extends State<_DateFilterView> {
                           year == date?.onlyYear,
                       onSelected: (bool selected) {
                         if (selected) {
-                          dateFilterType = DateFilterType.year;
-                          date = year.onlyYear;
-                          endDate = year.endOfYear;
+                          dateFilter = DateSelection(
+                            dateFilterType: DateFilterType.year,
+                            date: year.onlyYear,
+                            endDate: year.endOfYear,
+                          );
                         } else {
-                          dateFilterType = null;
-                          date = null;
-                          endDate = null;
+                          dateFilter = null;
                         }
 
                         setState(() {});
@@ -369,15 +349,14 @@ class _DateFilterViewState extends State<_DateFilterView> {
                         dateFilterType == DateFilterType.period && !isWeek,
                     onSelected: (value) {
                       if (value) {
-                        dateFilterType = DateFilterType.period;
-
-                        date = DateTime.now().onlyDate;
-                        endDate = date?.endOfDay;
+                        final newDate = DateTime.now().onlyDate;
+                        dateFilter = DateSelection(
+                          dateFilterType: DateFilterType.period,
+                          date: newDate,
+                          endDate: newDate.endOfDay,
+                        );
                       } else {
-                        dateFilterType = null;
-
-                        date = null;
-                        endDate = null;
+                        dateFilter = null;
                       }
 
                       setState(() {});
@@ -389,15 +368,15 @@ class _DateFilterViewState extends State<_DateFilterView> {
                     selected: dateFilterType == DateFilterType.period && isWeek,
                     onSelected: (value) {
                       if (value) {
-                        dateFilterType = DateFilterType.period;
+                        final newDate = DateTime.now().startOfWeek;
 
-                        date = DateTime.now().startOfWeek;
-                        endDate = date?.endOfWeek;
+                        dateFilter = DateSelection(
+                          dateFilterType: DateFilterType.period,
+                          date: newDate,
+                          endDate: newDate.endOfWeek,
+                        );
                       } else {
-                        dateFilterType = null;
-
-                        date = null;
-                        endDate = null;
+                        dateFilter = null;
                       }
 
                       setState(() {});
@@ -418,11 +397,21 @@ class _DateFilterViewState extends State<_DateFilterView> {
                                   .onlyDate
                                   .add(const Duration(days: 1)),
                           onChangeStart: (dateTime) {
-                            date = dateTime;
+                            dateFilter = DateSelection(
+                              dateFilterType: DateFilterType.period,
+                              date: dateTime,
+                              endDate: endDate,
+                            );
+
                             setState(() {});
                           },
                           onChangeEnd: (dateTime) {
-                            endDate = dateTime;
+                            dateFilter = DateSelection(
+                              dateFilterType: DateFilterType.period,
+                              date: date,
+                              endDate: dateTime,
+                            );
+
                             setState(() {});
                           },
                         ),
@@ -434,324 +423,12 @@ class _DateFilterViewState extends State<_DateFilterView> {
           FilledButton(
             onPressed: () => Navigator.pop(
               context,
-              DateSelection(
-                dateFilterType: dateFilterType,
-                date: date,
-                endDate: endDate,
-              ),
+              dateFilter,
             ),
             child: Text(MaterialLocalizations.of(context).okButtonLabel),
           ),
         ],
       ),
-    );
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20).copyWith(bottom: 5),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  context.appLocalizations.filterDates.naturalCapitalized,
-                  style: Theme.of(context).textTheme.titleLarge,
-                  softWrap: false,
-                  overflow: TextOverflow.fade,
-                ),
-              ),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child:
-                    Text(MaterialLocalizations.of(context).cancelButtonLabel),
-              ),
-              const SizedBox(width: 5),
-              FilledButton(
-                onPressed: () => Navigator.pop(
-                  context,
-                  DateSelection(
-                    dateFilterType: dateFilterType,
-                    date: date,
-                    endDate: endDate,
-                  ),
-                ),
-                child: Text(MaterialLocalizations.of(context).okButtonLabel),
-              ),
-            ],
-          ),
-        ),
-        Flexible(
-          child: SizedBox(
-            width: double.infinity,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20).copyWith(top: 0),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(context.appLocalizations.byDate.naturalCapitalized),
-                  const SizedBox(height: 5),
-                  Wrap(
-                    spacing: 5,
-                    runSpacing: 5,
-                    children: [
-                      ChoiceChip(
-                        label: Text(
-                            context.appLocalizations.today.naturalCapitalized),
-                        selected: dateFilterType == DateFilterType.date &&
-                            date?.onlyDate == DateTime.now().onlyDate,
-                        onSelected: (value) {
-                          if (value) {
-                            dateFilterType = DateFilterType.date;
-                            date = DateTime.now().onlyDate;
-                            endDate = date?.endOfDay;
-                          } else {
-                            dateFilterType = null;
-                            date = null;
-                            endDate = null;
-                          }
-
-                          setState(() {});
-                        },
-                      ),
-                      ChoiceChip(
-                        selected: dateFilterType == DateFilterType.date &&
-                            date?.onlyDate != DateTime.now().onlyDate,
-                        label: Text(
-                          dateFilterType != DateFilterType.date ||
-                                  date?.onlyDate == DateTime.now().onlyDate ||
-                                  date == null
-                              ? context
-                                  .appLocalizations.otherDate.naturalCapitalized
-                              : DateFormat.yMd().format(date!),
-                        ),
-                        onSelected: (value) async {
-                          final selectedDate = await showDatePicker(
-                            context: context,
-                            initialDate: date ?? DateTime.now(),
-                            firstDate: widget.firstDate ?? DateTime(startYear),
-                            lastDate: widget.lastDate ?? DateTime.now(),
-                            builder: (context, child) => Stack(
-                              children: [
-                                GestureDetector(
-                                  onTap: () {
-                                    Navigator.of(context).pop();
-                                  },
-                                ),
-                                PointerInterceptor(child: child!),
-                              ],
-                            ),
-                          );
-
-                          if (selectedDate != null) {
-                            dateFilterType = DateFilterType.date;
-                            date = selectedDate;
-                            endDate = selectedDate.endOfDay;
-                          } else {
-                            dateFilterType = null;
-                            date = null;
-                            endDate = null;
-                          }
-
-                          setState(() {});
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                      '${context.appLocalizations.byMonth.naturalCapitalized} (${DateTime.now().year})'),
-                  const SizedBox(height: 5),
-                  Wrap(
-                    spacing: 5,
-                    runSpacing: 5,
-                    children: List<Widget>.generate(
-                      DateTime.now().month,
-                      (int index) {
-                        final month = DateTime(DateTime.now().year, index + 1);
-
-                        return ChoiceChip(
-                          label: Text(DateFormat.MMMM().format(month)),
-                          selected: dateFilterType == DateFilterType.month &&
-                              month == date?.onlyMonth,
-                          onSelected: (bool selected) {
-                            if (selected) {
-                              dateFilterType = DateFilterType.month;
-                              date = month.onlyMonth;
-                              endDate = month.endOfMonth;
-                            } else {
-                              dateFilterType = null;
-                              date = null;
-                              endDate = null;
-                            }
-
-                            setState(() {});
-                          },
-                        );
-                      },
-                    ).toList(),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                      context.appLocalizations.byOtherMonth.naturalCapitalized),
-                  const SizedBox(height: 5),
-                  ChoiceChip(
-                    selected:
-                        dateFilterType == DateFilterType.month && !thisYear,
-                    label: Text(
-                      dateFilterType != DateFilterType.month ||
-                              thisYear ||
-                              date == null
-                          ? context.appLocalizations.select.naturalCapitalized
-                          : DateFormat.yMMMM().format(date!),
-                    ),
-                    onSelected: (bool selected) async {
-                      final selectedMonth = await showMonthPicker(
-                        context: context,
-                        firstDate: widget.firstDate ?? DateTime(startYear),
-                        lastDate: DateTime.now(),
-                        initialDate: date ?? DateTime.now(),
-                        builder: (context, child) => Stack(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.of(context).pop();
-                              },
-                            ),
-                            PointerInterceptor(child: child!),
-                          ],
-                        ),
-                      );
-
-                      if (selectedMonth != null) {
-                        dateFilterType = DateFilterType.month;
-                        date = selectedMonth.onlyMonth;
-                        endDate = selectedMonth.endOfMonth;
-                      } else {
-                        dateFilterType = null;
-                        date = null;
-                        endDate = null;
-                      }
-
-                      setState(() {});
-                    },
-                  ),
-                  const SizedBox(height: 10),
-                  Text(context.appLocalizations.byYear.naturalCapitalized),
-                  const SizedBox(height: 5),
-                  Wrap(
-                    spacing: 5,
-                    runSpacing: 5,
-                    children: List<Widget>.generate(
-                      DateTime.now().year -
-                          (widget.firstDate ?? DateTime(startYear)).year +
-                          1,
-                      (int index) {
-                        final year = DateTime(DateTime.now().year - index);
-
-                        return ChoiceChip(
-                          label: Text(DateFormat.y().format(year)),
-                          selected: dateFilterType == DateFilterType.year &&
-                              year == date?.onlyYear,
-                          onSelected: (bool selected) {
-                            if (selected) {
-                              dateFilterType = DateFilterType.year;
-                              date = year.onlyYear;
-                              endDate = year.endOfYear;
-                            } else {
-                              dateFilterType = null;
-                              date = null;
-                              endDate = null;
-                            }
-
-                            setState(() {});
-                          },
-                        );
-                      },
-                    ).toList(),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(context
-                      .appLocalizations.byPeriodOfTime.naturalCapitalized),
-                  const SizedBox(height: 5),
-                  Wrap(
-                    spacing: 5,
-                    runSpacing: 5,
-                    children: [
-                      ChoiceChip(
-                        label: Text(
-                            context.appLocalizations.select.naturalCapitalized),
-                        selected:
-                            dateFilterType == DateFilterType.period && !isWeek,
-                        onSelected: (value) {
-                          if (value) {
-                            dateFilterType = DateFilterType.period;
-
-                            date = DateTime.now().onlyDate;
-                            endDate = date?.endOfDay;
-                          } else {
-                            dateFilterType = null;
-
-                            date = null;
-                            endDate = null;
-                          }
-
-                          setState(() {});
-                        },
-                      ),
-                      ChoiceChip(
-                        label: Text(context
-                            .appLocalizations.thisWeek.naturalCapitalized),
-                        selected:
-                            dateFilterType == DateFilterType.period && isWeek,
-                        onSelected: (value) {
-                          if (value) {
-                            dateFilterType = DateFilterType.period;
-
-                            date = DateTime.now().startOfWeek;
-                            endDate = date?.endOfWeek;
-                          } else {
-                            dateFilterType = null;
-
-                            date = null;
-                            endDate = null;
-                          }
-
-                          setState(() {});
-                        },
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  if (!isWeek)
-                    AnimatedSwitcher(
-                      duration: const Duration(milliseconds: 300),
-                      child: dateFilterType != DateFilterType.period
-                          ? const SizedBox()
-                          : TimeFilterWidget(
-                              startDate: date ?? DateTime.now().onlyDate,
-                              endDate: endDate ??
-                                  DateTime.now()
-                                      .onlyDate
-                                      .add(const Duration(days: 1)),
-                              onChangeStart: (dateTime) {
-                                date = dateTime;
-                                setState(() {});
-                              },
-                              onChangeEnd: (dateTime) {
-                                endDate = dateTime;
-                                setState(() {});
-                              },
-                            ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
     );
   }
 }
