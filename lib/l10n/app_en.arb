@@ -7,10 +7,11 @@
   "perPage": "per page",
   "moreFilters": "more filters",
   "filterDates": "filter dates",
+  "filter": "filter",
   "search": "search",
   "searchAdjective": "search",
   "filterSearch": "filter search",
-  "cleanFilters": "clean filters",
+  "clearFilters": "clear filters",
   "today": "today",
   "onlyToday": "Only Today",
   "otherDate": "other date",
@@ -27,5 +28,9 @@
   "print": "print",
   "export": "export",
   "all": "all",
-  "thisWeek": "This week"
+  "thisWeek": "This week",
+  "clearAll": "clear all",
+  "showingAll": "showing all",
+  "selectedColumns": "selected columns",
+  "columnsToShow": "columns to show"
 }

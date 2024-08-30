@@ -2,8 +2,6 @@ import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:flutter/material.dart';
 
-import '../models/paginator_info.dart';
-
 class TablePaginatedCountWidget extends StatefulWidget {
   final PaginatorInfo paginatorInfo;
   final bool loading;

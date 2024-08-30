@@ -507,8 +507,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                             const SizedBox(width: 5),
                             Text(
                               selectedColumns.length != columns.length
-                                  ? 'Mostrando selección'
-                                  : 'Mostrando todo',
+                                  ? context.appLocalizations.selectedColumns
+                                      .naturalCapitalized
+                                  : context.appLocalizations.showingAll
+                                      .naturalCapitalized,
                             ),
                             const SizedBox(width: 5),
                             const Icon(
@@ -538,7 +540,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                   foregroundColor:
                                       Theme.of(context).colorScheme.onSurface,
                                 ),
-                                label: Text('Filtrar'),
+                                label: Text(context.appLocalizations.filter
+                                    .naturalCapitalized),
                                 onPressed: () => showFilters(filters),
                                 icon: const Icon(
                                   Icons.filter_list,
@@ -591,7 +594,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                               ],
                               builder: (context, controller, child) {
                                 return FilledButton.icon(
-                                  label: Text(context.appLocalizations.print
+                                  label: Text(context.appLocalizations.export
                                       .naturalCapitalized),
                                   onPressed: () => controller.open(),
                                   icon: const Icon(
@@ -614,7 +617,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                           controller: _generalSearchController,
                           autofocus: true,
                           decoration: InputDecoration(
-                            hintText: 'Buscar',
+                            hintText: context
+                                .appLocalizations.search.naturalCapitalized,
                             prefixIcon: const Icon(Icons.search),
                             suffixIcon: IconButton(
                               padding: EdgeInsets.zero,
@@ -1184,8 +1188,8 @@ class _SelectColumnsToShowDialogState extends State<SelectColumnsToShowDialog> {
     final columns = widget.columns;
 
     return AlertDialog(
-      title: const Text(
-        'Columnas a mostrar',
+      title: Text(
+        context.appLocalizations.columnsToShow.naturalCapitalized,
       ),
       scrollable: true,
       content: Column(

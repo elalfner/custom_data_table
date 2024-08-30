@@ -7,10 +7,11 @@
   "perPage": "por página",
   "moreFilters": "más filtros",
   "filterDates": "filtrar fechas",
+  "filter": "filtrar",
   "search": "buscar",
   "searchAdjective": "búsqueda",
   "filterSearch": "filtrar búsqueda",
-  "cleanFilters": "limpiar filtros",
+  "clearFilters": "limpiar filtros",
   "today": "hoy",
   "onlyToday": "Sólo Hoy",
   "otherDate": "otro día",
@@ -27,5 +28,9 @@
   "print": "imprimir",
   "export": "exportar",
   "all": "todos",
-  "thisWeek": "Esta semana"
+  "thisWeek": "Esta semana",
+  "clearAll": "limpiar todo",
+  "showingAll": "mostrando todo",
+  "selectedColumns": "columnas seleccionadas",
+  "columnsToShow": "columnas a mostrar"
 }

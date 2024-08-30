@@ -144,7 +144,7 @@ class _DateFilterViewState extends State<_DateFilterView> {
                 Navigator.pop(context, null);
               },
               child: Text(
-                  context.appLocalizations.cleanFilters.naturalCapitalized),
+                  context.appLocalizations.clearFilters.naturalCapitalized),
             ),
           ],
         ),

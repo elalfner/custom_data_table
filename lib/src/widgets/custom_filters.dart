@@ -1,12 +1,10 @@
 import 'package:custom_data_table/l10n/localization_extension.dart';
-import 'package:custom_data_table/src/utils/date_time_extension.dart';
 import 'package:custom_data_table/src/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import '../../custom_data_table.dart';
-import 'dates_filter_chip.dart';
 
 class CustomFilters extends StatefulWidget {
   final List<FilterSection>? sections;
@@ -150,7 +148,7 @@ class _CustomFiltersState extends State<CustomFilters> {
           Chip(
             elevation: 1,
             label: Text(
-                '${DateFormat.yMd().add_Hm().format(date)} - ${DateFormat.yMd().add_Hm().format(endDate!)}'),
+                '${DateFormat.yMd().add_Hm().format(date)} - ${DateFormat.yMd().add_Hm().format(endDate)}'),
             deleteIcon: const Icon(
               Icons.close,
               size: 14,
@@ -240,7 +238,7 @@ class _CustomFiltersState extends State<CustomFilters> {
                   Navigator.pop(context);
                 },
                 child: Text(
-                    context.appLocalizations.cleanFilters.naturalCapitalized),
+                    context.appLocalizations.clearFilters.naturalCapitalized),
               ),
               const SizedBox(width: 5),
               ElevatedButton(
@@ -339,7 +337,7 @@ class SelectFiltersDialog extends StatelessWidget {
         children: [
           Expanded(
             child: Text(
-              'Añadir filtros',
+              context.appLocalizations.filter.naturalCapitalized,
               style: Theme.of(context).textTheme.titleLarge,
               softWrap: false,
               overflow: TextOverflow.fade,
@@ -353,7 +351,7 @@ class SelectFiltersDialog extends StatelessWidget {
               Navigator.pop(context);
             },
             child:
-                Text(context.appLocalizations.cleanFilters.naturalCapitalized),
+                Text(context.appLocalizations.clearFilters.naturalCapitalized),
           ),
         ],
       ),
