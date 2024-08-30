@@ -539,29 +539,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                               ),
                             ),
                           ),
-                          MenuAnchor(
-                            menuChildren: [
-                              MenuItemButton(
-                                leadingIcon: const Icon(Icons.print),
-                                onPressed: () {},
-                                child: const Text('Imprimir'),
-                              ),
-                            ],
-                            builder: (context, controller, child) {
-                              return FilledButton.tonalIcon(
-                                style: IconButton.styleFrom(
-                                  foregroundColor:
-                                      Theme.of(context).colorScheme.onSurface,
-                                ),
-                                label: const Text('Exportar'),
-                                onPressed: () => controller.open(),
-                                icon: const Icon(
-                                  Icons.ios_share_outlined,
-                                  size: 15,
-                                ),
-                              );
-                            },
-                          ),
                           IconButton(
                             style: IconButton.styleFrom(
                               foregroundColor:
@@ -572,6 +549,25 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                               Icons.copy,
                               size: 20,
                             ),
+                          ),
+                          MenuAnchor(
+                            menuChildren: [
+                              MenuItemButton(
+                                leadingIcon: const Icon(Icons.print),
+                                onPressed: () {},
+                                child: const Text('Imprimir'),
+                              ),
+                            ],
+                            builder: (context, controller, child) {
+                              return FilledButton.icon(
+                                label: const Text('Exportar'),
+                                onPressed: () => controller.open(),
+                                icon: const Icon(
+                                  Icons.ios_share_outlined,
+                                  size: 15,
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -591,6 +587,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                               onPressed: () {
                                 searching = false;
                                 setState(() {});
+
+                                widget.onChangeGeneralSearch?.call('');
                               },
                               icon: const Icon(
                                 Icons.close,
@@ -605,12 +603,15 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                       ),
                     )
                   else if (widget.onChangeGeneralSearch != null)
-                    IconButton(
-                      onPressed: () {
-                        searching = true;
-                        setState(() {});
-                      },
-                      icon: const Icon(Icons.search),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 30),
+                      child: IconButton(
+                        onPressed: () {
+                          searching = true;
+                          setState(() {});
+                        },
+                        icon: const Icon(Icons.search),
+                      ),
                     ),
                 ],
               ),
@@ -661,10 +662,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       lastDate: widget.lastDate,
     );
 
-    if (customDateFilters != null) {
-      dateFilter = customDateFilters;
-      setState(() {});
-    }
+    dateFilter = customDateFilters;
+    setState(() {});
   }
 
   Widget tableContent(BoxConstraints constraints, bool scrollable) {

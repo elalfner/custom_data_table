@@ -162,8 +162,11 @@ class _DateFilterViewState extends State<_DateFilterView> {
               ),
             ),
             TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Limpiar filtros'),
+              onPressed: () {
+                Navigator.pop(context, null);
+              },
+              child: Text(
+                  context.appLocalizations.cleanFilters.naturalCapitalized),
             ),
           ],
         ),
