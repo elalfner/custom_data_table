@@ -10,6 +10,7 @@ class CustomDatatableThemeData {
   final RowTheme? evenRowTheme;
 
   final DividerThemeData? dividerThemeData;
+  final double? dividerHeight;
 
   final BoxDecoration? tableDecoration;
   final BoxDecoration? headerDecoration;
@@ -36,6 +37,7 @@ class CustomDatatableThemeData {
     this.oddRowTheme,
     this.evenRowTheme,
     this.dividerThemeData,
+    this.dividerHeight,
     this.tableDecoration,
     this.headerDecoration,
     this.columnHeaderDecoration,
@@ -59,6 +61,7 @@ class CustomDatatableThemeData {
     RowTheme? oddRowTheme,
     RowTheme? evenRowTheme,
     DividerThemeData? dividerThemeData,
+    double? dividerHeight,
     BoxDecoration? tableDecoration,
     BoxDecoration? headerDecoration,
     BoxDecoration? columnHeaderDecoration,
@@ -82,6 +85,7 @@ class CustomDatatableThemeData {
         oddRowTheme: oddRowTheme ?? this.oddRowTheme,
         evenRowTheme: evenRowTheme ?? this.evenRowTheme,
         dividerThemeData: dividerThemeData ?? this.dividerThemeData,
+        dividerHeight: dividerHeight ?? this.dividerHeight,
         tableDecoration: tableDecoration ?? this.tableDecoration,
         headerDecoration: headerDecoration ?? this.headerDecoration,
         columnHeaderDecoration:

@@ -107,6 +107,27 @@ class CustomDataTable<T> extends StatefulWidget {
 
   final bool isLoading;
 
+  final ValueChanged<String>? onChangeGeneralSearch;
+
+  /// Sections of the filters.
+  ///
+  /// Each element contains the name and id of the column, and list of filter parameters.
+  final List<FilterSection>? filterSections;
+
+  /// Callback that notifies when new filters in search widget are selected.
+  ///
+  /// If user selects new filters, or deselects filters the Callback is notified.
+  final Function(List<FilterSection> sections)? onChangeFilters;
+
+  final DateFilterType? dateFilterType;
+  final DateTime? date;
+  final DateTime? endDate;
+
+  final DateTime? firstDate;
+  final DateTime? lastDate;
+
+  final ChangeDateCallback? onChangeDateFilter;
+
   const CustomDataTable({
     Key? key,
     this.controller,
@@ -131,6 +152,15 @@ class CustomDataTable<T> extends StatefulWidget {
     this.dataTableTheme,
     this.sortInfo,
     this.isLoading = false,
+    this.onChangeGeneralSearch,
+    this.filterSections,
+    this.onChangeFilters,
+    this.dateFilterType,
+    this.date,
+    this.endDate,
+    this.firstDate,
+    this.lastDate,
+    this.onChangeDateFilter,
   }) : super(key: key);
 
   @override
@@ -144,12 +174,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   SortInfo? sortInfo;
 
   /// Columns selected to show in the table.
-  List<ColumnInfo>? columnsSelected;
-
-  /// Gets the columns that have to be displayed in the table.
-  ///
-  /// If there is no column selected it has to display all columns.
-  List<ColumnInfo> get columnsToShow => columnsSelected ?? columns;
+  late List<ColumnInfo> selectedColumns;
 
   /// Scroll controllers to show ScrollBar.
   ///
@@ -189,7 +214,14 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     rowMinHeight = context.dataTableTheme?.dataRowHeight ?? 35;
 
-    contentHeight.value = rowMinHeight * widget.data.length;
+    final dividerHeight = context.dataTableTheme?.dividerHeight;
+
+    contentHeight.value = widget.data.isEmpty
+        ? 0
+        : (rowMinHeight * widget.data.length +
+            ((dividerHeight ?? 0) * (widget.data.length - 1)));
+
+    selectedColumns = [...columns];
 
     super.initState();
   }
@@ -381,6 +413,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     );
   }
 
+  bool searching = false;
+
+  final _headerScroll = ScrollController();
+
   /// Widget to show table header.
   ///
   /// It shows table title, dropdown of columns to show, and actions to copy, export
@@ -399,7 +435,197 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     final width = constraints.maxWidth;
 
     final padding = theme?.titlePadding ??
-        const EdgeInsets.symmetric(horizontal: 15, vertical: 10);
+        const EdgeInsets.symmetric(horizontal: 20, vertical: 15);
+
+    final filters = widget.filterSections;
+
+    final selectedColumns = this.selectedColumns;
+
+    return Padding(
+      padding: padding.copyWith(right: 0, left: 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Scrollbar(
+            controller: _headerScroll,
+            thumbVisibility: true,
+            child: Container(
+              margin: padding.copyWith(top: 0, bottom: 0),
+              width: double.infinity,
+              height: 45,
+              decoration: headerDecoration,
+              child: Row(
+                children: [
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(5),
+                      onTap: () async {
+                        final newSelectedColumns = await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return SelectColumnsToShowDialog(
+                              columns: columns,
+                              selectedColumns: selectedColumns,
+                            );
+                          },
+                        );
+
+                        if (newSelectedColumns is List<ColumnInfo>) {
+                          this.selectedColumns = newSelectedColumns;
+                          setState(() {});
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.view_column_outlined,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              selectedColumns.length != columns.length
+                                  ? 'Mostrando selección'
+                                  : 'Mostrando todo',
+                            ),
+                            const SizedBox(width: 5),
+                            const Icon(
+                              Icons.keyboard_arrow_down,
+                              size: 15,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _headerScroll,
+                      scrollDirection: Axis.horizontal,
+                      reverse: true,
+                      child: Row(
+                        children: [
+                          if (filters != null)
+                            Badge(
+                              isLabelVisible: filters.any(
+                                (element) =>
+                                    element.selectedFilters?.isNotEmpty == true,
+                              ),
+                              child: TextButton.icon(
+                                style: IconButton.styleFrom(
+                                  foregroundColor:
+                                      Theme.of(context).colorScheme.onSurface,
+                                ),
+                                label: const Text('Filtrar'),
+                                onPressed: () => showFilters(filters),
+                                icon: const Icon(
+                                  Icons.filter_list,
+                                  size: 15,
+                                ),
+                              ),
+                            ),
+                          TextButton.icon(
+                            style: IconButton.styleFrom(
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onSurface,
+                            ),
+                            label: const Text('Fechas'),
+                            onPressed: () {},
+                            icon: const Icon(
+                              Icons.date_range,
+                              size: 15,
+                            ),
+                          ),
+                          MenuAnchor(
+                            menuChildren: [
+                              MenuItemButton(
+                                leadingIcon: const Icon(Icons.print),
+                                onPressed: () {},
+                                child: const Text('Imprimir'),
+                              ),
+                            ],
+                            builder: (context, controller, child) {
+                              return FilledButton.tonalIcon(
+                                style: IconButton.styleFrom(
+                                  foregroundColor:
+                                      Theme.of(context).colorScheme.onSurface,
+                                ),
+                                label: const Text('Exportar'),
+                                onPressed: () => controller.open(),
+                                icon: const Icon(
+                                  Icons.ios_share_outlined,
+                                  size: 15,
+                                ),
+                              );
+                            },
+                          ),
+                          IconButton(
+                            style: IconButton.styleFrom(
+                              foregroundColor:
+                                  Theme.of(context).colorScheme.onSurface,
+                            ),
+                            onPressed: () {},
+                            icon: const Icon(
+                              Icons.copy,
+                              size: 20,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (searching)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: SizedBox(
+                        width: 250,
+                        child: TextField(
+                          decoration: InputDecoration(
+                            hintText: 'Buscar',
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () {
+                                searching = false;
+                                setState(() {});
+                              },
+                              icon: const Icon(
+                                Icons.close,
+                                size: 25,
+                              ),
+                            ),
+                          ),
+                          onChanged: (value) => debouncer.run(
+                            () => widget.onChangeGeneralSearch?.call(value),
+                          ),
+                        ),
+                      ),
+                    )
+                  else if (widget.onChangeGeneralSearch != null)
+                    IconButton(
+                      onPressed: () {
+                        searching = true;
+                        setState(() {});
+                      },
+                      icon: const Icon(Icons.search),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          if (filters != null)
+            SingleChildScrollView(
+              padding: padding.copyWith(top: 0, bottom: 10),
+              child: SelectedFiltersWidget(
+                selectedFilters: filters,
+                onChange: widget.onChangeFilters,
+              ),
+            ),
+        ],
+      ),
+    );
 
     if (width < 500) {
       return Container(
@@ -647,26 +873,50 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     );
   }
 
+  void showFilters(List<FilterSection> filters) async {
+    final newFilters = await showDialog(
+      context: context,
+      builder: (context) {
+        return SelectFiltersDialog(
+          filters: filters,
+        );
+      },
+    );
+
+    if (newFilters is! List<FilterSection>) {
+      return;
+    }
+
+    widget.onChangeFilters?.call(newFilters);
+  }
+
   Widget tableContent(BoxConstraints constraints, bool scrollable) {
     return ScrollConfiguration(
       behavior: ScrollConfiguration.of(context).copyWith(
         scrollbars: false,
       ),
-      child: ListView.builder(
-        controller: _verticalScrollController,
-        itemCount: widget.data.length,
-        itemBuilder: (context, index) {
-          return SizedBox(
-            child:
-                rowWidget(constraints, widget.data[index], index, scrollable),
-          );
-        },
+      child: DividerTheme(
+        data: context.dataTableTheme?.dividerThemeData ??
+            const DividerThemeData(),
+        child: ListView.separated(
+          controller: _verticalScrollController,
+          itemCount: widget.data.length,
+          separatorBuilder: (context, index) => const Divider(),
+          itemBuilder: (context, index) {
+            return SizedBox(
+              child:
+                  rowWidget(constraints, widget.data[index], index, scrollable),
+            );
+          },
+        ),
       ),
     );
   }
 
   Widget rowWidget(
       BoxConstraints constraints, T element, int index, bool scrollable) {
+    final columnsToShow = selectedColumns;
+
     final anyFlex = columnsToShow.any((element) => element.flex != null);
 
     return Container(
@@ -719,9 +969,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           .toList(),
       onChange: (values) {
         // Notify new selected items.
-        columnsSelected = values;
+        selectedColumns = values;
 
-        columnsSelected?.addAll(
+        selectedColumns?.addAll(
           widget.columns.where((element) => element.name.isEmpty),
         );
 
@@ -741,6 +991,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         context.dataTableTheme?.columnHeaderDecoration;
     final padding =
         context.dataTableTheme?.columnHeaderPadding ?? _defaultContentPadding;
+
+    final columnsToShow = selectedColumns;
 
     final anyFlex = columnsToShow.any((element) => element.flex != null);
 
@@ -867,6 +1119,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             BoxDecoration(
               color: Theme.of(context).cardColor,
             );
+
+    final columnsToShow = selectedColumns;
 
     final anyFlex = columnsToShow.any((element) => element.flex != null);
 
@@ -1087,4 +1341,75 @@ class ScrollWidgetWithBar extends StatelessWidget {
 
 class TableController {
   late VoidCallback clearColumnSearchFields;
+}
+
+class SelectColumnsToShowDialog extends StatefulWidget {
+  final List<ColumnInfo> columns;
+  final List<ColumnInfo> selectedColumns;
+
+  const SelectColumnsToShowDialog(
+      {super.key, required this.columns, required this.selectedColumns});
+
+  @override
+  State<SelectColumnsToShowDialog> createState() =>
+      _SelectColumnsToShowDialogState();
+}
+
+class _SelectColumnsToShowDialogState extends State<SelectColumnsToShowDialog> {
+  late List<ColumnInfo> selectedColumns;
+
+  @override
+  void initState() {
+    selectedColumns = [...widget.selectedColumns];
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final columns = widget.columns;
+
+    return AlertDialog(
+      title: const Text(
+        'Columnas a mostrar',
+      ),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final col in columns)
+            if (col.name.isNotEmpty)
+              CheckboxListTile(
+                value: selectedColumns.any((element) => element.key == col.key),
+                onChanged: (value) {
+                  selectedColumns
+                      .removeWhere((element) => element.key == col.key);
+
+                  if (value == true) {
+                    selectedColumns.add(col);
+                  }
+
+                  setState(() {});
+                },
+                title: Text(col.name),
+              ),
+        ],
+      ),
+      actions: [
+        FilledButton(
+          onPressed: () {
+            final selectedColumns = widget.columns.where(
+              (element) {
+                return this.selectedColumns.any(
+                      (e) => element.key == e.key,
+                    );
+              },
+            ).toList();
+
+            Navigator.of(context).pop(selectedColumns);
+          },
+          child: Text(MaterialLocalizations.of(context).okButtonLabel),
+        ),
+      ],
+    );
+  }
 }

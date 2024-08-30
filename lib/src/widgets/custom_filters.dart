@@ -361,3 +361,114 @@ class FiltersView extends StatelessWidget {
     );
   }
 }
+
+class SelectFiltersDialog extends StatelessWidget {
+  final List<FilterSection> filters;
+
+  final Function(List<FilterSection> selectedFilters)? onChange;
+
+  const SelectFiltersDialog({super.key, required this.filters, this.onChange});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(
+              'Añadir filtros',
+              style: Theme.of(context).textTheme.titleLarge,
+              softWrap: false,
+              overflow: TextOverflow.fade,
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              for (final section in filters) {
+                section.selectedFilters = null;
+              }
+              Navigator.pop(context);
+            },
+            child:
+                Text(context.appLocalizations.cleanFilters.naturalCapitalized),
+          ),
+        ],
+      ),
+      content: SizedBox(
+        width: 350,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final section in filters)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: FilterSectionWidget(
+                    section: section,
+                    selectedFilters: [
+                      for (final section in filters)
+                        ...section.selectedFilters ?? []
+                    ],
+                    onChange: (values) => section.selectedFilters = values,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        FilledButton(
+          onPressed: () => Navigator.pop(context, filters),
+          child: Text(MaterialLocalizations.of(context).okButtonLabel),
+        ),
+      ],
+    );
+  }
+}
+
+class SelectedFiltersWidget extends StatefulWidget {
+  final List<FilterSection> selectedFilters;
+
+  final Function(List<FilterSection> selectedFilters)? onChange;
+
+  const SelectedFiltersWidget({
+    super.key,
+    required this.selectedFilters,
+    this.onChange,
+  });
+
+  @override
+  State<SelectedFiltersWidget> createState() => _SelectedFiltersWidgetState();
+}
+
+class _SelectedFiltersWidgetState extends State<SelectedFiltersWidget> {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        for (final FilterSection section in widget.selectedFilters)
+          for (final FilterItem filter in section.selectedFilters ?? [])
+            Padding(
+              padding: const EdgeInsets.only(right: 5),
+              child: Chip(
+                label: Text('${section.columnInfo.name}: ${filter.filterName}'),
+                visualDensity:
+                    const VisualDensity(horizontal: -4, vertical: -4),
+                padding: EdgeInsets.zero,
+                labelPadding: const EdgeInsets.only(left: 8),
+                deleteIcon: const Icon(
+                  Icons.close,
+                  size: 14,
+                ),
+                onDeleted: () {
+                  section.selectedFilters?.remove(filter);
+
+                  widget.onChange?.call(widget.selectedFilters);
+                },
+              ),
+            ),
+      ],
+    );
+  }
+}

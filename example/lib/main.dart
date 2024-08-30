@@ -242,6 +242,26 @@ class _MyHomePageState extends State<MyHomePage> {
     total: 80,
   );
 
+  late List<FilterSection> filters;
+
+  @override
+  void initState() {
+    filters = [
+      FilterSection(
+        columnInfo: ColumnId(key: 'hola', name: 'hola'),
+        filters: [
+          FilterItem(filterName: 'Hola', value: 'Hola'),
+          FilterItem(filterName: 'Como', value: 'Como'),
+        ],
+        selectedFilters: [
+          FilterItem(filterName: 'Como', value: 'Como'),
+        ],
+      ),
+    ];
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -337,7 +357,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: CustomTableSearch<User>(
+              child: CustomDataTable<User>(
                 data: data,
                 title: 'Usuarios',
                 columns: [
@@ -371,9 +391,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   ColumnInfo(name: '', key: 'button', flex: 1, width: 100),
                 ],
                 toMap: (element) => element.toJsonTable(),
+                /*
                 onChangeSearchFilter: (values) {
                   print(values);
                 },
+
+                 */
                 cell: (element, map, key) {
                   switch (key) {
                     case 'button':
@@ -403,9 +426,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   paginatorInfo = paginatorInfo.copyWith(currentPage: page);
                   setState(() {});
                 },
-                generalSearchDecoration: InputDecoration(
-                  hintText: context.appLocalizations.search.naturalCapitalized,
-                ),
                 onChangeGeneralSearch: (value) {
                   print(value);
                 },
@@ -443,19 +463,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 onPrint: () {},
                 onElementPressed: (value) {},
-                filterSections: [
-                  FilterSection(
-                    columnInfo: ColumnId(key: 'hola', name: 'hola'),
-                    filters: [
-                      FilterItem(filterName: 'Hola', value: 'Hola'),
-                      FilterItem(filterName: 'Como', value: 'Como'),
-                    ],
-                    selectedFilters: [
-                      FilterItem(filterName: 'Como', value: 'Como'),
-                    ],
-                  ),
-                ],
-                onChangeFilters: (values) {},
+                filterSections: filters,
+                onChangeFilters: (values) {
+                  filters = values;
+                  setState(() {});
+                },
                 dateFilterType: DateFilterType.period,
                 date: DateTime.now(),
                 endDate: DateTime.now(),
