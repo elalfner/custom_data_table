@@ -217,13 +217,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     rowMinHeight = context.dataTableTheme?.dataRowHeight ?? 35;
 
-    final dividerHeight = context.dataTableTheme?.dividerHeight;
-
-    contentHeight.value = widget.data.isEmpty
-        ? 0
-        : (rowMinHeight * widget.data.length +
-            ((dividerHeight ?? 0) * (widget.data.length - 1)));
-
     selectedColumns = [...columns];
 
     dateFilter = widget.initialDateFilter;
@@ -283,6 +276,13 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     final tableBorderRadius =
         (context.dataTableTheme?.tableDecoration)?.borderRadius ??
             BorderRadius.zero;
+
+    final dividerHeight = context.dataTableTheme?.dividerHeight;
+
+    contentHeight.value = widget.data.isEmpty
+        ? 0
+        : (rowMinHeight * widget.data.length +
+            ((dividerHeight ?? 0) * (widget.data.length - 1)));
 
     return Stack(
       clipBehavior: Clip.none,
