@@ -2,7 +2,9 @@ import 'dart:io';
 
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/l10n/localization_extension.dart';
+import 'package:example/example_2.dart';
 import 'package:example/utils/string_extension.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -13,7 +15,13 @@ import 'models/user.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  final String defaultLocale = Platform.localeName;
+  String defaultLocale;
+
+  if (kIsWeb) {
+    defaultLocale = Intl.defaultLocale ?? "en";
+  } else {
+    defaultLocale = Platform.localeName;
+  }
 
   Intl.systemLocale = defaultLocale;
   Intl.defaultLocale = defaultLocale;
@@ -162,7 +170,47 @@ class MyApp extends StatelessWidget {
           ),
         ),
       ),
-      home: const MyHomePage(),
+      home: CustomDatatableTheme(
+        data: CustomDatatableThemeData(
+          tableDecoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            color: Theme.of(context).colorScheme.surfaceContainer,
+          ),
+          headerDecoration: const BoxDecoration(),
+          columnSearchDecoration: const BoxDecoration(),
+          columnHeaderDecoration: const BoxDecoration(
+            color: Colors.transparent,
+          ),
+          oddRowTheme: RowTheme(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primaryContainer,
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          evenRowTheme: RowTheme(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+          dividerThemeData: const DividerThemeData(
+            thickness: 1,
+            space: 1,
+            color: Colors.transparent,
+          ),
+          footerDecoration: BoxDecoration(
+            color: Theme.of(context).colorScheme.surfaceContainerHigh,
+          ),
+          titlePadding:
+              const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+          columnHeaderPadding: const EdgeInsets.only(right: 10, left: 10),
+          rowPadding: const EdgeInsets.symmetric(horizontal: 10),
+          footerPadding:
+              const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
+          columnSearchPadding:
+              const EdgeInsets.only(right: 10, left: 10, bottom: 10),
+        ),
+        child: const MyHomePage(),
+      ),
     );
   }
 }
@@ -188,11 +236,31 @@ class _MyHomePageState extends State<MyHomePage> {
   List<FilterItem>? filtersUserType;
 
   PaginatorInfo paginatorInfo = PaginatorInfo(
-    lastPage: 10,
-    currentPage: 5,
+    lastPage: 1,
+    currentPage: 1,
     perPage: 8,
     total: 80,
   );
+
+  late List<FilterSection> filters;
+
+  @override
+  void initState() {
+    filters = [
+      FilterSection(
+        columnInfo: ColumnId(key: 'hola', name: 'hola'),
+        filters: [
+          FilterItem(filterName: 'Hola', value: 'Hola'),
+          FilterItem(filterName: 'Como', value: 'Como'),
+        ],
+        selectedFilters: [
+          FilterItem(filterName: 'Como', value: 'Como'),
+        ],
+      ),
+    ];
+
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -204,6 +272,14 @@ class _MyHomePageState extends State<MyHomePage> {
           children: [
             FilledButton(
               onPressed: () async {
+                final a = await showCustomDateFilters(context);
+
+                print(a?.label(context));
+              },
+              child: Text('Show date filter'),
+            ),
+            FilledButton(
+              onPressed: () async {
                 final date = await showMonthPicker(
                   context: context,
                   initialDate: DateTime(2022, 1),
@@ -213,28 +289,29 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 print(date);
               },
-              child: Text('Seleccionar mes'),
+              child: const Text('Seleccionar mes'),
             ),
             CustomFilters(
               sections: [
                 FilterSection<TipoVehiculo>(
-                    columnInfo: ColumnId(key: 'type', name: 'Tipo de vehículo'),
-                    filters: [
-                      FilterItem(
-                        filterName: 'Particular',
-                        value: TipoVehiculo(name: 'particular'),
-                      ),
-                      FilterItem(
-                        filterName: 'Motocicleta',
-                        value: TipoVehiculo(name: 'moto'),
-                      ),
-                    ],
-                    selectedFilters: [
-                      FilterItem(
-                        filterName: 'Motocicleta',
-                        value: TipoVehiculo(name: 'moto'),
-                      ),
-                    ]),
+                  columnInfo: ColumnId(key: 'type', name: 'Tipo de vehículo'),
+                  filters: [
+                    FilterItem(
+                      filterName: 'Particular',
+                      value: TipoVehiculo(name: 'particular'),
+                    ),
+                    FilterItem(
+                      filterName: 'Motocicleta',
+                      value: TipoVehiculo(name: 'moto'),
+                    ),
+                  ],
+                  selectedFilters: [
+                    FilterItem(
+                      filterName: 'Motocicleta',
+                      value: TipoVehiculo(name: 'moto'),
+                    ),
+                  ],
+                ),
                 FilterSection<Clase>(
                   columnInfo: ColumnId(key: 'clase', name: 'Clase'),
                   filters: [
@@ -252,10 +329,12 @@ class _MyHomePageState extends State<MyHomePage> {
               onChange: (sections) {
                 print(sections);
               },
-              onChangeDateFilter: (dateFilterType, date, endDate) {},
-              dateFilterType: DateFilterType.period,
-              date: DateTime.now(),
-              endDate: DateTime.now(),
+              onChangeDateFilter: (dateFilter) {},
+              initialDateFilter: DateSelection(
+                dateFilterType: DateFilterType.period,
+                date: DateTime.now(),
+                endDate: DateTime.now(),
+              ),
             ),
             const SizedBox(height: 20),
             FiltersView(
@@ -280,7 +359,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             const SizedBox(height: 20),
             Expanded(
-              child: CustomTableSearch<User>(
+              child: CustomDataTable<User>(
                 data: data,
                 title: 'Usuarios',
                 columns: [
@@ -314,9 +393,12 @@ class _MyHomePageState extends State<MyHomePage> {
                   ColumnInfo(name: '', key: 'button', flex: 1, width: 100),
                 ],
                 toMap: (element) => element.toJsonTable(),
+                /*
                 onChangeSearchFilter: (values) {
                   print(values);
                 },
+
+                 */
                 cell: (element, map, key) {
                   switch (key) {
                     case 'button':
@@ -346,9 +428,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   paginatorInfo = paginatorInfo.copyWith(currentPage: page);
                   setState(() {});
                 },
-                generalSearchDecoration: InputDecoration(
-                  hintText: context.appLocalizations.search.naturalCapitalized,
-                ),
                 onChangeGeneralSearch: (value) {
                   print(value);
                 },
@@ -386,28 +465,18 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 onPrint: () {},
                 onElementPressed: (value) {},
-                filterSections: [
-                  FilterSection(
-                    columnInfo: ColumnId(key: 'hola', name: 'hola'),
-                    filters: [
-                      FilterItem(filterName: 'Hola', value: 'Hola'),
-                      FilterItem(filterName: 'Como', value: 'Como'),
-                    ],
-                    selectedFilters: [
-                      FilterItem(filterName: 'Como', value: 'Como'),
-                    ],
-                  ),
-                ],
-                onChangeFilters: (values) {},
-                dateFilterType: DateFilterType.period,
-                date: DateTime.now(),
-                endDate: DateTime.now(),
-                lastDate: DateTime.now().add(const Duration(days: 10)),
-                onChangeDateFilter: (dateFilterType, date, endDate) {
-                  print(dateFilterType);
-                  print(date);
-                  print(endDate);
+                filterSections: filters,
+                onChangeFilters: (values) {
+                  filters = values;
+                  setState(() {});
                 },
+                initialDateFilter: DateSelection(
+                  dateFilterType: DateFilterType.period,
+                  date: DateTime.now(),
+                  endDate: DateTime.now(),
+                ),
+                lastDate: DateTime.now().add(const Duration(days: 10)),
+                onChangeDateFilter: (dateFilter) {},
               ),
             ),
           ],

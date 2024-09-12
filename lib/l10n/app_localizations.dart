@@ -141,6 +141,12 @@ abstract class DataTableLocalizations {
   /// **'filter dates'**
   String get filterDates;
 
+  /// No description provided for @filter.
+  ///
+  /// In en, this message translates to:
+  /// **'filter'**
+  String get filter;
+
   /// No description provided for @search.
   ///
   /// In en, this message translates to:
@@ -159,11 +165,11 @@ abstract class DataTableLocalizations {
   /// **'filter search'**
   String get filterSearch;
 
-  /// No description provided for @cleanFilters.
+  /// No description provided for @clearFilters.
   ///
   /// In en, this message translates to:
-  /// **'clean filters'**
-  String get cleanFilters;
+  /// **'clear filters'**
+  String get clearFilters;
 
   /// No description provided for @today.
   ///
@@ -260,6 +266,36 @@ abstract class DataTableLocalizations {
   /// In en, this message translates to:
   /// **'all'**
   String get all;
+
+  /// No description provided for @thisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get thisWeek;
+
+  /// No description provided for @clearAll.
+  ///
+  /// In en, this message translates to:
+  /// **'clear all'**
+  String get clearAll;
+
+  /// No description provided for @showingAll.
+  ///
+  /// In en, this message translates to:
+  /// **'showing all'**
+  String get showingAll;
+
+  /// No description provided for @selectedColumns.
+  ///
+  /// In en, this message translates to:
+  /// **'selected columns'**
+  String get selectedColumns;
+
+  /// No description provided for @columnsToShow.
+  ///
+  /// In en, this message translates to:
+  /// **'columns to show'**
+  String get columnsToShow;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<DataTableLocalizations> {

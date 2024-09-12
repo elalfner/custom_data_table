@@ -30,6 +30,7 @@ class TablePerPageWidget extends StatelessWidget {
           ),
         ),
         Container(
+          height: 30,
           padding: const EdgeInsets.symmetric(horizontal: 5),
           decoration: BoxDecoration(
             color: Theme.of(context).inputDecorationTheme.fillColor,
@@ -46,7 +47,6 @@ class TablePerPageWidget extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
               borderRadius: BorderRadius.circular(10),
               underline: const SizedBox(),
-              isDense: true,
               items: {10, 25, 50, paginatorInfo.perPage}
                   .where((element) => element != null)
                   .sorted((a, b) => a!.compareTo(b!))

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import 'models/sort_info.dart';
 
+@Deprecated('Use CustomDataTable instead')
 class CustomTableSearch<T> extends StatefulWidget {
   final TableController? controller;
 
@@ -24,6 +25,7 @@ class CustomTableSearch<T> extends StatefulWidget {
   /// Title of table.
   ///
   /// if `null` shows `Listado` in the title.
+  @Deprecated('Title does not show in the table anymore.')
   final String? title;
 
   /// Data to show in the table.
@@ -118,9 +120,7 @@ class CustomTableSearch<T> extends StatefulWidget {
   /// If user selects new filters, or deselects filters the Callback is notified.
   final Function(List<FilterSection> sections)? onChangeFilters;
 
-  final DateFilterType? dateFilterType;
-  final DateTime? date;
-  final DateTime? endDate;
+  final DateSelection? initialDateFilter;
 
   final DateTime? firstDate;
   final DateTime? lastDate;
@@ -130,6 +130,10 @@ class CustomTableSearch<T> extends StatefulWidget {
   final TextEditingController? generalSearchController;
 
   final InputDecoration? generalSearchDecoration;
+
+  final SortInfo? sortInfo;
+
+  final bool isLoading;
 
   const CustomTableSearch({
     Key? key,
@@ -158,12 +162,12 @@ class CustomTableSearch<T> extends StatefulWidget {
     this.dataTableTheme,
     this.generalSearchController,
     this.generalSearchDecoration,
-    this.dateFilterType,
-    this.date,
-    this.endDate,
+    this.initialDateFilter,
     this.firstDate,
     this.lastDate,
     this.onChangeDateFilter,
+    this.sortInfo,
+    this.isLoading = false,
   }) : super(key: key);
 
   @override
@@ -178,57 +182,35 @@ class _CustomTableSearchState<T> extends State<CustomTableSearch<T>> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        // SizedBox to tell the widget to take all available width.
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.only(bottom: 10),
-          child: SearchWidget(
-            onChangeSearchFilter:
-                widget.onChangeSearchFilter ?? (List<ColumnId> values) {},
-            columns: widget.columns
-                .map((e) =>
-                    ColumnId(name: e.name, key: e.key, canSearch: e.canSearch))
-                .where((element) => element.name.isNotEmpty == true)
-                .toList(),
-            filterSections: widget.filterSections,
-            onChangeFilters: widget.onChangeFilters,
-            dateFilterType: widget.dateFilterType,
-            date: widget.date,
-            endDate: widget.endDate,
-            lastDate: widget.lastDate,
-            firstDate: widget.firstDate,
-            onChangeDateFilter: widget.onChangeDateFilter,
-            onChangeGeneralSearch: widget.onChangeGeneralSearch,
-            generalSearchController: widget.generalSearchController,
-            decoration: widget.generalSearchDecoration,
-          ),
-        ),
-        Flexible(
-          child: CustomDataTable<T>(
-            controller: widget.controller,
-            onSort: widget.onSort,
-            toMap: widget.toMap,
-            data: widget.data,
-            cell: widget.cell,
-            columns: widget.columns,
-            onPrint: widget.onPrint,
-            onExport: widget.onExport,
-            onCopy: widget.onCopy,
-            onElementPressed: widget.onElementPressed,
-            rowBuilder: widget.rowBuilder,
-            title: widget.title,
-            onPreviousPage: widget.onPreviousPage,
-            onNextPage: widget.onNextPage,
-            onSelectedPage: widget.onSelectedPage,
-            onPerPageChange: widget.onPerPageChange,
-            paginatorInfo: widget.paginatorInfo,
-            onChangeSearchTextField: widget.onChangeSearchTextField,
-            dataTableTheme: widget.dataTableTheme,
-          ),
-        ),
-      ],
+    return CustomDataTable<T>(
+      controller: widget.controller,
+      onSort: widget.onSort,
+      toMap: widget.toMap,
+      data: widget.data,
+      cell: widget.cell,
+      columns: widget.columns,
+      onPrint: widget.onPrint,
+      onExport: widget.onExport,
+      onCopy: widget.onCopy,
+      onElementPressed: widget.onElementPressed,
+      rowBuilder: widget.rowBuilder,
+      title: widget.title,
+      onPreviousPage: widget.onPreviousPage,
+      onNextPage: widget.onNextPage,
+      onSelectedPage: widget.onSelectedPage,
+      onPerPageChange: widget.onPerPageChange,
+      paginatorInfo: widget.paginatorInfo,
+      onChangeSearchTextField: widget.onChangeSearchTextField,
+      dataTableTheme: widget.dataTableTheme,
+      sortInfo: widget.sortInfo,
+      isLoading: widget.isLoading,
+      initialDateFilter: widget.initialDateFilter,
+      onChangeFilters: widget.onChangeFilters,
+      filterSections: widget.filterSections,
+      onChangeGeneralSearch: widget.onChangeGeneralSearch,
+      firstDate: widget.firstDate,
+      lastDate: widget.lastDate,
+      onChangeDateFilter: widget.onChangeDateFilter,
     );
   }
 }

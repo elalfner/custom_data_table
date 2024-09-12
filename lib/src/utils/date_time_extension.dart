@@ -7,7 +7,6 @@ extension DateExtension on DateTime {
 
   DateTime get onlyMonth => DateTime(year, month);
 
-
   DateTime get onlyYear => DateTime(year);
 
   /// Deja solo el tiempo y elimina la fecha.
@@ -29,4 +28,22 @@ extension DateExtension on DateTime {
         to == this ||
         from.isBefore(this) && to.isAfter(this);
   }
+
+  DateTime get endOfDay => onlyDate
+      .add(const Duration(days: 1))
+      .subtract(const Duration(milliseconds: 1));
+
+  DateTime get endOfMonth => onlyDate
+      .copyWith(month: month + 1)
+      .subtract(const Duration(milliseconds: 1));
+
+  DateTime get endOfYear => onlyDate
+      .copyWith(year: year + 1)
+      .subtract(const Duration(milliseconds: 1));
+
+  DateTime get startOfWeek => onlyDate.subtract(Duration(days: weekday - 1));
+
+  DateTime get endOfWeek => startOfWeek
+      .add(const Duration(days: DateTime.daysPerWeek))
+      .subtract(const Duration(milliseconds: 1));
 }

@@ -5,7 +5,6 @@ import 'package:custom_data_table/src/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 
 import '../custom_data_table.dart';
-import 'widgets/dates_filter_chip.dart';
 
 class SearchWidget extends StatefulWidget {
   /// List of columns the table has.
@@ -22,9 +21,7 @@ class SearchWidget extends StatefulWidget {
   final List<FilterSection>? filterSections;
   final Function(List<FilterSection> sections)? onChangeFilters;
 
-  final DateFilterType? dateFilterType;
-  final DateTime? date;
-  final DateTime? endDate;
+  final DateSelection? initialDateFilter;
 
   final DateTime? firstDate;
   final DateTime? lastDate;
@@ -43,9 +40,7 @@ class SearchWidget extends StatefulWidget {
     required this.onChangeSearchFilter,
     this.filterSections,
     this.onChangeFilters,
-    this.dateFilterType,
-    this.date,
-    this.endDate,
+    this.initialDateFilter,
     this.onChangeDateFilter,
     this.onChangeGeneralSearch,
     this.generalSearchController,
@@ -116,9 +111,10 @@ class _SearchWidgetState extends State<SearchWidget> {
           child: filtersWidget(),
         ),
         if (widget.onChangeGeneralSearch != null)
-          SizedBox(
+          Container(
             height: 45,
             width: 300,
+            margin: const EdgeInsets.only(bottom: 10),
             child: searchBar(),
           )
       ],
@@ -130,11 +126,9 @@ class _SearchWidgetState extends State<SearchWidget> {
       sections: widget.filterSections,
       onChange: widget.onChangeFilters,
       onChangeDateFilter: widget.onChangeDateFilter,
-      date: widget.date,
-      endDate: widget.endDate,
+      initialDateFilter: widget.initialDateFilter,
       firstDate: widget.firstDate,
       lastDate: widget.lastDate,
-      dateFilterType: widget.dateFilterType,
     );
   }
 
@@ -285,38 +279,48 @@ class _PopUpFieldState<T> extends State<PopUpField<T>> {
     if (inputBorder is OutlineInputBorder) {
       outlineInputBorder = inputBorder;
     }
+    final selectColumnsInputBackground =
+        context.dataTableTheme?.selectColumnsInputBackground;
 
-    return Material(
-      color: Theme.of(context).inputDecorationTheme.fillColor,
-      borderRadius: outlineInputBorder?.borderRadius,
-      child: InkWell(
-        borderRadius: outlineInputBorder?.borderRadius,
-        onTap: () {
-          dynamic state = _menuKey.currentState;
-          state.showButtonMenu();
-        },
-        child: Container(
-          height: 52,
-          padding: const EdgeInsets.only(left: 15, right: 5),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Text(
-                  (widget.allIfEmpty
-                          ? selectedItems.isEmpty
-                          : selectedItems.length == items.length)
-                      ? context.appLocalizations.all.naturalCapitalized
-                      : selectedItems.map((e) => e.name).join(', '),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
+    return Stack(
+      children: [
+        if (selectColumnsInputBackground != null)
+          Positioned.fill(
+            child: selectColumnsInputBackground,
+          ),
+        Material(
+          color: Theme.of(context).inputDecorationTheme.fillColor,
+          borderRadius: outlineInputBorder?.borderRadius,
+          child: InkWell(
+            borderRadius: outlineInputBorder?.borderRadius,
+            onTap: () {
+              dynamic state = _menuKey.currentState;
+              state.showButtonMenu();
+            },
+            child: Container(
+              height: 52,
+              padding: const EdgeInsets.only(left: 15, right: 5),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Expanded(
+                    child: Text(
+                      (widget.allIfEmpty
+                              ? selectedItems.isEmpty
+                              : selectedItems.length == items.length)
+                          ? context.appLocalizations.all.naturalCapitalized
+                          : selectedItems.map((e) => e.name).join(', '),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                  popUpWidget(),
+                ],
               ),
-              popUpWidget(),
-            ],
+            ),
           ),
         ),
-      ),
+      ],
     );
   }
 

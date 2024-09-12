@@ -29,6 +29,9 @@ class AppLocalizationsEs extends DataTableLocalizations {
   String get filterDates => 'filtrar fechas';
 
   @override
+  String get filter => 'filtrar';
+
+  @override
   String get search => 'buscar';
 
   @override
@@ -38,7 +41,7 @@ class AppLocalizationsEs extends DataTableLocalizations {
   String get filterSearch => 'filtrar búsqueda';
 
   @override
-  String get cleanFilters => 'limpiar filtros';
+  String get clearFilters => 'limpiar filtros';
 
   @override
   String get today => 'hoy';
@@ -87,4 +90,19 @@ class AppLocalizationsEs extends DataTableLocalizations {
 
   @override
   String get all => 'todos';
+
+  @override
+  String get thisWeek => 'Esta semana';
+
+  @override
+  String get clearAll => 'limpiar todo';
+
+  @override
+  String get showingAll => 'mostrando todo';
+
+  @override
+  String get selectedColumns => 'columnas seleccionadas';
+
+  @override
+  String get columnsToShow => 'columnas a mostrar';
 }

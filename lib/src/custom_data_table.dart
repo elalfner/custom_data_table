@@ -1,12 +1,8 @@
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/l10n/localization_extension.dart';
-import 'package:custom_data_table/src/models/sort_info.dart';
 import 'package:custom_data_table/src/utils/debounce.dart';
 import 'package:custom_data_table/src/utils/string_extension.dart';
-import 'package:custom_data_table/src/widgets/per_page_widget.dart';
-import 'package:custom_data_table/src/widgets/table_paginated_count_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 class CustomDataTable<T> extends StatefulWidget {
@@ -16,12 +12,16 @@ class CustomDataTable<T> extends StatefulWidget {
   ///
   /// Attributes given will override main datatable theme declared in the material
   /// theme.
+  @Deprecated("Use CustomDatatableTheme widget instead")
   final DataTableThemeData? dataTableTheme;
 
   /// Title of table.
   ///
   /// if `null` shows `Listado` in the title.
+  @Deprecated('Title does not show in the table anymore.')
   final String? title;
+
+  final Widget? titleWidget;
 
   /// List of columns the table has.
   ///
@@ -102,10 +102,36 @@ class CustomDataTable<T> extends StatefulWidget {
   /// If not provided, it does not show the search fields.
   final Function(List<SearchFieldInfo> values)? onChangeSearchTextField;
 
+  final SortInfo? sortInfo;
+
+  final bool isLoading;
+
+  final ValueChanged<String>? onChangeGeneralSearch;
+
+  /// Sections of the filters.
+  ///
+  /// Each element contains the name and id of the column, and list of filter parameters.
+  final List<FilterSection>? filterSections;
+
+  /// Callback that notifies when new filters in search widget are selected.
+  ///
+  /// If user selects new filters, or deselects filters the Callback is notified.
+  final Function(List<FilterSection> sections)? onChangeFilters;
+
+  final DateSelection? initialDateFilter;
+
+  final DateTime? firstDate;
+  final DateTime? lastDate;
+
+  final ChangeDateCallback? onChangeDateFilter;
+
+  final TextEditingController? generalSearchController;
+
   const CustomDataTable({
     Key? key,
     this.controller,
     this.title,
+    this.titleWidget,
     required this.columns,
     required this.data,
     required this.toMap,
@@ -123,6 +149,16 @@ class CustomDataTable<T> extends StatefulWidget {
     this.onExport,
     this.onChangeSearchTextField,
     this.dataTableTheme,
+    this.sortInfo,
+    this.isLoading = false,
+    this.onChangeGeneralSearch,
+    this.filterSections,
+    this.onChangeFilters,
+    this.initialDateFilter,
+    this.firstDate,
+    this.lastDate,
+    this.onChangeDateFilter,
+    this.generalSearchController,
   }) : super(key: key);
 
   @override
@@ -136,99 +172,65 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   SortInfo? sortInfo;
 
   /// Columns selected to show in the table.
-  List<ColumnInfo>? columnsSelected;
-
-  /// Gets the columns that have to be displayed in the table.
-  ///
-  /// If there is no column selected it has to display all columns.
-  List<ColumnInfo> get columnsToShow => columnsSelected ?? columns;
+  late List<ColumnInfo> selectedColumns;
 
   /// Scroll controllers to show ScrollBar.
-  late ScrollController _horizontalScrollController;
-  late ScrollController _columnsHeaderController;
-  late ScrollController _columnsFooterController;
+  ///
   final ScrollController _verticalScrollController = ScrollController();
-  late LinkedScrollControllerGroup _controllers;
+  final LinkedScrollControllerGroup _controllers =
+      LinkedScrollControllerGroup();
+  late ScrollController _hContentScrollController;
+  late ScrollController _columnsHeaderController;
 
   late Map<String, TextEditingController> textControllers;
 
   final List<TextEditingController> insideControllers = [];
-
-  static const double dataRowMinHeight = 40;
-
-  double get tableMinWidth {
-    // Table breakpoint to begin to scroll.
-    double tableWidth = 0;
-
-    // Sum all widths.
-    for (final column in columnsToShow) {
-      tableWidth += column.width;
-    }
-
-    return tableWidth;
-  }
-
-  Color getColor(Set<MaterialState> states) =>
-      dataTableTheme.dataRowColor?.resolve(states) ?? Colors.transparent;
-
-  DataTableThemeData get dataTableTheme {
-    final decoration =
-        Theme.of(context).dataTableTheme.decoration as BoxDecoration?;
-    final newDecoration = widget.dataTableTheme?.decoration as BoxDecoration?;
-
-    return Theme.of(context).dataTableTheme.copyWith(
-          dividerThickness: widget.dataTableTheme?.dividerThickness,
-          dataRowColor: widget.dataTableTheme?.dataRowColor,
-          decoration: BoxDecoration(
-            color: newDecoration?.color ?? decoration?.color,
-            borderRadius:
-                newDecoration?.borderRadius ?? decoration?.borderRadius,
-            shape:
-                newDecoration?.shape ?? decoration?.shape ?? BoxShape.rectangle,
-            boxShadow: newDecoration?.boxShadow ?? decoration?.boxShadow,
-            border: newDecoration?.border ?? decoration?.border,
-            backgroundBlendMode: newDecoration?.backgroundBlendMode ??
-                decoration?.backgroundBlendMode,
-            gradient: newDecoration?.gradient ?? decoration?.gradient,
-            image: newDecoration?.image ?? decoration?.image,
-          ),
-          dataTextStyle: widget.dataTableTheme?.dataTextStyle,
-          headingTextStyle: widget.dataTableTheme?.headingTextStyle,
-          checkboxHorizontalMargin:
-              widget.dataTableTheme?.checkboxHorizontalMargin,
-          columnSpacing: widget.dataTableTheme?.columnSpacing,
-          dataRowMinHeight: widget.dataTableTheme?.dataRowMinHeight,
-          headingRowColor: widget.dataTableTheme?.headingRowColor,
-          headingRowHeight: widget.dataTableTheme?.headingRowHeight,
-          horizontalMargin: widget.dataTableTheme?.horizontalMargin,
-        );
-  }
 
   final debouncer = Debouncer(milliseconds: 500);
   final debouncerIndividual = Debouncer(milliseconds: 500);
 
   Size? rowSize;
 
+  final contentHeight = ValueNotifier<double?>(null);
+
+  final _defaultContentPadding = const EdgeInsets.only(right: 10, left: 10);
+
+  late double rowMinHeight;
+
+  DateSelection? dateFilter;
+
+  TextEditingController? _newGeneralSearchController;
+  late TextEditingController _generalSearchController;
+
   @override
   void initState() {
     widget.controller?.clearColumnSearchFields = _clearColumnSearchFields;
 
-    _controllers = LinkedScrollControllerGroup();
-    _horizontalScrollController = _controllers.addAndGet();
+    _hContentScrollController = _controllers.addAndGet();
     _columnsHeaderController = _controllers.addAndGet();
-    _columnsFooterController = _controllers.addAndGet();
 
     textControllers = {
       for (final col in columns) col.key: createTextController(col),
     };
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      var context = rowKey?.currentContext;
-      if (context == null) return;
+    sortInfo = widget.sortInfo;
 
-      rowSize = context.size;
-      setState(() {});
-    });
+    rowMinHeight = context.dataTableTheme?.dataRowHeight ?? 35;
+
+    selectedColumns = [...columns];
+
+    dateFilter = widget.initialDateFilter;
+
+    final generalSearchController = widget.generalSearchController;
+
+    if (generalSearchController != null) {
+      _generalSearchController = generalSearchController;
+    } else {
+      final textController = TextEditingController();
+
+      _newGeneralSearchController = textController;
+      _generalSearchController = textController;
+    }
 
     super.initState();
   }
@@ -261,172 +263,177 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     }
 
     // Dispose scroll controllers.
-    _horizontalScrollController.dispose();
+    _hContentScrollController.dispose();
     _verticalScrollController.dispose();
+
+    _newGeneralSearchController?.dispose();
 
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: dataTableTheme.decoration ??
-          BoxDecoration(
-            borderRadius: BorderRadius.circular(0),
+    final tableBorderRadius =
+        (context.dataTableTheme?.tableDecoration)?.borderRadius ??
+            BorderRadius.zero;
+
+    final dividerHeight = context.dataTableTheme?.dividerHeight;
+
+    contentHeight.value = widget.data.isEmpty
+        ? 0
+        : (rowMinHeight * widget.data.length +
+            ((dividerHeight ?? 0) * (widget.data.length - 1)));
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          decoration: context.dataTableTheme?.tableDecoration,
+          child: ClipRRect(
+            borderRadius: tableBorderRadius,
+            child: _body(),
           ),
-      child: ClipRRect(
-        borderRadius:
-            (dataTableTheme.decoration as BoxDecoration?)?.borderRadius ??
-                BorderRadius.circular(0),
+        ),
+        if (widget.isLoading)
+          Positioned(
+            top: -10,
+            right: 0,
+            left: 0,
+            child: Center(
+              child: Container(
+                width: 200,
+                constraints: const BoxConstraints(
+                  minWidth: 200,
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: LinearProgressIndicator(
+                  borderRadius: BorderRadius.circular(200),
+                  backgroundColor: Colors.transparent,
+                ),
+              ),
+            ),
+          ),
+      ],
+    );
+  }
 
-        // Listen to screen size changes to adapt to large and small screens.
-        child: LayoutBuilder(
-          builder: (_, constraints) {
-            final availableWidth = constraints.maxWidth;
-            final availableHeight = constraints.maxHeight;
+  Widget _body() {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return tableWidget(constraints);
+      },
+    );
+  }
 
-            // `true` if available space is smaller than this value.
-            final small = availableWidth < 600;
+  Widget tableWidget(BoxConstraints constraints) {
+    final rowPadding =
+        context.dataTableTheme?.rowPadding ?? _defaultContentPadding;
 
-            const double headerHeight = 70;
+    final minWidth = widget.columns
+            .map((e) => e.width)
+            .reduce((value, element) => value + element) +
+        (rowPadding.right) +
+        (rowPadding.left);
 
-            double tableheight;
+    final contentHeight = this.contentHeight;
 
-            if (rowSize != null) {
-              if (widget.paginatorInfo?.perPage != null &&
-                  widget.paginatorInfo?.perPage != 0) {
-                tableheight = (rowSize?.height ??
-                        dataTableTheme.dataRowMinHeight ??
-                        dataRowMinHeight) *
-                    widget.paginatorInfo!.perPage!;
-              } else if (widget.data.isNotEmpty) {
-                tableheight = (rowSize?.height ??
-                        dataTableTheme.dataRowMinHeight ??
-                        dataRowMinHeight) *
-                    widget.data.length;
-              } else {
-                tableheight = availableHeight;
-              }
-            } else {
-              tableheight = availableHeight;
+    final tableConstraints = BoxConstraints(
+      minWidth: minWidth,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        header(constraints),
+        Builder(
+          builder: (context) {
+            if (constraints.maxWidth > minWidth) {
+              return Container(
+                constraints: BoxConstraints(
+                  minWidth: minWidth,
+                ),
+                child: Column(
+                  children: [
+                    columnsWidget(false),
+                    columnSearchFieldsWidget(false),
+                  ],
+                ),
+              );
             }
 
-            // Table layout.
-            return SelectionArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Table title and actions.
-                  SelectionContainer.disabled(
-                    child: SizedBox(
-                      height: headerHeight,
-                      child: header(small: small, width: availableWidth),
-                    ),
-                  ),
-                  ScrollWidget(
-                    scrollController: _columnsHeaderController,
-                    minWidth: tableMinWidth,
-                    width: availableWidth,
-                    child: columnsWidget(),
-                  ),
-
-                  if (widget.onChangeSearchTextField != null)
-                    SelectionContainer.disabled(
-                      child: ScrollWidget(
-                        scrollController: _columnsFooterController,
-                        minWidth: tableMinWidth,
-                        width: availableWidth,
-                        child: Container(
-                          color: Theme.of(context).cardColor,
-                          child: searchWidget(),
-                        ),
-                      ),
-                    ),
-
-                  if ((dataTableTheme.dividerThickness ?? 0) > 0)
-                    Divider(
-                      height: 0,
-                      thickness: dataTableTheme.dividerThickness,
-                      color: Theme.of(context).dividerColor,
-                    ),
-
-                  Flexible(
-                    child: SizedBox(
-                      height: tableheight + 10,
-                      child: ScrollWidgetWithBar(
-                        scrollController: _horizontalScrollController,
-                        minWidth: tableMinWidth,
-                        width: availableWidth,
-                        child: ListView.separated(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          controller: _verticalScrollController,
-                          itemCount: widget.data.length,
-                          separatorBuilder: (context, index) =>
-                              (dataTableTheme.dividerThickness ?? 0) > 0
-                                  ? Divider(
-                                      height: 0,
-                                      thickness:
-                                          dataTableTheme.dividerThickness,
-                                      color: Theme.of(context).dividerColor,
-                                    )
-                                  : const SizedBox(),
-                          itemBuilder: (context, index) {
-                            final element = widget.data[index];
-
-                            if (widget.onElementPressed == null) {
-                              return Container(
-                                color: index.isOdd
-                                    ? Theme.of(context)
-                                        .dividerColor
-                                        .withOpacity(0.3)
-                                    : Theme.of(context).cardColor,
-                                child: rowElementWidget(element, index),
-                              );
-                            }
-
-                            final background = Material(
-                              color: index.isOdd
-                                  ? Theme.of(context)
-                                      .dividerColor
-                                      .withOpacity(0.3)
-                                  : Theme.of(context).cardColor,
-                              child: InkWell(
-                                hoverColor: getColor({MaterialState.hovered}),
-                                onTap: widget.onElementPressed == null
-                                    ? null
-                                    : () =>
-                                        widget.onElementPressed?.call(element),
-                              ),
-                            );
-
-                            return Stack(
-                              children: [
-                                Positioned.fill(
-                                    child: widget.rowBuilder
-                                            ?.call(element, background) ??
-                                        background),
-                                rowElementWidget(element, index),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // Table pages info.
-                  if (widget.paginatorInfo != null)
-                    SelectionContainer.disabled(
-                      child: footer(small: small),
-                    ),
-                ],
+            return SingleChildScrollView(
+              controller: _columnsHeaderController,
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                width: tableConstraints.minWidth,
+                child: Column(
+                  children: [
+                    columnsWidget(true),
+                    columnSearchFieldsWidget(true),
+                  ],
+                ),
               ),
             );
           },
         ),
-      ),
+        Flexible(
+          child: ValueListenableBuilder(
+            valueListenable: contentHeight,
+            builder: (context, contentHeight, child) {
+              return Container(
+                constraints: contentHeight == null
+                    ? null
+                    : BoxConstraints(
+                        maxHeight: contentHeight + 10,
+                      ),
+                child: Builder(
+                  builder: (context) {
+                    if (constraints.maxWidth > minWidth) {
+                      return Scrollbar(
+                        controller: _verticalScrollController,
+                        thumbVisibility: true,
+                        child: Container(
+                          constraints: tableConstraints,
+                          child: tableContent(constraints, false),
+                        ),
+                      );
+                    }
+
+                    return Scrollbar(
+                      controller: _verticalScrollController,
+                      notificationPredicate: (notif) => notif.depth == 1,
+                      thumbVisibility: true,
+                      child: Scrollbar(
+                        controller: _hContentScrollController,
+                        thumbVisibility: true,
+                        child: Padding(
+                          padding: const EdgeInsets.only(bottom: 10),
+                          child: SingleChildScrollView(
+                            controller: _hContentScrollController,
+                            scrollDirection: Axis.horizontal,
+                            child: SizedBox(
+                              width: minWidth,
+                              child: tableContent(constraints, true),
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+        footer(availableWidth: constraints.maxWidth),
+      ],
     );
   }
+
+  bool searching = false;
+
+  final _headerScroll = ScrollController();
 
   /// Widget to show table header.
   ///
@@ -438,467 +445,356 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   ///
   /// The columns to show dropdown only shows the columns that have name. If a column
   /// does not have name, it cannot be hidden.
-  Widget header({required bool small, required double width}) {
-    if (width < 500) {
-      return Container(
-        // Mark container to take all width possible.
-        width: double.infinity,
-        color: Theme.of(context).cardColor,
+  Widget header(BoxConstraints constraints) {
+    final theme = context.dataTableTheme;
 
-        padding: EdgeInsets.symmetric(
-                horizontal: dataTableTheme.horizontalMargin ?? 20)
-            .copyWith(top: 15, bottom: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            const Spacer(),
-            SizedBox(
-              width: 150,
-              height: 40,
-              // Only allow to hide column that have name.
-              child: PopUpField<ColumnInfo>(
-                tooltip: context.appLocalizations.showHideColumns,
-                items: widget.columns
-                    .where((element) => element.name.isNotEmpty == true)
-                    .map(
-                      (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-                    )
-                    .toList(),
-                selectedFields: widget.columns
-                    .where((element) => element.name.isNotEmpty == true)
-                    .map(
-                      (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-                    )
-                    .toList(),
-                onChange: (values) {
-                  // Notify new selected items.
-                  columnsSelected = values;
+    final headerDecoration = theme?.headerDecoration;
 
-                  columnsSelected?.addAll(
-                    widget.columns.where((element) => element.name.isEmpty),
-                  );
+    final padding = theme?.titlePadding ??
+        const EdgeInsets.symmetric(horizontal: 20, vertical: 15);
 
-                  setState(() {});
-                },
-              ),
-            ),
-            const SizedBox(width: 5),
-            if (widget.onCopy != null ||
-                widget.onPrint != null ||
-                widget.onExport != null)
-              PopupMenuButton(
-                tooltip:
-                    context.appLocalizations.moreOptions.naturalCapitalized,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(20.0),
-                  ),
-                ),
-                onSelected: (value) {
-                  if (value == 0) {}
-                },
-                itemBuilder: (context) {
-                  return [
-                    if (widget.onCopy != null)
-                      PopupMenuItem(
-                        value: 0,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.copy),
-                            const SizedBox(width: 5),
-                            Text(context
-                                .appLocalizations.copy.naturalCapitalized),
-                          ],
-                        ),
-                      ),
-                    if (widget.onPrint != null)
-                      PopupMenuItem(
-                        value: 1,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.print),
-                            const SizedBox(width: 5),
-                            Text(context
-                                .appLocalizations.print.naturalCapitalized),
-                          ],
-                        ),
-                      ),
-                    if (widget.onExport != null)
-                      PopupMenuItem(
-                        value: 2,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.download),
-                            const SizedBox(width: 5),
-                            Text(context
-                                .appLocalizations.export.naturalCapitalized),
-                          ],
-                        ),
-                      ),
-                  ];
-                },
-              ),
-          ],
-        ),
-      );
-    }
+    final filters = widget.filterSections;
 
-    if (width < 600) {
-      return Container(
-        // Mark container to take all width possible.
-        width: double.infinity,
-        color: Theme.of(context).cardColor,
-        padding: EdgeInsets.symmetric(
-                horizontal: dataTableTheme.horizontalMargin ?? 20)
-            .copyWith(top: 15, bottom: 10),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Text(
-                widget.title ??
-                    context.appLocalizations.resultsTitle.naturalCapitalized,
-                style: Theme.of(context).textTheme.titleLarge,
-                maxLines: 1,
-                softWrap: false,
-                overflow: TextOverflow.fade,
-              ),
-            ),
-            SizedBox(
-              width: 180,
-              height: 40,
-              // Only allow to hide column that have name.
-              child: PopUpField<ColumnInfo>(
-                tooltip:
-                    context.appLocalizations.showHideColumns.naturalCapitalized,
-                items: widget.columns
-                    .where((element) => element.name.isNotEmpty == true)
-                    .map(
-                      (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-                    )
-                    .toList(),
-                selectedFields: widget.columns
-                    .where((element) => element.name.isNotEmpty == true)
-                    .map(
-                      (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-                    )
-                    .toList(),
-                onChange: (values) {
-                  // Notify new selected items.
-                  columnsSelected = values;
+    final selectedColumns = this.selectedColumns;
 
-                  columnsSelected?.addAll(
-                    widget.columns.where((element) => element.name.isEmpty),
-                  );
-
-                  setState(() {});
-                },
-              ),
-            ),
-            if (widget.onExport != null ||
-                widget.onPrint != null ||
-                widget.onCopy != null) ...[
-              const SizedBox(width: 5),
-              PopupMenuButton(
-                tooltip:
-                    context.appLocalizations.moreOptions.naturalCapitalized,
-                shape: const RoundedRectangleBorder(
-                  borderRadius: BorderRadius.all(
-                    Radius.circular(20.0),
-                  ),
-                ),
-                onSelected: (value) {
-                  if (value == 0) {}
-                },
-                itemBuilder: (context) {
-                  return [
-                    if (widget.onCopy != null)
-                      PopupMenuItem(
-                        value: 0,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.copy),
-                            const SizedBox(width: 5),
-                            Text(context
-                                .appLocalizations.copy.naturalCapitalized),
-                          ],
-                        ),
-                      ),
-                    if (widget.onPrint != null)
-                      PopupMenuItem(
-                        value: 1,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.print),
-                            const SizedBox(width: 5),
-                            Text(context
-                                .appLocalizations.print.naturalCapitalized),
-                          ],
-                        ),
-                      ),
-                    if (widget.onExport != null)
-                      PopupMenuItem(
-                        value: 2,
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.download),
-                            const SizedBox(width: 5),
-                            Text(context
-                                .appLocalizations.export.naturalCapitalized),
-                          ],
-                        ),
-                      ),
-                  ];
-                },
-              ),
-            ],
-          ],
-        ),
-      );
-    }
-
-    return Container(
-      // Mark container to take all width possible.
-      width: double.infinity,
-      color: Theme.of(context).cardColor,
-      padding: EdgeInsets.symmetric(
-              horizontal: dataTableTheme.horizontalMargin ?? 20)
-          .copyWith(top: 15, bottom: 10),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Expanded(
-            child: Text(
-              widget.title ??
-                  context.appLocalizations.resultsTitle.naturalCapitalized,
-              style: Theme.of(context).textTheme.titleLarge,
-              maxLines: 1,
-              softWrap: false,
-              overflow: TextOverflow.fade,
-            ),
-          ),
-          Text(
-            '${context.appLocalizations.show.naturalCapitalized}:',
-            style: TextStyle(
-              color: Theme.of(context).textTheme.bodySmall?.color,
-            ),
-          ),
-          const SizedBox(width: 5),
-          SizedBox(
-            width: 180,
-            height: 40,
-            // Only allow to hide column that have name.
-            child: PopUpField<ColumnInfo>(
-              tooltip: context.appLocalizations.showHideColumns,
-              items: widget.columns
-                  .where((element) => element.name.isNotEmpty == true)
-                  .map(
-                    (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-                  )
-                  .toList(),
-              selectedFields: widget.columns
-                  .where((element) => element.name.isNotEmpty == true)
-                  .map(
-                    (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-                  )
-                  .toList(),
-              onChange: (values) {
-                // Notify new selected items.
-                columnsSelected = values;
-
-                columnsSelected?.addAll(
-                  widget.columns.where((element) => element.name.isEmpty),
-                );
-
-                setState(() {});
-              },
-            ),
-          ),
-          if (widget.onExport != null ||
-              widget.onPrint != null ||
-              widget.onCopy != null) ...[
-            const SizedBox(width: 5),
-            Material(
-              color: Colors.transparent,
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (widget.onCopy != null)
-                    IconButton(
-                      splashRadius: 20,
-                      onPressed: widget.onCopy,
-                      icon: const Icon(
-                        FeatherIcons.copy,
-                      ),
-                    ),
-                  if (widget.onPrint != null)
-                    IconButton(
-                      splashRadius: 20,
-                      onPressed: widget.onPrint,
-                      icon: const Icon(
-                        FeatherIcons.printer,
-                      ),
-                    ),
-                  if (widget.onExport != null)
-                    IconButton(
-                      splashRadius: 20,
-                      onPressed: widget.onExport,
-                      icon: const Icon(
-                        FeatherIcons.download,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        ],
-      ),
-    );
-  }
-
-  /// Table footer.
-  ///
-  /// Displays pages info. Contains buttons to navigate between pages.
-  /// If paginator info is `null`, the footer is not displayed.
-  Widget footer({required bool small}) {
-    final paginatorInfo = widget.paginatorInfo;
-
-    final children = [
-      if (paginatorInfo != null &&
-          paginatorInfo.perPage != null &&
-          paginatorInfo.currentPage != null &&
-          paginatorInfo.total != null)
-        RichText(
-          text: TextSpan(
-            style: Theme.of(context).textTheme.bodySmall,
-            text: '${context.appLocalizations.showing} '.naturalCapitalized,
-            children: [
-              TextSpan(
-                text: (((paginatorInfo.currentPage! - 1) *
-                            paginatorInfo.perPage!) +
-                        1)
-                    .toString(),
-                children: [
-                  TextSpan(
-                    text: ' ${context.appLocalizations.to} ',
-                  ),
-                  TextSpan(
-                    text: (paginatorInfo.currentPage! * paginatorInfo.perPage! >
-                                paginatorInfo.total!
-                            ? paginatorInfo.total
-                            : paginatorInfo.currentPage! *
-                                paginatorInfo.perPage!)
-                        .toString(),
-                  ),
-                  TextSpan(
-                    text: ' ${context.appLocalizations.ofLabel} ',
-                  ),
-                  TextSpan(
-                    text: paginatorInfo.total!.toString(),
-                    children: [
-                      TextSpan(
-                        text: ' ${context.appLocalizations.results}',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (paginatorInfo?.perPage != null && paginatorInfo?.perPage != 0)
-            Flexible(
-              child: TablePerPageWidget(
-                paginatorInfo: paginatorInfo!,
-                onChange: widget.onPerPageChange,
-              ),
-            ),
-          const SizedBox(width: 10),
-          if (paginatorInfo != null)
-            TablePaginatedCountWidget(
-              paginatorInfo: paginatorInfo,
-              loading: false,
-              onPressedLast: widget.onPreviousPage,
-              onPressedNext: widget.onNextPage,
-              onSelectedPage: widget.onSelectedPage,
-            ),
-        ],
-      )
-    ];
-
-    if (small) {
-      return Container(
-        color: Theme.of(context).cardColor,
-        padding: EdgeInsets.symmetric(
-          horizontal: dataTableTheme.horizontalMargin ?? 20,
-          vertical: 10,
-        ),
-        width: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: children,
-        ),
-      );
-    }
-
-    return Container(
-      color: Theme.of(context).cardColor,
-      padding: EdgeInsets.symmetric(
-        horizontal: dataTableTheme.horizontalMargin ?? 20,
-        vertical: 10,
-      ),
-      width: double.infinity,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: children,
-      ),
-    );
-  }
-
-  GlobalKey? rowKey;
-
-  Widget rowElementWidget(T element, int index) {
-    if (index == 0) {
-      rowKey = GlobalKey();
-    }
-
-    final map = widget.toMap(element);
+    final showExportButton = widget.onExport != null ||
+        widget.onPrint != null ||
+        widget.onCopy != null;
 
     return Padding(
-      key: index == 0 ? rowKey : null,
-      padding: const EdgeInsets.symmetric(
-        horizontal: 10,
-      ),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
+      padding: padding.copyWith(right: 0, left: 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          for (final column in columnsToShow)
-            if (column.flex != null) ...[
-              Expanded(
-                flex: column.flex ?? 1,
-                child: cell(element, map, column),
+          Scrollbar(
+            controller: _headerScroll,
+            thumbVisibility: true,
+            child: Container(
+              margin: padding.copyWith(top: 0, bottom: 0),
+              width: double.infinity,
+              height: 45,
+              decoration: headerDecoration,
+              child: Row(
+                children: [
+                  Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(5),
+                      onTap: () async {
+                        final newSelectedColumns = await showDialog(
+                          context: context,
+                          builder: (context) {
+                            return SelectColumnsToShowDialog(
+                              columns: columns,
+                              selectedColumns: selectedColumns,
+                            );
+                          },
+                        );
+
+                        if (newSelectedColumns is List<ColumnInfo>) {
+                          this.selectedColumns = newSelectedColumns;
+                          setState(() {});
+                        }
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 2),
+                        child: Row(
+                          children: [
+                            const Icon(
+                              Icons.view_column_outlined,
+                              size: 20,
+                            ),
+                            const SizedBox(width: 5),
+                            Text(
+                              selectedColumns.length != columns.length
+                                  ? context.appLocalizations.selectedColumns
+                                      .naturalCapitalized
+                                  : context.appLocalizations.showingAll
+                                      .naturalCapitalized,
+                            ),
+                            const SizedBox(width: 5),
+                            const Icon(
+                              Icons.keyboard_arrow_down,
+                              size: 15,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      controller: _headerScroll,
+                      scrollDirection: Axis.horizontal,
+                      reverse: true,
+                      child: Row(
+                        children: [
+                          if (filters != null)
+                            Badge(
+                              isLabelVisible: filters.any(
+                                (element) =>
+                                    element.selectedFilters?.isNotEmpty == true,
+                              ),
+                              child: TextButton.icon(
+                                style: IconButton.styleFrom(
+                                  foregroundColor:
+                                      Theme.of(context).colorScheme.onSurface,
+                                ),
+                                label: Text(context.appLocalizations.filter
+                                    .naturalCapitalized),
+                                onPressed: () => showFilters(filters),
+                                icon: const Icon(
+                                  Icons.filter_list,
+                                  size: 15,
+                                ),
+                              ),
+                            ),
+                          if (widget.onChangeDateFilter != null)
+                            Padding(
+                              padding: const EdgeInsets.only(right: 5),
+                              child: Badge(
+                                isLabelVisible: dateFilter != null,
+                                child: TextButton.icon(
+                                  style: IconButton.styleFrom(
+                                    foregroundColor:
+                                        Theme.of(context).colorScheme.onSurface,
+                                  ),
+                                  label: Text(context.appLocalizations
+                                      .filterDates.naturalCapitalized),
+                                  onPressed: () => showDateFilters(),
+                                  icon: const Icon(
+                                    Icons.date_range,
+                                    size: 15,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          if (widget.onCopy != null)
+                            IconButton(
+                              style: IconButton.styleFrom(
+                                foregroundColor:
+                                    Theme.of(context).colorScheme.onSurface,
+                              ),
+                              onPressed: widget.onCopy,
+                              icon: const Icon(
+                                Icons.copy,
+                                size: 20,
+                              ),
+                            ),
+                          if (showExportButton)
+                            MenuAnchor(
+                              menuChildren: [
+                                if (widget.onPrint != null)
+                                  MenuItemButton(
+                                    leadingIcon: const Icon(Icons.print),
+                                    onPressed: widget.onPrint,
+                                    child: Text(context.appLocalizations.print
+                                        .naturalCapitalized),
+                                  ),
+                              ],
+                              builder: (context, controller, child) {
+                                return FilledButton.icon(
+                                  label: Text(context.appLocalizations.export
+                                      .naturalCapitalized),
+                                  onPressed: () => controller.open(),
+                                  icon: const Icon(
+                                    Icons.ios_share_outlined,
+                                    size: 15,
+                                  ),
+                                );
+                              },
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  if (searching)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: SizedBox(
+                        width: 250,
+                        child: TextField(
+                          controller: _generalSearchController,
+                          autofocus: true,
+                          decoration: InputDecoration(
+                            hintText: context
+                                .appLocalizations.search.naturalCapitalized,
+                            prefixIcon: const Icon(Icons.search),
+                            suffixIcon: IconButton(
+                              padding: EdgeInsets.zero,
+                              onPressed: () {
+                                searching = false;
+                                setState(() {});
+
+                                _generalSearchController.clear();
+
+                                widget.onChangeGeneralSearch?.call('');
+                              },
+                              icon: const Icon(
+                                Icons.close,
+                                size: 25,
+                              ),
+                            ),
+                          ),
+                          onChanged: (value) => debouncer.run(
+                            () => widget.onChangeGeneralSearch?.call(value),
+                          ),
+                        ),
+                      ),
+                    )
+                  else if (widget.onChangeGeneralSearch != null)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 30),
+                      child: IconButton(
+                        onPressed: () {
+                          searching = true;
+                          setState(() {});
+                        },
+                        icon: const Icon(Icons.search),
+                      ),
+                    ),
+                ],
               ),
-              const Text('\t'),
-            ] else ...[
-              SizedBox(
-                width: column.width,
-                child: cell(element, map, column),
+            ),
+          ),
+          if (filters != null || dateFilter != null)
+            SingleChildScrollView(
+              padding: padding.copyWith(top: 0, bottom: 10),
+              child: SelectedFiltersWidget(
+                selectedFilters: filters,
+                dateFilters: dateFilter,
+                onChange: widget.onChangeFilters,
+                onDateFilterClear: () {
+                  dateFilter = null;
+                  setState(() {});
+
+                  widget.onChangeDateFilter?.call(null);
+                },
               ),
-              const Text('\t'),
-            ],
-          const Text('\n'),
+            ),
         ],
       ),
+    );
+  }
+
+  void showFilters(List<FilterSection> filters) async {
+    final newFilters = await showDialog(
+      context: context,
+      builder: (context) {
+        return SelectFiltersDialog(
+          filters: filters,
+        );
+      },
+    );
+
+    if (newFilters is! List<FilterSection>) {
+      return;
+    }
+
+    widget.onChangeFilters?.call(newFilters);
+  }
+
+  void showDateFilters() async {
+    final customDateFilters = await showCustomDateFilters(
+      context,
+      initialDateFilter: dateFilter,
+      firstDate: widget.firstDate,
+      lastDate: widget.lastDate,
+    );
+
+    widget.onChangeDateFilter?.call(customDateFilters);
+
+    dateFilter = customDateFilters;
+    setState(() {});
+  }
+
+  Widget tableContent(BoxConstraints constraints, bool scrollable) {
+    return ScrollConfiguration(
+      behavior: ScrollConfiguration.of(context).copyWith(
+        scrollbars: false,
+      ),
+      child: DividerTheme(
+        data: context.dataTableTheme?.dividerThemeData ??
+            const DividerThemeData(),
+        child: ListView.separated(
+          controller: _verticalScrollController,
+          itemCount: widget.data.length,
+          separatorBuilder: (context, index) => const Divider(),
+          itemBuilder: (context, index) {
+            return SizedBox(
+              child:
+                  rowWidget(constraints, widget.data[index], index, scrollable),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget rowWidget(
+      BoxConstraints constraints, T element, int index, bool scrollable) {
+    final columnsToShow = selectedColumns;
+
+    final anyFlex = columnsToShow.any((element) => element.flex != null);
+
+    return Container(
+      decoration: index.isEven
+          ? context.dataTableTheme?.evenRowTheme?.decoration
+          : context.dataTableTheme?.oddRowTheme?.decoration,
+      padding: context.dataTableTheme?.rowPadding ?? _defaultContentPadding,
+      height: rowMinHeight,
+      child: Row(
+        children: [
+          for (final col in columnsToShow)
+            Builder(
+              builder: (context) {
+                final width = col.width;
+                final flex = anyFlex ? col.flex : width.toInt();
+
+                if (scrollable || flex == null || col.hasFixedWidth == true) {
+                  return SizedBox(
+                    width: width,
+                    child: cell(element, widget.toMap(element), col),
+                  );
+                }
+
+                return Expanded(
+                  flex: flex,
+                  child: cell(element, widget.toMap(element), col),
+                );
+              },
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget hideShowColumnsWidget() {
+    // Only allow to hide column that have name.
+    return PopUpField<ColumnInfo>(
+      tooltip: context.appLocalizations.showHideColumns,
+      items: widget.columns
+          .where((element) => element.name.isNotEmpty == true)
+          .map(
+            (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
+          )
+          .toList(),
+      selectedFields: widget.columns
+          .where((element) => element.name.isNotEmpty == true)
+          .map(
+            (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
+          )
+          .toList(),
+      onChange: (values) {
+        // Notify new selected items.
+        selectedColumns = values;
+
+        selectedColumns.addAll(
+          widget.columns.where((element) => element.name.isEmpty),
+        );
+
+        setState(() {});
+      },
     );
   }
 
@@ -908,28 +804,44 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// contains the information of hoe much horizontal space it has to take.
   /// If flex is specified, creates an [Expand] widget with that flex. In the other hand
   /// if only width is specified, it creates a [SizedBox] with the size given.
-  Widget columnsWidget() {
+  Widget columnsWidget(bool scrollable) {
+    final columnHeaderDecoration =
+        context.dataTableTheme?.columnHeaderDecoration;
+    final padding =
+        context.dataTableTheme?.columnHeaderPadding ?? _defaultContentPadding;
+
+    final columnsToShow = selectedColumns;
+
+    final anyFlex = columnsToShow.any((element) => element.flex != null);
+
     return Container(
-      color: dataTableTheme.headingRowColor?.resolve({MaterialState.selected}),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          for (final column in columnsToShow)
-            if (column.flex != null) ...[
-              Expanded(
-                flex: column.flex!,
-                child: columnWidget(column),
+      decoration: columnHeaderDecoration,
+      padding: padding,
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            for (final col in columnsToShow)
+              Builder(
+                builder: (context) {
+                  final width = col.width;
+                  final flex = anyFlex ? col.flex : width.toInt();
+
+                  if (scrollable || flex == null || col.hasFixedWidth == true) {
+                    return SizedBox(
+                      width: width,
+                      child: columnWidget(col),
+                    );
+                  }
+
+                  return Expanded(
+                    flex: flex,
+                    child: columnWidget(col),
+                  );
+                },
               ),
-              const Text('\t'),
-            ] else ...[
-              SizedBox(
-                width: column.width,
-                child: columnWidget(column),
-              ),
-              const Text('\t'),
-            ]
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -940,7 +852,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// sort all data of the table by this column. The information of the column is contained in
   /// [column].
   Widget columnWidget(ColumnInfo column) {
-    if (column.name.isEmpty) return const SizedBox();
+    final columnTitleTextStyle = context.dataTableTheme?.columnTitleTextStyle;
 
     return Row(
       children: [
@@ -957,7 +869,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                       // If there is no column marked as sort, this column is marked as
                       // sorting ascendant.
 
-                      if (sortInfo?.columnInfo != column) {
+                      if (sortInfo?.columnInfo.key != column.key) {
                         sortInfo = SortInfo(columnInfo: column, asc: true);
                       } else {
                         sortInfo!.asc = !sortInfo!.asc;
@@ -967,33 +879,31 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
                       setState(() {});
                     },
-              child: Padding(
-                padding: const EdgeInsets.all(5),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Name of the column.
-                    Flexible(
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // Name of the column.
+                  Flexible(
+                    child: Align(
+                      alignment: Alignment.bottomLeft,
                       child: Text(
                         column.name,
                         overflow: TextOverflow.fade,
-                        maxLines: 1,
-                        softWrap: false,
-                        style: dataTableTheme.headingTextStyle,
+                        style: columnTitleTextStyle,
                       ),
                     ),
-                    const SizedBox(width: 5),
+                  ),
+                  const SizedBox(width: 5),
 
-                    // Indicates if the column is sorted asc, desc or if it is not sorted.
-                    if (column == sortInfo?.columnInfo)
-                      Icon(
-                        sortInfo?.asc == true
-                            ? Icons.keyboard_arrow_down_rounded
-                            : Icons.keyboard_arrow_up_rounded,
-                        size: 15,
-                      )
-                  ],
-                ),
+                  // Indicates if the column is sorted asc, desc or if it is not sorted.
+                  if (column.key == sortInfo?.columnInfo.key)
+                    Icon(
+                      sortInfo?.asc == true
+                          ? Icons.keyboard_arrow_down_rounded
+                          : Icons.keyboard_arrow_up_rounded,
+                      size: 15,
+                    )
+                ],
               ),
             ),
           ),
@@ -1002,63 +912,110 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     );
   }
 
-  Widget searchWidget() {
+  /// Table footer.
+  ///
+  /// Displays pages info. Contains buttons to navigate between pages.
+  /// If paginator info is `null`, the footer is not displayed.
+  Widget footer({required double availableWidth}) {
+    final paginatorInfo = widget.paginatorInfo;
+
+    if (paginatorInfo == null) return const SizedBox();
+
+    return TableFooter(
+      paginatorInfo: paginatorInfo,
+      availableWidth: availableWidth,
+      onNextPage: widget.onNextPage,
+      onPerPageChange: widget.onPerPageChange,
+      onPreviousPage: widget.onPreviousPage,
+      onSelectedPage: widget.onSelectedPage,
+    );
+  }
+
+  Widget columnSearchFieldsWidget(bool scrollable) {
+    final columnSearchDecoration =
+        context.dataTableTheme?.columnSearchDecoration ??
+            BoxDecoration(
+              color: Theme.of(context).cardColor,
+            );
+
+    final columnsToShow = selectedColumns;
+
+    final anyFlex = columnsToShow.any((element) => element.flex != null);
+
     return Container(
-      color: Theme.of(context).cardColor,
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: columnSearchDecoration,
+      padding:
+          context.dataTableTheme?.columnSearchPadding ?? _defaultContentPadding,
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          for (final column in columnsToShow)
-            if (column.flex != null)
-              Expanded(
-                flex: column.flex!,
-                child: searchField(column),
-              )
-            else
-              SizedBox(
-                width: column.width,
-                child: searchField(column),
-              )
+          for (final col in columnsToShow)
+            Builder(
+              builder: (context) {
+                final width = col.width;
+                final flex = anyFlex ? col.flex : width.toInt();
+
+                if (scrollable || flex == null || col.hasFixedWidth == true) {
+                  return SizedBox(
+                    width: width,
+                    child: columnFieldWidget(col),
+                  );
+                }
+
+                return Expanded(
+                  flex: flex,
+                  child: columnFieldWidget(col),
+                );
+              },
+            ),
         ],
       ),
     );
   }
 
-  Widget searchField(ColumnInfo column) {
+  Widget columnFieldWidget(ColumnInfo column) {
     if (column.name.isEmpty || !column.canSearchInput) return const SizedBox();
+
+    final theme = context.dataTableTheme;
 
     return Container(
       height: 40,
-      padding: const EdgeInsets.symmetric(horizontal: 2),
-      child: TextFormField(
-        controller: textControllers[column.key],
-        decoration: InputDecoration(
-          contentPadding:
-              const EdgeInsets.symmetric(vertical: 0, horizontal: 10),
-          hintText: column.name,
-          hintStyle: const TextStyle(
+      padding: const EdgeInsets.only(right: 3),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          inputDecorationTheme: theme?.columnSearchInputTheme ??
+              const InputDecorationTheme(
+                contentPadding:
+                    EdgeInsets.symmetric(vertical: 0, horizontal: 10),
+                hintStyle: TextStyle(
+                  fontSize: 13,
+                ),
+              ),
+        ),
+        child: TextFormField(
+          controller: textControllers[column.key],
+          decoration: InputDecoration(
+            hintText: column.name,
+          ),
+          style: const TextStyle(
             fontSize: 13,
           ),
-        ),
-        style: const TextStyle(
-          fontSize: 13,
-        ),
-        onChanged: (value) => debouncerIndividual.run(
-          () {
-            column.onChangeInput?.call(value);
+          onChanged: (value) => debouncerIndividual.run(
+            () {
+              column.onChangeInput?.call(value);
 
-            widget.onChangeSearchTextField?.call(
-              [
-                for (final e in textControllers.entries)
-                  SearchFieldInfo(
-                    columnInfo:
-                        columns.firstWhere((element) => element.key == e.key),
-                    searchValue: e.value.text,
-                  )
-              ],
-            );
-          },
+              widget.onChangeSearchTextField?.call(
+                [
+                  for (final e in textControllers.entries)
+                    SearchFieldInfo(
+                      columnInfo:
+                          columns.firstWhere((element) => element.key == e.key),
+                      searchValue: e.value.text,
+                    )
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -1080,28 +1037,25 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     // If data is not specified or child is not given, the cell is displaying the
     // text contained in the map by the column id.
     if (cellWidget == null) {
-      return Container(
-        padding: const EdgeInsets.only(left: 5),
-        constraints: BoxConstraints(
-            minHeight: dataTableTheme.dataRowMinHeight ?? dataRowMinHeight),
-        child: Align(
-          alignment: Alignment.centerLeft,
-          child: Text('${map[column.key] ?? ''}'.replaceAll('\n', ' '),
-              style: dataTableTheme.dataTextStyle, maxLines: 1),
+      final cellText = '${map[column.key] ?? ''}'.replaceAll('\n', ' ');
+
+      return Align(
+        alignment: Alignment.centerLeft,
+        child: Text(
+          cellText,
+          style: context.dataTableTheme?.contentTextStyle,
+          maxLines: 1,
         ),
       );
     }
 
     // Display widget specified in child if not null.
-    return Material(
-      color: Colors.transparent,
-      child: cellWidget,
-    );
+    return cellWidget;
   }
 }
 
 class ScrollWidget extends StatelessWidget {
-  final double minWidth;
+  final double? minWidth;
   final double width;
 
   final Widget child;
@@ -1118,7 +1072,9 @@ class ScrollWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (minWidth < width) return child;
+    final minWidth = this.minWidth;
+
+    if (minWidth == null || minWidth < width) return child;
 
     return MediaQuery(
       data: MediaQuery.of(context).removePadding(
@@ -1141,24 +1097,35 @@ class ScrollWidget extends StatelessWidget {
 }
 
 class ScrollWidgetWithBar extends StatelessWidget {
-  final double minWidth;
+  final double? minWidth;
   final double width;
 
   final Widget child;
 
-  final ScrollController? scrollController;
+  final ScrollController? hScrollController;
+  final ScrollController? vScrollController;
 
-  const ScrollWidgetWithBar(
-      {Key? key,
-      required this.minWidth,
-      required this.width,
-      required this.child,
-      this.scrollController})
-      : super(key: key);
+  const ScrollWidgetWithBar({
+    Key? key,
+    required this.minWidth,
+    required this.width,
+    required this.child,
+    this.hScrollController,
+    this.vScrollController,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (minWidth < width) return child;
+    final minWidth = this.minWidth;
+
+    if (minWidth == null || minWidth < width) {
+      return Scrollbar(
+        scrollbarOrientation: ScrollbarOrientation.right,
+        controller: vScrollController,
+        thumbVisibility: true,
+        child: child,
+      );
+    }
 
     return MediaQuery(
       data: MediaQuery.of(context).removePadding(
@@ -1167,15 +1134,21 @@ class ScrollWidgetWithBar extends StatelessWidget {
       ),
       child: SafeArea(
         child: Scrollbar(
-          controller: scrollController,
+          scrollbarOrientation: ScrollbarOrientation.right,
+          controller: vScrollController,
           thumbVisibility: true,
-          child: SingleChildScrollView(
-            controller: scrollController,
-            scrollDirection: Axis.horizontal,
-            child: SizedBox(
-              // The table width is the value calculated.
-              width: minWidth,
-              child: child,
+          notificationPredicate: (notif) => notif.depth == 1,
+          child: Scrollbar(
+            controller: hScrollController,
+            thumbVisibility: true,
+            child: SingleChildScrollView(
+              controller: hScrollController,
+              scrollDirection: Axis.horizontal,
+              child: SizedBox(
+                // The table width is the value calculated.
+                width: minWidth,
+                child: child,
+              ),
             ),
           ),
         ),
@@ -1186,4 +1159,76 @@ class ScrollWidgetWithBar extends StatelessWidget {
 
 class TableController {
   late VoidCallback clearColumnSearchFields;
+}
+
+class SelectColumnsToShowDialog extends StatefulWidget {
+  final List<ColumnInfo> columns;
+  final List<ColumnInfo> selectedColumns;
+
+  const SelectColumnsToShowDialog(
+      {super.key, required this.columns, required this.selectedColumns});
+
+  @override
+  State<SelectColumnsToShowDialog> createState() =>
+      _SelectColumnsToShowDialogState();
+}
+
+class _SelectColumnsToShowDialogState extends State<SelectColumnsToShowDialog> {
+  late List<ColumnInfo> selectedColumns;
+
+  @override
+  void initState() {
+    selectedColumns = [...widget.selectedColumns];
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final columns = widget.columns;
+
+    return AlertDialog(
+      title: Text(
+        context.appLocalizations.columnsToShow.naturalCapitalized,
+      ),
+      scrollable: true,
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          for (final col in columns)
+            if (col.name.isNotEmpty)
+              CheckboxListTile(
+                value: selectedColumns.any((element) => element.key == col.key),
+                onChanged: (value) {
+                  selectedColumns
+                      .removeWhere((element) => element.key == col.key);
+
+                  if (value == true) {
+                    selectedColumns.add(col);
+                  }
+
+                  setState(() {});
+                },
+                title: Text(col.name),
+              ),
+        ],
+      ),
+      actions: [
+        FilledButton(
+          onPressed: () {
+            final selectedColumns = widget.columns.where(
+              (element) {
+                return this.selectedColumns.any(
+                      (e) => element.key == e.key,
+                    );
+              },
+            ).toList();
+
+            Navigator.of(context).pop(selectedColumns);
+          },
+          child: Text(MaterialLocalizations.of(context).okButtonLabel),
+        ),
+      ],
+    );
+  }
 }

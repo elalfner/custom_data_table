@@ -1,21 +1,17 @@
 import 'package:custom_data_table/l10n/localization_extension.dart';
-import 'package:custom_data_table/src/utils/date_time_extension.dart';
 import 'package:custom_data_table/src/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 import '../../custom_data_table.dart';
-import 'dates_filter_chip.dart';
 
 class CustomFilters extends StatefulWidget {
   final List<FilterSection>? sections;
 
   final Function(List<FilterSection> sections)? onChange;
 
-  final DateFilterType? dateFilterType;
-  final DateTime? date;
-  final DateTime? endDate;
+  final DateSelection? initialDateFilter;
 
   final DateTime? firstDate;
   final DateTime? lastDate;
@@ -28,27 +24,12 @@ class CustomFilters extends StatefulWidget {
     Key? key,
     this.sections,
     this.onChange,
-    this.dateFilterType,
-    this.date,
-    this.endDate,
+    this.initialDateFilter,
     this.onChangeDateFilter,
     this.onTapDateFilter,
     this.firstDate,
     this.lastDate,
   }) : super(key: key);
-
-  factory CustomFilters.dateFilter({
-    final DateFilterType? dateFilterType,
-    final DateTime? date,
-    final DateTime? endDate,
-    final ChangeDateCallback? onChangeDateFilter,
-  }) =>
-      CustomFilters(
-        dateFilterType: dateFilterType,
-        date: date,
-        endDate: endDate,
-        onChangeDateFilter: onChangeDateFilter,
-      );
 
   @override
   State<CustomFilters> createState() => _CustomFiltersState();
@@ -57,23 +38,24 @@ class CustomFilters extends StatefulWidget {
 class _CustomFiltersState extends State<CustomFilters> {
   late List<FilterSection> selectedFilters;
 
-  DateFilterType? dateFilterType;
-  DateTime? date;
-  DateTime? endDate;
+  DateSelection? dateFilter;
 
   @override
   void initState() {
     selectedFilters = widget.sections ?? [];
 
-    dateFilterType = widget.dateFilterType;
-    date = widget.date;
-    endDate = widget.endDate;
+    dateFilter = widget.initialDateFilter;
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
+    final dateFilter = this.dateFilter;
+    final dateFilterType = dateFilter?.dateFilterType;
+    final date = dateFilter?.date;
+    final endDate = dateFilter?.endDate;
+
     return Wrap(
       spacing: 5,
       runSpacing: 5,
@@ -105,11 +87,7 @@ class _CustomFiltersState extends State<CustomFilters> {
               size: 14,
             ),
             onDeleted: () {
-              dateFilterType = null;
-
-              date = null;
-              endDate = null;
-
+              this.dateFilter = null;
               setState(() {});
 
               notifyDateFilterChange();
@@ -117,20 +95,16 @@ class _CustomFiltersState extends State<CustomFilters> {
           ),
         if (dateFilterType == DateFilterType.date &&
             date != null &&
-            date?.onlyDate != DateTime.now().onlyDate)
+            date.onlyDate != DateTime.now().onlyDate)
           Chip(
             elevation: 1,
-            label: Text(DateFormat.yMd().format(date!)),
+            label: Text(DateFormat.yMd().format(date)),
             deleteIcon: const Icon(
               Icons.close,
               size: 14,
             ),
             onDeleted: () {
-              dateFilterType = null;
-
-              date = null;
-              endDate = null;
-
+              this.dateFilter = null;
               setState(() {});
 
               notifyDateFilterChange();
@@ -139,16 +113,14 @@ class _CustomFiltersState extends State<CustomFilters> {
         if (dateFilterType == DateFilterType.month && date != null)
           Chip(
             elevation: 1,
-            label: Text(DateFormat.yMMMM().format(date!)),
+            label: Text(DateFormat.yMMMM().format(date)),
             deleteIcon: const Icon(
               Icons.close,
               size: 14,
             ),
             onDeleted: () {
-              dateFilterType = null;
-
-              date = null;
-              endDate = null;
+              this.dateFilter = null;
+              setState(() {});
 
               setState(() {});
 
@@ -158,17 +130,13 @@ class _CustomFiltersState extends State<CustomFilters> {
         if (dateFilterType == DateFilterType.year && date != null)
           Chip(
             elevation: 1,
-            label: Text(DateFormat.y().format(date!)),
+            label: Text(DateFormat.y().format(date)),
             deleteIcon: const Icon(
               Icons.close,
               size: 14,
             ),
             onDeleted: () {
-              dateFilterType = null;
-
-              date = null;
-              endDate = null;
-
+              this.dateFilter = null;
               setState(() {});
 
               notifyDateFilterChange();
@@ -180,17 +148,13 @@ class _CustomFiltersState extends State<CustomFilters> {
           Chip(
             elevation: 1,
             label: Text(
-                '${DateFormat.yMd().add_Hm().format(date!)} - ${DateFormat.yMd().add_Hm().format(endDate!)}'),
+                '${DateFormat.yMd().add_Hm().format(date)} - ${DateFormat.yMd().add_Hm().format(endDate)}'),
             deleteIcon: const Icon(
               Icons.close,
               size: 14,
             ),
             onDeleted: () {
-              dateFilterType = null;
-
-              date = null;
-              endDate = null;
-
+              this.dateFilter = null;
               setState(() {});
 
               notifyDateFilterChange();
@@ -223,14 +187,11 @@ class _CustomFiltersState extends State<CustomFilters> {
             firstDate: widget.firstDate,
             lastDate: widget.lastDate,
             onTapDateFilter: widget.onTapDateFilter,
-            onChangeDateFilter: (dateFilterType, date, endDate) {
-              this.dateFilterType = dateFilterType;
-              this.date = date;
-              this.endDate = endDate;
-
-              widget.onChangeDateFilter?.call(dateFilterType, date, endDate);
-
+            onChangeDateFilter: (dateFilter) {
+              this.dateFilter = dateFilter;
               setState(() {});
+
+              widget.onChangeDateFilter?.call(dateFilter);
             },
           ),
       ],
@@ -277,7 +238,7 @@ class _CustomFiltersState extends State<CustomFilters> {
                   Navigator.pop(context);
                 },
                 child: Text(
-                    context.appLocalizations.cleanFilters.naturalCapitalized),
+                    context.appLocalizations.clearFilters.naturalCapitalized),
               ),
               const SizedBox(width: 5),
               ElevatedButton(
@@ -318,7 +279,7 @@ class _CustomFiltersState extends State<CustomFilters> {
   }
 
   void notifyDateFilterChange() {
-    widget.onChangeDateFilter?.call(dateFilterType, date, endDate);
+    widget.onChangeDateFilter?.call(dateFilter);
   }
 }
 
@@ -359,5 +320,201 @@ class FiltersView extends StatelessWidget {
           ),
       ],
     );
+  }
+}
+
+class SelectFiltersDialog extends StatelessWidget {
+  final List<FilterSection> filters;
+
+  final Function(List<FilterSection> selectedFilters)? onChange;
+
+  const SelectFiltersDialog({super.key, required this.filters, this.onChange});
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: Row(
+        children: [
+          Expanded(
+            child: Text(
+              context.appLocalizations.filter.naturalCapitalized,
+              style: Theme.of(context).textTheme.titleLarge,
+              softWrap: false,
+              overflow: TextOverflow.fade,
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              for (final section in filters) {
+                section.selectedFilters = null;
+              }
+              Navigator.pop(context);
+            },
+            child:
+                Text(context.appLocalizations.clearFilters.naturalCapitalized),
+          ),
+        ],
+      ),
+      content: SizedBox(
+        width: 350,
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              for (final section in filters)
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 8.0),
+                  child: FilterSectionWidget(
+                    section: section,
+                    selectedFilters: [
+                      for (final section in filters)
+                        ...section.selectedFilters ?? []
+                    ],
+                    onChange: (values) => section.selectedFilters = values,
+                  ),
+                ),
+            ],
+          ),
+        ),
+      ),
+      actions: [
+        FilledButton(
+          onPressed: () => Navigator.pop(context, filters),
+          child: Text(MaterialLocalizations.of(context).okButtonLabel),
+        ),
+      ],
+    );
+  }
+}
+
+class SelectedFiltersWidget extends StatefulWidget {
+  final List<FilterSection>? selectedFilters;
+  final DateSelection? dateFilters;
+
+  final Function(List<FilterSection> selectedFilters)? onChange;
+  final VoidCallback? onDateFilterClear;
+
+  const SelectedFiltersWidget({
+    super.key,
+    this.selectedFilters,
+    this.dateFilters,
+    this.onChange,
+    this.onDateFilterClear,
+  });
+
+  @override
+  State<SelectedFiltersWidget> createState() => _SelectedFiltersWidgetState();
+}
+
+class _SelectedFiltersWidgetState extends State<SelectedFiltersWidget> {
+  @override
+  Widget build(BuildContext context) {
+    final selectedFilters = widget.selectedFilters;
+    final dateFilters = widget.dateFilters;
+
+    return Row(
+      children: [
+        if (selectedFilters != null)
+          for (final FilterSection section in selectedFilters)
+            for (final FilterItem filter in section.selectedFilters ?? [])
+              Padding(
+                padding: const EdgeInsets.only(right: 5),
+                child: Chip(
+                  label:
+                      Text('${section.columnInfo.name}: ${filter.filterName}'),
+                  visualDensity:
+                      const VisualDensity(horizontal: -4, vertical: -4),
+                  padding: EdgeInsets.zero,
+                  labelPadding: const EdgeInsets.only(left: 8),
+                  deleteIcon: const Icon(
+                    Icons.close,
+                    size: 14,
+                  ),
+                  onDeleted: () {
+                    section.selectedFilters?.remove(filter);
+
+                    widget.onChange?.call(selectedFilters);
+                  },
+                ),
+              ),
+        if (dateFilters != null) ...selectedDatesFilter(dateFilters),
+      ],
+    );
+  }
+
+  List<Widget> selectedDatesFilter(DateSelection dateFilters) {
+    final dateFilterType = dateFilters.dateFilterType;
+    final date = dateFilters.date;
+    final endDate = dateFilters.endDate;
+
+    return [
+      if (dateFilterType == DateFilterType.date &&
+          date?.onlyDate == DateTime.now().onlyDate)
+        Chip(
+          elevation: 1,
+          label: Text(context.appLocalizations.onlyToday),
+          deleteIcon: const Icon(
+            Icons.close,
+            size: 14,
+          ),
+          onDeleted: widget.onDateFilterClear,
+          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+          padding: EdgeInsets.zero,
+        ),
+      if (dateFilterType == DateFilterType.date &&
+          date != null &&
+          date.onlyDate != DateTime.now().onlyDate)
+        Chip(
+          elevation: 1,
+          label: Text(DateFormat.yMd().format(date)),
+          deleteIcon: const Icon(
+            Icons.close,
+            size: 14,
+          ),
+          onDeleted: widget.onDateFilterClear,
+          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+          padding: EdgeInsets.zero,
+        ),
+      if (dateFilterType == DateFilterType.month && date != null)
+        Chip(
+          elevation: 1,
+          label: Text(DateFormat.yMMMM().format(date)),
+          deleteIcon: const Icon(
+            Icons.close,
+            size: 14,
+          ),
+          onDeleted: widget.onDateFilterClear,
+          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+          padding: EdgeInsets.zero,
+        ),
+      if (dateFilterType == DateFilterType.year && date != null)
+        Chip(
+          elevation: 1,
+          label: Text(DateFormat.y().format(date)),
+          deleteIcon: const Icon(
+            Icons.close,
+            size: 14,
+          ),
+          onDeleted: widget.onDateFilterClear,
+          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+          padding: EdgeInsets.zero,
+        ),
+      if (dateFilterType == DateFilterType.period &&
+          date != null &&
+          endDate != null)
+        Chip(
+          elevation: 1,
+          label: Text(
+              '${DateFormat.yMd().add_Hm().format(date)} - ${DateFormat.yMd().add_Hm().format(endDate)}'),
+          deleteIcon: const Icon(
+            Icons.close,
+            size: 14,
+          ),
+          onDeleted: widget.onDateFilterClear,
+          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+          padding: EdgeInsets.zero,
+        ),
+    ];
   }
 }
