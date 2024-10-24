@@ -3,6 +3,7 @@ import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:custom_data_table/src/utils/debounce.dart';
 import 'package:custom_data_table/src/utils/string_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
 class CustomDataTable<T> extends StatefulWidget {
@@ -127,6 +128,8 @@ class CustomDataTable<T> extends StatefulWidget {
 
   final TextEditingController? generalSearchController;
 
+  final bool canCopy;
+
   const CustomDataTable({
     Key? key,
     this.controller,
@@ -159,6 +162,7 @@ class CustomDataTable<T> extends StatefulWidget {
     this.lastDate,
     this.onChangeDateFilter,
     this.generalSearchController,
+    this.canCopy = true,
   }) : super(key: key);
 
   @override
@@ -569,13 +573,39 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                 ),
                               ),
                             ),
-                          if (widget.onCopy != null)
+                          if (widget.onCopy != null || widget.canCopy)
                             IconButton(
                               style: IconButton.styleFrom(
                                 foregroundColor:
                                     Theme.of(context).colorScheme.onSurface,
                               ),
-                              onPressed: widget.onCopy,
+                              onPressed: widget.onCopy ??
+                                  () async {
+                                    final columnsToShow = selectedColumns;
+
+                                    final copyValue = [
+                                      [
+                                        for (final column in columnsToShow)
+                                          column.name,
+                                      ].join('\t'),
+                                      for (final element in widget.data)
+                                        [
+                                          for (final column in columnsToShow)
+                                            '${widget.toMap(element)[column.key] ?? ''}'
+                                                .replaceAll('\n', ' '),
+                                        ].join('\t'),
+                                    ].join('\n');
+
+                                    await Clipboard.setData(
+                                        ClipboardData(text: copyValue));
+
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content:
+                                            Text('Copiado al portapapeles'),
+                                      ),
+                                    );
+                                  },
                               icon: const Icon(
                                 Icons.copy,
                                 size: 20,

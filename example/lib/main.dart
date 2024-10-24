@@ -392,6 +392,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ColumnInfo(name: 'Tipo', key: 'userType', width: 100),
                   ColumnInfo(name: '', key: 'button', flex: 1, width: 100),
                 ],
+                canCopy: true,
                 toMap: (element) => element.toJsonTable(),
                 /*
                 onChangeSearchFilter: (values) {
