@@ -688,19 +688,16 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             ),
           ),
           if (filters != null || dateFilter != null)
-            SingleChildScrollView(
-              padding: padding.copyWith(top: 0, bottom: 10),
-              child: SelectedFiltersWidget(
-                selectedFilters: filters,
-                dateFilters: dateFilter,
-                onChange: widget.onChangeFilters,
-                onDateFilterClear: () {
-                  dateFilter = null;
-                  setState(() {});
+            SelectedFiltersWidget(
+              selectedFilters: filters,
+              dateFilters: dateFilter,
+              onChange: widget.onChangeFilters,
+              onDateFilterClear: () {
+                dateFilter = null;
+                setState(() {});
 
-                  widget.onChangeDateFilter?.call(null);
-                },
-              ),
+                widget.onChangeDateFilter?.call(null);
+              },
             ),
         ],
       ),
