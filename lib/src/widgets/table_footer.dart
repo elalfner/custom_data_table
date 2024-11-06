@@ -51,10 +51,12 @@ class _TableFooterState extends State<TableFooter> {
   }
 
   Widget content(double availableWidth) {
+    final dataTableTheme = context.watchDataTableTheme;
+
     // `true` if available space is smaller than this value.
     final small = availableWidth < 600;
 
-    final footerDecoration = context.dataTableTheme?.footerDecoration;
+    final footerDecoration = dataTableTheme?.footerDecoration;
 
     final children = [
       if (widget.paginatorInfo.perPage != null &&
@@ -123,7 +125,7 @@ class _TableFooterState extends State<TableFooter> {
       )
     ];
 
-    final padding = context.dataTableTheme?.footerPadding ??
+    final padding = dataTableTheme?.footerPadding ??
         const EdgeInsets.symmetric(horizontal: 15, vertical: 5);
 
     if (small) {

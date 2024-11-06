@@ -1,5 +1,7 @@
 import 'app_localizations.dart';
 
+// ignore_for_file: type=lint
+
 /// The translations for Spanish Castilian (`es`).
 class AppLocalizationsEs extends DataTableLocalizations {
   AppLocalizationsEs([String locale = 'es']) : super(locale);
@@ -105,4 +107,7 @@ class AppLocalizationsEs extends DataTableLocalizations {
 
   @override
   String get columnsToShow => 'columnas a mostrar';
+
+  @override
+  String get columns => 'columnas';
 }

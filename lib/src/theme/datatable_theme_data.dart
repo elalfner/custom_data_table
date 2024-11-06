@@ -23,6 +23,7 @@ class CustomDatatableThemeData {
   final EdgeInsets? columnSearchPadding;
   final EdgeInsets? rowPadding;
   final EdgeInsets? footerPadding;
+  final EdgeInsets? tableMargin;
 
   final InputDecorationTheme? selectColumnsInputTheme;
   final InputDecorationTheme? columnSearchInputTheme;
@@ -54,6 +55,7 @@ class CustomDatatableThemeData {
     this.titleTextStyle,
     this.columnTitleTextStyle,
     this.contentTextStyle,
+    this.tableMargin,
   });
 
   CustomDatatableThemeData copyWith({
@@ -73,6 +75,7 @@ class CustomDatatableThemeData {
     EdgeInsets? columnSearchPadding,
     EdgeInsets? rowPadding,
     EdgeInsets? footerPadding,
+    EdgeInsets? tableMargin,
     InputDecorationTheme? selectColumnsInputTheme,
     InputDecorationTheme? columnSearchInputTheme,
     Widget? selectColumnsInputBackground,
@@ -98,6 +101,7 @@ class CustomDatatableThemeData {
         columnSearchPadding: columnSearchPadding ?? this.columnSearchPadding,
         rowPadding: rowPadding ?? this.rowPadding,
         footerPadding: footerPadding ?? this.footerPadding,
+        tableMargin: tableMargin ?? this.tableMargin,
         selectColumnsInputTheme:
             selectColumnsInputTheme ?? this.selectColumnsInputTheme,
         columnSearchInputTheme:

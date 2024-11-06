@@ -21,9 +21,16 @@ class CustomDatatableTheme extends StatelessWidget {
 }
 
 extension BuildContextExtension on BuildContext {
-  CustomDatatableThemeData? get dataTableTheme {
+  CustomDatatableThemeData? get readDataTableTheme {
     try {
       return read<CustomDatatableThemeData>();
+    } catch (_) {}
+    return null;
+  }
+
+  CustomDatatableThemeData? get watchDataTableTheme {
+    try {
+      return watch<CustomDatatableThemeData>();
     } catch (_) {}
     return null;
   }

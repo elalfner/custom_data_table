@@ -32,5 +32,6 @@
   "clearAll": "limpiar todo",
   "showingAll": "mostrando todo",
   "selectedColumns": "columnas seleccionadas",
-  "columnsToShow": "columnas a mostrar"
+  "columnsToShow": "columnas a mostrar",
+  "columns": "columnas"
 }
