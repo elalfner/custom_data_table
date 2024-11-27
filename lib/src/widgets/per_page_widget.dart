@@ -18,6 +18,8 @@ class TablePerPageWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final paginatorPerPage = paginatorInfo.perPage;
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
@@ -47,9 +49,17 @@ class TablePerPageWidget extends StatelessWidget {
               style: Theme.of(context).textTheme.bodySmall,
               borderRadius: BorderRadius.circular(10),
               underline: const SizedBox(),
-              items: {10, 25, 50, paginatorInfo.perPage}
-                  .where((element) => element != null)
-                  .sorted((a, b) => a!.compareTo(b!))
+              items: {
+                10,
+                25,
+                50,
+                75,
+                100,
+                150,
+                200,
+                if (paginatorPerPage != null) paginatorPerPage
+              }
+                  .sorted((a, b) => a.compareTo(b))
                   .map((e) => DropdownMenuItem(
                         value: e,
                         child: Text('$e'),
