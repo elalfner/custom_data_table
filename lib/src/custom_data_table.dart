@@ -828,12 +828,12 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           )
           .toList(),
       onChange: (values) {
-        final columsWithoutName =
+        final columnsWithoutName =
             widget.columns.where((element) => element.name.isEmpty);
 
         selectedColumns = {
           for (final c in values) c.key,
-          for (final c in columsWithoutName) c.key,
+          for (final c in columnsWithoutName) c.key,
         };
 
         setState(() {});

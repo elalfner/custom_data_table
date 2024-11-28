@@ -348,7 +348,7 @@ class SelectFiltersDialog extends StatelessWidget {
               for (final section in filters) {
                 section.selectedFilters = null;
               }
-              Navigator.pop(context);
+              Navigator.pop(context, filters);
             },
             child:
                 Text(context.appLocalizations.clearFilters.naturalCapitalized),
