@@ -100,7 +100,9 @@ class _TableFooterState extends State<TableFooter> {
               ),
             ],
           ),
-        ),
+        )
+      else
+        const SizedBox(),
       Row(
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,

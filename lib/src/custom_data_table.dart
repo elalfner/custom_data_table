@@ -29,7 +29,7 @@ class CustomDataTable<T> extends StatefulWidget {
   final List<ColumnInfo> columns;
 
   /// Data to show in the table.
-  final List<T> data;
+  final List<T>? data;
 
   /// Function to convert the row of type Object to Map.
   ///
@@ -128,6 +128,10 @@ class CustomDataTable<T> extends StatefulWidget {
 
   final bool canCopy;
 
+  final Widget Function()? exceptionBuilder;
+
+  final Widget Function()? loadingBuilder;
+
   const CustomDataTable({
     Key? key,
     this.controller,
@@ -160,6 +164,8 @@ class CustomDataTable<T> extends StatefulWidget {
     this.onChangeDateFilter,
     this.generalSearchController,
     this.canCopy = true,
+    this.exceptionBuilder,
+    this.loadingBuilder,
   }) : super(key: key);
 
   @override
@@ -283,10 +289,14 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     final dividerHeight = dataTableTheme?.dividerHeight;
 
-    contentHeight.value = widget.data.isEmpty
-        ? 0
-        : (rowMinHeight * widget.data.length +
-            ((dividerHeight ?? 0) * (widget.data.length - 1)));
+    final data = widget.data;
+
+    if (data != null) {
+      contentHeight.value = data.isEmpty
+          ? 0
+          : (rowMinHeight * data.length +
+              ((dividerHeight ?? 0) * (data.length - 1)));
+    }
 
     return Container(
       margin: dataTableTheme?.tableMargin,
@@ -389,21 +399,43 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           child: ValueListenableBuilder(
             valueListenable: contentHeight,
             builder: (context, contentHeight, child) {
+              final data = widget.data;
+              final paginator = widget.paginatorInfo;
+
+              final error =
+                  (data == null || paginator == null) && !widget.isLoading;
+
               return Container(
-                constraints: contentHeight == null
+                constraints: contentHeight == null || error
                     ? null
                     : BoxConstraints(
                         maxHeight: contentHeight + 10,
                       ),
                 child: Builder(
                   builder: (context) {
+                    final data = widget.data;
+                    final paginator = widget.paginatorInfo;
+
+                    if (data == null || paginator == null) {
+                      if (widget.isLoading) {
+                        return widget.loadingBuilder?.call() ??
+                            const CircularProgressIndicator();
+                      } else {
+                        return widget.exceptionBuilder?.call() ??
+                            const SizedBox();
+                      }
+                    }
+
                     if (constraints.maxWidth > minWidth) {
                       return Scrollbar(
                         controller: _verticalScrollController,
                         thumbVisibility: true,
                         child: Container(
                           constraints: tableConstraints,
-                          child: tableContent(scrollable: false),
+                          child: tableContent(
+                            data: data,
+                            scrollable: false,
+                          ),
                         ),
                       );
                     }
@@ -422,7 +454,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                             scrollDirection: Axis.horizontal,
                             child: SizedBox(
                               width: minWidth,
-                              child: tableContent(scrollable: true),
+                              child: tableContent(
+                                scrollable: true,
+                                data: data,
+                              ),
                             ),
                           ),
                         ),
@@ -465,6 +500,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     final showExportButton = widget.onExport != null ||
         widget.onPrint != null ||
         widget.onCopy != null;
+
+    final data = widget.data;
 
     return Container(
       padding: padding?.copyWith(right: 0, left: 0),
@@ -578,7 +615,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                 ),
                               ),
                             ),
-                          if (widget.onCopy != null || widget.canCopy)
+                          if ((widget.onCopy != null || widget.canCopy) &&
+                              data != null &&
+                              data.isNotEmpty)
                             IconButton(
                               style: IconButton.styleFrom(
                                 foregroundColor:
@@ -596,7 +635,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                         for (final column in columnsToShow)
                                           column.name,
                                       ].join('\t'),
-                                      for (final element in widget.data)
+                                      for (final element in data)
                                         [
                                           for (final column in columnsToShow)
                                             '${widget.toMap(element)[column.key] ?? ''}'
@@ -747,7 +786,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     setState(() {});
   }
 
-  Widget tableContent({required bool scrollable}) {
+  Widget tableContent({required data, required bool scrollable}) {
     final dataTableTheme = context.watchDataTableTheme;
 
     return ScrollConfiguration(
@@ -758,11 +797,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         data: dataTableTheme?.dividerThemeData ?? const DividerThemeData(),
         child: ListView.separated(
           controller: _verticalScrollController,
-          itemCount: widget.data.length,
+          itemCount: data.length,
           separatorBuilder: (context, index) => const Divider(),
           itemBuilder: (context, index) {
             return rowWidget(
-              widget.data[index],
+              data[index],
               index,
               scrollable,
             );
