@@ -38,11 +38,12 @@ class _TablePaginatedCountWidgetState extends State<TablePaginatedCountWidget> {
     int? currentPage = widget.paginatorInfo.currentPage;
     int? lastPage = widget.paginatorInfo.lastPage;
 
-    if (currentPage == null || currentPage == 0 || lastPage == null) {
+    if (currentPage == null ||
+        currentPage == 0 ||
+        lastPage == null ||
+        lastPage == 0) {
       return const SizedBox();
     }
-
-    if (lastPage == 0) return const SizedBox();
 
     if (currentPage > lastPage) currentPage = lastPage;
 

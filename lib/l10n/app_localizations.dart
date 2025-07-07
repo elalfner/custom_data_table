@@ -8,6 +8,8 @@ import 'package:intl/intl.dart' as intl;
 import 'app_localizations_en.dart';
 import 'app_localizations_es.dart';
 
+// ignore_for_file: type=lint
+
 /// Callers can lookup localized strings with an instance of AppLocalizations
 /// returned by `AppLocalizations.of(context)`.
 ///
@@ -296,6 +298,12 @@ abstract class DataTableLocalizations {
   /// In en, this message translates to:
   /// **'columns to show'**
   String get columnsToShow;
+
+  /// No description provided for @columns.
+  ///
+  /// In en, this message translates to:
+  /// **'columns'**
+  String get columns;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<DataTableLocalizations> {

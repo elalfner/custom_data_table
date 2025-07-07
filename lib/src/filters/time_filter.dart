@@ -29,9 +29,9 @@ class TimeFilterWidget extends StatelessWidget {
             onChange: onChangeStart,
           ),
         ),
-        const Icon(
+        Icon(
           Icons.arrow_forward,
-          color: Colors.black45,
+          color: Theme.of(context).colorScheme.onSurfaceVariant,
         ),
         Expanded(
           child: timeWidget(
@@ -59,7 +59,7 @@ class TimeFilterWidget extends StatelessWidget {
       children: [
         Material(
           borderRadius: BorderRadius.circular(20),
-          color: Colors.grey[200],
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
           child: InkWell(
             borderRadius: BorderRadius.circular(20),
             onTap: () async {
@@ -101,7 +101,7 @@ class TimeFilterWidget extends StatelessWidget {
           ),
         ),
         Material(
-          color: Colors.grey[200],
+          color: Theme.of(context).colorScheme.surfaceContainerHigh,
           borderRadius: BorderRadius.circular(20),
           child: InkWell(
             borderRadius: BorderRadius.circular(20),
@@ -112,6 +112,7 @@ class TimeFilterWidget extends StatelessWidget {
                   hour: dateTime.hour,
                   minute: dateTime.minute,
                 ),
+                initialEntryMode: TimePickerEntryMode.input,
                 builder: (context, child) => PointerInterceptor(
                   child: Stack(
                     children: [
@@ -120,7 +121,18 @@ class TimeFilterWidget extends StatelessWidget {
                           Navigator.of(context).pop();
                         },
                       ),
-                      child!,
+                      Localizations.override(
+                        context: context,
+                        locale:
+                            Localizations.localeOf(context).languageCode == 'es'
+                                ? const Locale('es', 'US')
+                                : null,
+                        child: MediaQuery(
+                          data: MediaQuery.of(context)
+                              .copyWith(alwaysUse24HourFormat: false),
+                          child: child!,
+                        ),
+                      ),
                     ],
                   ),
                 ),

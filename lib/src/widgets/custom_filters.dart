@@ -348,7 +348,7 @@ class SelectFiltersDialog extends StatelessWidget {
               for (final section in filters) {
                 section.selectedFilters = null;
               }
-              Navigator.pop(context);
+              Navigator.pop(context, filters);
             },
             child:
                 Text(context.appLocalizations.clearFilters.naturalCapitalized),
@@ -413,30 +413,29 @@ class _SelectedFiltersWidgetState extends State<SelectedFiltersWidget> {
     final selectedFilters = widget.selectedFilters;
     final dateFilters = widget.dateFilters;
 
-    return Row(
+    return Wrap(
+      spacing: 5,
+      runSpacing: 5,
       children: [
         if (selectedFilters != null)
           for (final FilterSection section in selectedFilters)
             for (final FilterItem filter in section.selectedFilters ?? [])
-              Padding(
-                padding: const EdgeInsets.only(right: 5),
-                child: Chip(
-                  label:
-                      Text('${section.columnInfo.name}: ${filter.filterName}'),
-                  visualDensity:
-                      const VisualDensity(horizontal: -4, vertical: -4),
-                  padding: EdgeInsets.zero,
-                  labelPadding: const EdgeInsets.only(left: 8),
-                  deleteIcon: const Icon(
-                    Icons.close,
-                    size: 14,
-                  ),
-                  onDeleted: () {
-                    section.selectedFilters?.remove(filter);
-
-                    widget.onChange?.call(selectedFilters);
-                  },
+              Chip(
+                label:
+                    Text('${section.columnInfo.name}: ${filter.filterName}'),
+                visualDensity:
+                    const VisualDensity(horizontal: -4, vertical: -4),
+                padding: EdgeInsets.zero,
+                labelPadding: const EdgeInsets.only(left: 8),
+                deleteIcon: const Icon(
+                  Icons.close,
+                  size: 14,
                 ),
+                onDeleted: () {
+                  section.selectedFilters?.remove(filter);
+
+                  widget.onChange?.call(selectedFilters);
+                },
               ),
         if (dateFilters != null) ...selectedDatesFilter(dateFilters),
       ],

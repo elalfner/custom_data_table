@@ -272,6 +272,8 @@ class _PopUpFieldState<T> extends State<PopUpField<T>> {
   Widget build(BuildContext context) {
     if (widget.onlyIcon) return popUpWidget();
 
+    final dataTableTheme = context.watchDataTableTheme;
+
     final inputBorder = Theme.of(context).inputDecorationTheme.border;
 
     OutlineInputBorder? outlineInputBorder;
@@ -280,7 +282,7 @@ class _PopUpFieldState<T> extends State<PopUpField<T>> {
       outlineInputBorder = inputBorder;
     }
     final selectColumnsInputBackground =
-        context.dataTableTheme?.selectColumnsInputBackground;
+        dataTableTheme?.selectColumnsInputBackground;
 
     return Stack(
       children: [

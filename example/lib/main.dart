@@ -1,9 +1,6 @@
 import 'dart:io';
 
 import 'package:custom_data_table/custom_data_table.dart';
-import 'package:custom_data_table/l10n/localization_extension.dart';
-import 'package:example/example_2.dart';
-import 'package:example/utils/string_extension.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -184,13 +181,10 @@ class MyApp extends StatelessWidget {
           oddRowTheme: RowTheme(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primaryContainer,
-              borderRadius: BorderRadius.circular(10),
             ),
           ),
           evenRowTheme: RowTheme(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-            ),
+            decoration: const BoxDecoration(),
           ),
           dividerThemeData: const DividerThemeData(
             thickness: 1,
@@ -200,14 +194,8 @@ class MyApp extends StatelessWidget {
           footerDecoration: BoxDecoration(
             color: Theme.of(context).colorScheme.surfaceContainerHigh,
           ),
-          titlePadding:
-              const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-          columnHeaderPadding: const EdgeInsets.only(right: 10, left: 10),
-          rowPadding: const EdgeInsets.symmetric(horizontal: 10),
           footerPadding:
               const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-          columnSearchPadding:
-              const EdgeInsets.only(right: 10, left: 10, bottom: 10),
         ),
         child: const MyHomePage(),
       ),
@@ -276,7 +264,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 print(a?.label(context));
               },
-              child: Text('Show date filter'),
+              child: const Text('Show date filter'),
             ),
             FilledButton(
               onPressed: () async {
@@ -371,7 +359,13 @@ class _MyHomePageState extends State<MyHomePage> {
                     width: 100,
                     canSearchInput: true,
                   ),
-                  ColumnInfo(name: 'Nombre', key: 'name', flex: 2, width: 300),
+                  ColumnInfo(
+                    name: 'Nombre',
+                    key: 'name',
+                    flex: 2,
+                    width: 300,
+                    canSearchInput: true,
+                  ),
                   ColumnInfo(
                     name: 'Teléfono',
                     key: 'phone',
@@ -388,10 +382,25 @@ class _MyHomePageState extends State<MyHomePage> {
                     width: 110,
                     canSearch: true,
                     canSort: false,
+                    canSearchInput: true,
                   ),
-                  ColumnInfo(name: 'Tipo', key: 'userType', width: 100),
-                  ColumnInfo(name: '', key: 'button', flex: 1, width: 100),
+                  ColumnInfo(
+                    name: 'Tipo',
+                    key: 'userType',
+                    width: 100,
+                    canSearch: true,
+                    canSearchInput: true,
+                  ),
+                  ColumnInfo(
+                    name: '',
+                    key: 'button',
+                    flex: 1,
+                    width: 100,
+                    canSearch: true,
+                    canSearchInput: true,
+                  ),
                 ],
+                canCopy: true,
                 toMap: (element) => element.toJsonTable(),
                 /*
                 onChangeSearchFilter: (values) {
