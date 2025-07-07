@@ -55,19 +55,19 @@ class AppLocalizationsEs extends DataTableLocalizations {
   String get otherDate => 'otro día';
 
   @override
-  String get byDate => 'Por Día';
+  String get byDate => 'Día';
 
   @override
-  String get byMonth => 'Por Mes';
+  String get byMonth => 'Mes de este año';
 
   @override
-  String get byOtherMonth => 'Por Otro Mes';
+  String get byOtherMonth => 'Mes de otro año';
 
   @override
-  String get byYear => 'Por Año';
+  String get byYear => 'Año';
 
   @override
-  String get byPeriodOfTime => 'Por Periodo de tiempo';
+  String get byPeriodOfTime => 'Periodo de tiempo';
 
   @override
   String get select => 'Seleccionar';

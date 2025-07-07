@@ -60,9 +60,8 @@ class TimeFilterWidget extends StatelessWidget {
         Material(
           borderRadius: BorderRadius.circular(20),
           color: Theme.of(context).colorScheme.surfaceContainerHigh,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: () async {
+          child: RawChip(
+            onPressed: () async {
               final date = await showDatePicker(
                 context: context,
                 initialDate: dateTime,
@@ -91,68 +90,57 @@ class TimeFilterWidget extends StatelessWidget {
                 ),
               );
             },
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Text(
-                DateFormat.yMMMEd().format(dateTime),
-                textAlign: TextAlign.center,
-              ),
+            label: Text(
+              DateFormat.yMMMEd().format(dateTime),
+              textAlign: TextAlign.center,
             ),
           ),
         ),
-        Material(
-          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-          borderRadius: BorderRadius.circular(20),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(20),
-            onTap: () async {
-              final time = await showTimePicker(
-                context: context,
-                initialTime: TimeOfDay(
-                  hour: dateTime.hour,
-                  minute: dateTime.minute,
-                ),
-                initialEntryMode: TimePickerEntryMode.input,
-                builder: (context, child) => PointerInterceptor(
-                  child: Stack(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      Localizations.override(
-                        context: context,
-                        locale:
-                            Localizations.localeOf(context).languageCode == 'es'
-                                ? const Locale('es', 'US')
-                                : null,
-                        child: MediaQuery(
-                          data: MediaQuery.of(context)
-                              .copyWith(alwaysUse24HourFormat: false),
-                          child: child!,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-
-              if (time == null) return;
-
-              onChange(
-                sDate.onlyDate.add(
-                  Duration(hours: time.hour, minutes: time.minute),
-                ),
-              );
-            },
-            child: Padding(
-              padding: const EdgeInsets.all(10),
-              child: Text(
-                DateFormat('hh:mm a').format(dateTime),
-                textAlign: TextAlign.center,
+        RawChip(
+          onPressed: () async {
+            final time = await showTimePicker(
+              context: context,
+              initialTime: TimeOfDay(
+                hour: dateTime.hour,
+                minute: dateTime.minute,
               ),
-            ),
+              initialEntryMode: TimePickerEntryMode.input,
+              builder: (context, child) => PointerInterceptor(
+                child: Stack(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    Localizations.override(
+                      context: context,
+                      locale:
+                          Localizations.localeOf(context).languageCode == 'es'
+                              ? const Locale('es', 'US')
+                              : null,
+                      child: MediaQuery(
+                        data: MediaQuery.of(context)
+                            .copyWith(alwaysUse24HourFormat: false),
+                        child: child!,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+
+            if (time == null) return;
+
+            onChange(
+              sDate.onlyDate.add(
+                Duration(hours: time.hour, minutes: time.minute),
+              ),
+            );
+          },
+          label: Text(
+            DateFormat('hh:mm a').format(dateTime),
+            textAlign: TextAlign.center,
           ),
         ),
       ],
