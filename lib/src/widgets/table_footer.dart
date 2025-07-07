@@ -2,6 +2,7 @@ import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:custom_data_table/src/utils/string_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 import 'per_page_widget.dart';
 import 'table_paginated_count_widget.dart';
@@ -58,38 +59,38 @@ class _TableFooterState extends State<TableFooter> {
 
     final footerDecoration = dataTableTheme?.footerDecoration;
 
+    final paginatorInfo = widget.paginatorInfo;
+
+    final currentPage = widget.paginatorInfo.currentPage;
+    final perPage = paginatorInfo.perPage;
+    final total = paginatorInfo.total;
+
     final children = [
-      if (widget.paginatorInfo.perPage != null &&
-          widget.paginatorInfo.currentPage != null &&
-          widget.paginatorInfo.total != null)
+      if (perPage != null && currentPage != null && total != null)
         RichText(
           text: TextSpan(
             style: Theme.of(context).textTheme.bodySmall,
             text: '${context.appLocalizations.showing} '.naturalCapitalized,
             children: [
               TextSpan(
-                text: (((widget.paginatorInfo.currentPage! - 1) *
-                            widget.paginatorInfo.perPage!) +
-                        1)
-                    .toString(),
+                text: NumberFormat.currency(decimalDigits: 0, symbol: '')
+                    .format((((currentPage - 1) * perPage) + 1)),
                 children: [
                   TextSpan(
                     text: ' ${context.appLocalizations.to} ',
                   ),
                   TextSpan(
-                    text: (widget.paginatorInfo.currentPage! *
-                                    widget.paginatorInfo.perPage! >
-                                widget.paginatorInfo.total!
-                            ? widget.paginatorInfo.total
-                            : widget.paginatorInfo.currentPage! *
-                                widget.paginatorInfo.perPage!)
-                        .toString(),
+                    text: NumberFormat.currency(decimalDigits: 0, symbol: '')
+                        .format(currentPage * perPage > total
+                            ? total
+                            : currentPage * perPage),
                   ),
                   TextSpan(
                     text: ' ${context.appLocalizations.ofLabel} ',
                   ),
                   TextSpan(
-                    text: widget.paginatorInfo.total!.toString(),
+                    text: NumberFormat.currency(decimalDigits: 0, symbol: '')
+                        .format(total),
                     children: [
                       TextSpan(
                         text: ' ${context.appLocalizations.results}',
@@ -107,17 +108,16 @@ class _TableFooterState extends State<TableFooter> {
         mainAxisAlignment: MainAxisAlignment.end,
         mainAxisSize: MainAxisSize.min,
         children: [
-          if (widget.paginatorInfo.perPage != null &&
-              widget.paginatorInfo.perPage != 0)
+          if (perPage != null && perPage != 0)
             Flexible(
               child: TablePerPageWidget(
-                paginatorInfo: widget.paginatorInfo,
+                paginatorInfo: paginatorInfo,
                 onChange: widget.onPerPageChange,
               ),
             ),
           const SizedBox(width: 10),
           TablePaginatedCountWidget(
-            paginatorInfo: widget.paginatorInfo,
+            paginatorInfo: paginatorInfo,
             loading: false,
             onPressedLast: widget.onPreviousPage,
             onPressedNext: widget.onNextPage,
