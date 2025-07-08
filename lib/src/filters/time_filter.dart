@@ -57,43 +57,38 @@ class TimeFilterWidget extends StatelessWidget {
       runSpacing: 5,
       spacing: 5,
       children: [
-        Material(
-          borderRadius: BorderRadius.circular(20),
-          color: Theme.of(context).colorScheme.surfaceContainerHigh,
-          child: RawChip(
-            onPressed: () async {
-              final date = await showDatePicker(
-                context: context,
-                initialDate: dateTime,
-                firstDate:
-                    DateTime.now().subtract(const Duration(days: 365 * 5)),
-                lastDate: dateTime.add(const Duration(days: 365)),
-                builder: (context, child) => PointerInterceptor(
-                  child: Stack(
-                    children: [
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.of(context).pop();
-                        },
-                      ),
-                      child!,
-                    ],
-                  ),
+        RawChip(
+          onPressed: () async {
+            final date = await showDatePicker(
+              context: context,
+              initialDate: dateTime,
+              firstDate: DateTime.now().subtract(const Duration(days: 365 * 5)),
+              lastDate: dateTime.add(const Duration(days: 365)),
+              builder: (context, child) => PointerInterceptor(
+                child: Stack(
+                  children: [
+                    GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                    child!,
+                  ],
                 ),
-              );
+              ),
+            );
 
-              if (date == null) return;
+            if (date == null) return;
 
-              onChange(
-                date.onlyDate.add(
-                  Duration(hours: sTime.hour, minutes: sTime.minute),
-                ),
-              );
-            },
-            label: Text(
-              DateFormat.yMMMEd().format(dateTime),
-              textAlign: TextAlign.center,
-            ),
+            onChange(
+              date.onlyDate.add(
+                Duration(hours: sTime.hour, minutes: sTime.minute),
+              ),
+            );
+          },
+          label: Text(
+            DateFormat.yMMMEd().format(dateTime),
+            textAlign: TextAlign.center,
           ),
         ),
         RawChip(
