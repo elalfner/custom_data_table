@@ -65,9 +65,20 @@ class _CustomMonthPickerState extends State<CustomMonthPicker> {
                               constraints: const BoxConstraints(maxHeight: 300),
                               width: 300,
                               padding: const EdgeInsets.all(20),
-                              child: pickerBody(),
+                              child: Column(
+                                children: [
+                                  Expanded(child: pickerBody()),
+                                  Column(
+                                    children: [
+                                      const SizedBox(height: 10),
+                                      buttons(),
+                                    ],
+                                  )
+                                ],
+                              ),
                             ),
-                          )
+                          ),
+
                         ],
                       ),
                     ),
@@ -305,7 +316,7 @@ class _CustomMonthPickerState extends State<CustomMonthPicker> {
           },
           child: Text(MaterialLocalizations.of(context).cancelButtonLabel),
         ),
-        TextButton(
+        FilledButton(
           onPressed: () {
             Navigator.of(context).pop(date);
           },
@@ -331,6 +342,7 @@ Future<DateTime?> showMonthPicker({
 
   return showDialog(
     context: context,
+    barrierDismissible: true,
     builder: (context) {
       return builder == null ? dialog : builder(context, dialog);
     },
