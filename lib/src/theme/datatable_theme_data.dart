@@ -25,8 +25,8 @@ class CustomDatatableThemeData {
   final EdgeInsets? footerPadding;
   final EdgeInsets? tableMargin;
 
-  final InputDecorationTheme? selectColumnsInputTheme;
-  final InputDecorationTheme? columnSearchInputTheme;
+  final InputDecorationThemeData? selectColumnsInputTheme;
+  final InputDecorationThemeData? columnSearchInputTheme;
   final Widget? selectColumnsInputBackground;
 
   final TextStyle? titleTextStyle;
@@ -76,8 +76,8 @@ class CustomDatatableThemeData {
     EdgeInsets? rowPadding,
     EdgeInsets? footerPadding,
     EdgeInsets? tableMargin,
-    InputDecorationTheme? selectColumnsInputTheme,
-    InputDecorationTheme? columnSearchInputTheme,
+    InputDecorationThemeData? selectColumnsInputTheme,
+    InputDecorationThemeData? columnSearchInputTheme,
     Widget? selectColumnsInputBackground,
     TextStyle? titleTextStyle,
     TextStyle? columnTitleTextStyle,
