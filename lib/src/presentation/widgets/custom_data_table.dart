@@ -1,7 +1,7 @@
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/l10n/localization_extension.dart';
-import 'package:custom_data_table/src/utils/debounce.dart';
-import 'package:custom_data_table/src/utils/string_extension.dart';
+import 'package:custom_data_table/src/core/utils/debounce.dart';
+import 'package:custom_data_table/src/core/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';

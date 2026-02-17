@@ -1,10 +1,14 @@
 import 'package:custom_data_table/l10n/localization_extension.dart';
-import 'package:custom_data_table/src/utils/string_extension.dart';
+import 'package:custom_data_table/src/core/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
-import '../../custom_data_table.dart';
+import 'package:custom_data_table/src/domain/entities/filter_item.dart';
+import 'package:custom_data_table/src/presentation/widgets/filter_section_widget.dart';
+import 'package:custom_data_table/src/presentation/widgets/common/dates_filter_chip.dart';
+import 'package:custom_data_table/src/domain/enums/date_filter_type.dart';
+import 'package:custom_data_table/src/core/utils/date_time_extension.dart';
 
 class CustomFilters extends StatefulWidget {
   final List<FilterSection>? sections;
@@ -421,8 +425,7 @@ class _SelectedFiltersWidgetState extends State<SelectedFiltersWidget> {
           for (final FilterSection section in selectedFilters)
             for (final FilterItem filter in section.selectedFilters ?? [])
               Chip(
-                label:
-                    Text('${section.columnInfo.name}: ${filter.filterName}'),
+                label: Text('${section.columnInfo.name}: ${filter.filterName}'),
                 visualDensity:
                     const VisualDensity(horizontal: -4, vertical: -4),
                 padding: EdgeInsets.zero,

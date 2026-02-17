@@ -1,28 +1,28 @@
 library custom_data_table;
 
-export 'src/custom_table_search.dart';
-export 'src/custom_data_table.dart';
-export 'src/search_widget.dart';
-export 'src/filter_section_widget.dart';
+export 'src/presentation/widgets/custom_table_search.dart';
+export 'src/presentation/widgets/custom_data_table.dart';
+export 'src/presentation/widgets/search_widget.dart';
+export 'src/presentation/widgets/filter_section_widget.dart';
 
-export 'src/enums/date_filter_type.dart';
+export 'src/domain/enums/date_filter_type.dart';
 
-export 'src/models/column_info.dart';
-export 'src/models/paginator_info.dart';
-export 'src/models/filter_item.dart';
-export 'src/models/search_field_info.dart';
-export 'src/models/sort_info.dart';
+export 'src/domain/entities/column_info.dart';
+export 'src/domain/entities/paginator_info.dart';
+export 'src/domain/entities/filter_item.dart';
+export 'src/domain/entities/search_field_info.dart';
+export 'src/domain/entities/sort_info.dart';
 
-export 'src/widgets/custom_filters.dart';
-export 'src/widgets/custom_month_picker.dart';
-export 'src/widgets/table_footer.dart';
+export 'src/presentation/widgets/common/custom_filters.dart';
+export 'src/presentation/widgets/common/custom_month_picker.dart';
+export 'src/presentation/widgets/common/table_footer.dart';
 
-export 'src/theme/datatable_theme.dart';
-export 'src/theme/datatable_theme_data.dart';
-export 'src/widgets/both_directions_listview_builder.dart';
+export 'src/presentation/theme/datatable_theme.dart';
+export 'src/presentation/theme/datatable_theme_data.dart';
+export 'src/presentation/widgets/common/both_directions_listview_builder.dart';
 
 export 'l10n/app_localizations.dart';
 
-export 'src/widgets/dates_filter_chip.dart';
+export 'src/presentation/widgets/common/dates_filter_chip.dart';
 
-export 'src/utils/date_time_extension.dart';
+export 'src/core/utils/date_time_extension.dart';

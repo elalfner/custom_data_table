@@ -48,12 +48,12 @@ class User {
       };
 
   Map<String, dynamic> toJsonTable() => {
-    "id": id,
-    "name": name,
-    "phone": phone,
-    "email": phone,
-    "userType": userType?.name,
-  };
+        "id": id,
+        "name": name,
+        "phone": phone,
+        "email": phone,
+        "userType": userType?.name,
+      };
 }
 
 enum UserType { admin, user }

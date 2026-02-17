@@ -1,4 +1,4 @@
-import 'package:custom_data_table/src/theme/row_theme.dart';
+import 'package:custom_data_table/src/presentation/theme/row_theme.dart';
 import 'package:flutter/material.dart';
 
 export 'row_theme.dart';

@@ -1,10 +1,14 @@
 import 'package:custom_data_table/l10n/localization_extension.dart';
-import 'package:custom_data_table/src/helpers/responsive_helpers.dart';
-import 'package:custom_data_table/src/utils/debounce.dart';
-import 'package:custom_data_table/src/utils/string_extension.dart';
+import 'package:custom_data_table/src/core/helpers/responsive_helpers.dart';
+import 'package:custom_data_table/src/core/utils/debounce.dart';
+import 'package:custom_data_table/src/core/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 
-import '../custom_data_table.dart';
+import 'package:custom_data_table/src/domain/entities/column_info.dart';
+import 'package:custom_data_table/src/domain/entities/filter_item.dart';
+import 'package:custom_data_table/src/presentation/widgets/common/dates_filter_chip.dart';
+import 'package:custom_data_table/src/presentation/widgets/common/custom_filters.dart';
+import 'package:custom_data_table/src/presentation/theme/datatable_theme.dart';
 
 class SearchWidget extends StatefulWidget {
   /// List of columns the table has.

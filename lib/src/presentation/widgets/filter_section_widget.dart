@@ -1,4 +1,4 @@
-import 'package:custom_data_table/src/models/filter_item.dart';
+import 'package:custom_data_table/src/domain/entities/filter_item.dart';
 import 'package:flutter/material.dart';
 
 class FilterSectionWidget<T> extends StatefulWidget {

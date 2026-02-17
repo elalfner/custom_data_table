@@ -1,4 +1,4 @@
-import 'package:custom_data_table/custom_data_table.dart';
+import 'package:custom_data_table/src/domain/entities/column_info.dart';
 
 /// Represents a section to show in the filter dialog.
 class FilterSection<T> {

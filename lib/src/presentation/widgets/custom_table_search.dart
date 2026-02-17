@@ -1,8 +1,5 @@
 import 'package:custom_data_table/custom_data_table.dart';
-import 'package:custom_data_table/src/widgets/dates_filter_chip.dart';
 import 'package:flutter/material.dart';
-
-import 'models/sort_info.dart';
 
 @Deprecated('Use CustomDataTable instead')
 class CustomTableSearch<T> extends StatefulWidget {

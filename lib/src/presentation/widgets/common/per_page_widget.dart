@@ -1,9 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:custom_data_table/l10n/localization_extension.dart';
-import 'package:custom_data_table/src/utils/string_extension.dart';
+import 'package:custom_data_table/src/core/utils/string_extension.dart';
 import 'package:flutter/material.dart';
 
-import '../models/paginator_info.dart';
+import 'package:custom_data_table/src/domain/entities/paginator_info.dart';
 
 class TablePerPageWidget extends StatelessWidget {
   final PaginatorInfo paginatorInfo;

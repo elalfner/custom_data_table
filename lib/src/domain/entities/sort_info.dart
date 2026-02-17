@@ -5,7 +5,6 @@ import 'package:custom_data_table/custom_data_table.dart';
 ///
 /// Also, it specifies if the column is sorted ascendant or descendant.
 class SortInfo {
-
   /// Column's name to sort data.
   final ColumnInfo columnInfo;
 
