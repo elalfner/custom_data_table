@@ -1,6 +1,7 @@
 import 'package:custom_data_table/custom_data_table.dart';
 import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class TablePaginatedCountWidget extends StatefulWidget {
   final PaginatorInfo paginatorInfo;
@@ -68,7 +69,7 @@ class _TablePaginatedCountWidgetState extends State<TablePaginatedCountWidget> {
               child: Row(
                 children: [
                   Text(
-                    widget.paginatorInfo.currentPage?.toString() ?? '',
+                    NumberFormat.decimalPattern().format(currentPage),
                     style: Theme.of(context).textTheme.bodySmall,
                   ),
                   const SizedBox(width: 3),
@@ -84,7 +85,7 @@ class _TablePaginatedCountWidgetState extends State<TablePaginatedCountWidget> {
         ),
         const SizedBox(width: 5),
         Text(
-          '${context.appLocalizations.ofLabel} $lastPage',
+          '${context.appLocalizations.ofLabel} ${NumberFormat.decimalPattern().format(lastPage)}',
           style: Theme.of(context).textTheme.bodySmall,
         ),
         const SizedBox(width: 5),

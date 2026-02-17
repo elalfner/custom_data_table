@@ -374,7 +374,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 child: Column(
                   children: [
                     columnsWidget(false),
-                    columnSearchFieldsWidget(false),
                   ],
                 ),
               );
@@ -388,7 +387,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 child: Column(
                   children: [
                     columnsWidget(true),
-                    columnSearchFieldsWidget(true),
                   ],
                 ),
               ),
@@ -938,61 +936,61 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     final columnTitleTextStyle = dataTableTheme?.columnTitleTextStyle;
 
-    return Row(
-      children: [
-        Flexible(
-          child: Material(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.circular(5),
-            child: InkWell(
-              borderRadius: BorderRadius.circular(5),
-              onTap: !column.canSort
-                  ? null
-                  : () {
-                      // Changes the state of sort.
-                      // If there is no column marked as sort, this column is marked as
-                      // sorting ascendant.
+    return Container(
+      width: column.width,
+      padding: column.canSort ? null : const EdgeInsets.only(right: 5),
+      child: Row(
+        spacing: 0,
+        children: [
+          // Name of the column.
+          Expanded(
+            child: Builder(builder: (context) {
+              if (column.canSearchInput) {
+                return columnFieldWidget(column);
+              }
 
-                      if (sortInfo?.columnInfo.key != column.key) {
-                        sortInfo = SortInfo(columnInfo: column, asc: true);
-                      } else {
-                        sortInfo!.asc = !sortInfo!.asc;
-                      }
-
-                      widget.onSort?.call(sortInfo!);
-
-                      setState(() {});
-                    },
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Name of the column.
-                  Flexible(
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Text(
-                        column.name,
-                        overflow: TextOverflow.fade,
-                        style: columnTitleTextStyle,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 5),
-
-                  // Indicates if the column is sorted asc, desc or if it is not sorted.
-                  if (column.key == sortInfo?.columnInfo.key)
-                    Icon(
-                      sortInfo?.asc == true
-                          ? Icons.keyboard_arrow_down_rounded
-                          : Icons.keyboard_arrow_up_rounded,
-                      size: 15,
-                    )
-                ],
-              ),
-            ),
+              return Text(
+                column.name,
+                overflow: TextOverflow.fade,
+                style: columnTitleTextStyle,
+              );
+            }),
           ),
-        ),
-      ],
+
+          // Indicates if the column is sorted asc, desc or if it is not sorted.
+          if (column.canSort)
+            SizedBox(
+              width: 30,
+              height: 30,
+              child: IconButton(
+                padding: EdgeInsets.zero,
+                onPressed: () {
+                  // Changes the state of sort.
+                  // If there is no column marked as sort, this column is marked as
+                  // sorting ascendant.
+
+                  if (sortInfo?.columnInfo.key != column.key) {
+                    sortInfo = SortInfo(columnInfo: column, asc: true);
+                  } else {
+                    sortInfo!.asc = !sortInfo!.asc;
+                  }
+
+                  widget.onSort?.call(sortInfo!);
+
+                  setState(() {});
+                },
+                icon: Icon(
+                  column.key != sortInfo?.columnInfo.key
+                      ? Icons.sort
+                      : sortInfo?.asc == true
+                          ? Icons.keyboard_arrow_up_rounded
+                          : Icons.keyboard_arrow_down_rounded,
+                  size: 15,
+                ),
+              ),
+            )
+        ],
+      ),
     );
   }
 
@@ -1015,56 +1013,13 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     );
   }
 
-  Widget columnSearchFieldsWidget(bool scrollable) {
-    final dataTableTheme = context.watchDataTableTheme;
-
-    final columnSearchDecoration = dataTableTheme?.columnSearchDecoration ??
-        BoxDecoration(
-          color: Theme.of(context).cardColor,
-        );
-
-    final columnsToShow = this.columnsToShow;
-
-    final anyFlex = columnsToShow.any((element) => element.flex != null);
-
-    return Container(
-      decoration: columnSearchDecoration,
-      padding: dataTableTheme?.columnSearchPadding,
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          for (final col in columnsToShow)
-            Builder(
-              builder: (context) {
-                final width = col.width;
-                final flex = anyFlex ? col.flex : width.toInt();
-
-                if (scrollable || flex == null || col.hasFixedWidth == true) {
-                  return SizedBox(
-                    width: width,
-                    child: columnFieldWidget(col),
-                  );
-                }
-
-                return Expanded(
-                  flex: flex,
-                  child: columnFieldWidget(col),
-                );
-              },
-            ),
-        ],
-      ),
-    );
-  }
-
   Widget columnFieldWidget(ColumnInfo column) {
     if (column.name.isEmpty || !column.canSearchInput) return const SizedBox();
 
     final dataTableTheme = context.watchDataTableTheme;
 
-    return Container(
+    return SizedBox(
       height: 40,
-      padding: const EdgeInsets.only(right: 3),
       child: Theme(
         data: Theme.of(context).copyWith(
           inputDecorationTheme: dataTableTheme?.columnSearchInputTheme,

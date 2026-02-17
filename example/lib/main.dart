@@ -379,14 +379,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     name: 'Email',
                     key: 'email',
                     width: 110,
-                    canSort: false,
-                    canSearchInput: true,
+                    canSort: true,
                   ),
                   ColumnInfo(
                     name: 'Tipo',
                     key: 'userType',
                     width: 100,
                     canSearchInput: true,
+                    canSort: true,
                   ),
                   ColumnInfo(
                     name: '',
