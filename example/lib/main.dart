@@ -354,7 +354,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   ColumnInfo(
                     name: 'Id',
                     key: 'id',
-                    canSearch: true,
                     flex: 1,
                     width: 100,
                     canSearchInput: true,
@@ -380,7 +379,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     name: 'Email',
                     key: 'email',
                     width: 110,
-                    canSearch: true,
                     canSort: false,
                     canSearchInput: true,
                   ),
@@ -388,7 +386,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     name: 'Tipo',
                     key: 'userType',
                     width: 100,
-                    canSearch: true,
                     canSearchInput: true,
                   ),
                   ColumnInfo(
@@ -396,7 +393,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     key: 'button',
                     flex: 1,
                     width: 100,
-                    canSearch: true,
                     canSearchInput: true,
                   ),
                 ],

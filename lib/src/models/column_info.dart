@@ -30,8 +30,6 @@ class ColumnInfo {
   /// `true` if the data can be sorted by this column.
   final bool canSort;
 
-  final bool canSearch;
-
   final bool canSearchInput;
 
   ValueChanged<String>? onChangeInput;
@@ -50,7 +48,6 @@ class ColumnInfo {
     this.hasFixedWidth = false,
     this.flex,
     this.canSort = false,
-    this.canSearch = false,
     this.canSearchInput = false,
     this.onChangeInput,
     this.controllerInput,
