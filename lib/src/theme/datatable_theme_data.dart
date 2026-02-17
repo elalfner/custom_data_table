@@ -15,6 +15,7 @@ class CustomDatatableThemeData {
   final BoxDecoration? tableDecoration;
   final BoxDecoration? headerDecoration;
   final BoxDecoration? columnHeaderDecoration;
+  final double columnHeaderHeight;
   final BoxDecoration? columnSearchDecoration;
   final BoxDecoration? footerDecoration;
 
@@ -42,6 +43,7 @@ class CustomDatatableThemeData {
     this.tableDecoration,
     this.headerDecoration,
     this.columnHeaderDecoration,
+    this.columnHeaderHeight = 40,
     this.columnSearchDecoration,
     this.footerDecoration,
     this.titlePadding,
@@ -67,6 +69,7 @@ class CustomDatatableThemeData {
     BoxDecoration? tableDecoration,
     BoxDecoration? headerDecoration,
     BoxDecoration? columnHeaderDecoration,
+    double? columnHeaderHeight,
     BoxDecoration? columnSearchDecoration,
     BoxDecoration? footerDecoration,
     EdgeInsets? tablePadding,
@@ -93,6 +96,7 @@ class CustomDatatableThemeData {
         headerDecoration: headerDecoration ?? this.headerDecoration,
         columnHeaderDecoration:
             columnHeaderDecoration ?? this.columnHeaderDecoration,
+        columnHeaderHeight: columnHeaderHeight ?? this.columnHeaderHeight,
         columnSearchDecoration:
             columnSearchDecoration ?? this.columnSearchDecoration,
         footerDecoration: footerDecoration ?? this.footerDecoration,

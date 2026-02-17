@@ -9,19 +9,6 @@ import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 class CustomDataTable<T> extends StatefulWidget {
   final TableController? controller;
 
-  /// Theme of the table.
-  ///
-  /// Attributes given will override main datatable theme declared in the material
-  /// theme.
-  @Deprecated("Use CustomDatatableTheme widget instead")
-  final DataTableThemeData? dataTableTheme;
-
-  /// Title of table.
-  ///
-  /// if `null` shows `Listado` in the title.
-  @Deprecated('Title does not show in the table anymore.')
-  final String? title;
-
   /// List of columns the table has.
   ///
   /// Each element of the list contains the name of the column, key to identify it, and the
@@ -135,7 +122,6 @@ class CustomDataTable<T> extends StatefulWidget {
   const CustomDataTable({
     Key? key,
     this.controller,
-    this.title,
     required this.columns,
     required this.data,
     required this.toMap,
@@ -152,7 +138,6 @@ class CustomDataTable<T> extends StatefulWidget {
     this.onPrint,
     this.onExport,
     this.onChangeSearchTextField,
-    this.dataTableTheme,
     this.sortInfo,
     this.isLoading = false,
     this.onChangeGeneralSearch,
@@ -938,9 +923,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     return Container(
       width: column.width,
+      height: dataTableTheme?.columnHeaderHeight,
       padding: column.canSort ? null : const EdgeInsets.only(right: 5),
       child: Row(
         spacing: 0,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           // Name of the column.
           Expanded(
@@ -1018,36 +1005,33 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     final dataTableTheme = context.watchDataTableTheme;
 
-    return SizedBox(
-      height: 40,
-      child: Theme(
-        data: Theme.of(context).copyWith(
-          inputDecorationTheme: dataTableTheme?.columnSearchInputTheme,
+    return Theme(
+      data: Theme.of(context).copyWith(
+        inputDecorationTheme: dataTableTheme?.columnSearchInputTheme,
+      ),
+      child: TextFormField(
+        controller: textControllers[column.key],
+        decoration: InputDecoration(
+          hintText: column.name,
         ),
-        child: TextFormField(
-          controller: textControllers[column.key],
-          decoration: InputDecoration(
-            hintText: column.name,
-          ),
-          style: const TextStyle(
-            fontSize: 13,
-          ),
-          onChanged: (value) => debouncerIndividual.run(
-            () {
-              column.onChangeInput?.call(value);
+        style: const TextStyle(
+          fontSize: 13,
+        ),
+        onChanged: (value) => debouncerIndividual.run(
+          () {
+            column.onChangeInput?.call(value);
 
-              widget.onChangeSearchTextField?.call(
-                [
-                  for (final e in textControllers.entries)
-                    SearchFieldInfo(
-                      columnInfo:
-                          columns.firstWhere((element) => element.key == e.key),
-                      searchValue: e.value.text,
-                    )
-                ],
-              );
-            },
-          ),
+            widget.onChangeSearchTextField?.call(
+              [
+                for (final e in textControllers.entries)
+                  SearchFieldInfo(
+                    columnInfo:
+                        columns.firstWhere((element) => element.key == e.key),
+                    searchValue: e.value.text,
+                  )
+              ],
+            );
+          },
         ),
       ),
     );

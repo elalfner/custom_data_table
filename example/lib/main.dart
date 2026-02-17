@@ -349,7 +349,6 @@ class _MyHomePageState extends State<MyHomePage> {
             Expanded(
               child: CustomDataTable<User>(
                 data: data,
-                title: 'Usuarios',
                 columns: [
                   ColumnInfo(
                     name: 'Id',
