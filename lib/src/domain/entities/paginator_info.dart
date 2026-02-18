@@ -3,16 +3,22 @@
 /// It tells the page that is displaying, the number of total pages, and the
 /// number of items that it displays per page.
 class PaginatorInfo {
+  /// Number of items that are displaying.
   int? count;
+
+  /// Number of total items.
   int? total;
 
   /// Page number that is displaying.
   int? currentPage;
 
+  /// First item number that is displaying.
   int? firstItem;
 
   /// `true` if tha page that is displaying is not the last one.
   bool? hasMorePages;
+
+  /// Last item number that is displaying.
   int? lastItem;
 
   /// Number of total pages.
@@ -32,6 +38,7 @@ class PaginatorInfo {
     this.perPage,
   });
 
+  /// Creates a copy of this [PaginatorInfo] with the given fields replaced.
   PaginatorInfo copyWith({
     int? count,
     int? total,
@@ -53,6 +60,10 @@ class PaginatorInfo {
         perPage: perPage ?? this.perPage,
       );
 
+  /// Creates a [PaginatorInfo] from a JSON map.
+  ///
+  /// This is used to parse the JSON response from the server.
+  /// [json] is the JSON map to parse.
   factory PaginatorInfo.fromJson(Map<String, dynamic> json) => PaginatorInfo(
         count: json["count"] ?? 0,
         total: json["total"] ?? 0,
@@ -64,6 +75,9 @@ class PaginatorInfo {
         perPage: json["perPage"] ?? 0,
       );
 
+  /// Creates a JSON map from this [PaginatorInfo].
+  ///
+  /// This is used to serialize the [PaginatorInfo] to JSON.
   Map<String, dynamic> toJson() => {
         "count": count,
         "total": total,

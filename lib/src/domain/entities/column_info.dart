@@ -30,17 +30,18 @@ class ColumnInfo {
   /// `true` if the data can be sorted by this column.
   final bool canSort;
 
+  /// `true` if the column can have a search input.
   final bool canSearchInput;
 
+  /// The callback that is called when the search input changes.
   ValueChanged<String>? onChangeInput;
+
+  /// The controller that is used to control the search input.
   TextEditingController? controllerInput;
 
+  /// Extra data that can be used to store additional information.
   Map<String, dynamic>? extra;
 
-  /// Creates a new instance of the [ColumnInfo] class.
-  ///
-  /// [canSort] by default is `true`. Indicating that data can be sorted by this
-  /// column by default.
   ColumnInfo({
     required this.key,
     required this.name,
@@ -65,11 +66,12 @@ class ColumnId {
   /// Column's title to display in the table.
   final String name;
 
-  final bool canSearch;
+  /// `true` if the column can be used to search in the general search input.
+  final bool canGeneralSearch;
 
   ColumnId({
     required this.key,
     required this.name,
-    this.canSearch = false,
+    this.canGeneralSearch = false,
   });
 }

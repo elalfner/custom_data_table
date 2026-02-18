@@ -174,10 +174,10 @@ class MyApp extends StatelessWidget {
             color: Theme.of(context).colorScheme.surfaceContainer,
           ),
           headerDecoration: const BoxDecoration(),
-          columnSearchDecoration: const BoxDecoration(),
           columnHeaderDecoration: const BoxDecoration(
             color: Colors.transparent,
           ),
+          rowPadding: const EdgeInsets.symmetric(horizontal: 10),
           oddRowTheme: RowTheme(
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primaryContainer,
@@ -355,7 +355,6 @@ class _MyHomePageState extends State<MyHomePage> {
                     key: 'id',
                     flex: 1,
                     width: 100,
-                    canSearchInput: true,
                   ),
                   ColumnInfo(
                     name: 'Nombre',
@@ -480,7 +479,9 @@ class _MyHomePageState extends State<MyHomePage> {
                   endDate: DateTime.now(),
                 ),
                 lastDate: DateTime.now().add(const Duration(days: 10)),
-                onChangeDateFilter: (dateFilter) {},
+                onChangeDateFilter: (dateFilter) {
+                  print(dateFilter);
+                },
               ),
             ),
           ],

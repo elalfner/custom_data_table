@@ -348,7 +348,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        header(constraints),
+        header(),
         Builder(
           builder: (context) {
             if (constraints.maxWidth > minWidth) {
@@ -463,20 +463,17 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   /// Widget to show table header.
   ///
-  /// It shows table title, dropdown of columns to show, and actions to copy, export
-  /// and print data.
-  /// [small] tells if the available space to display the table is not large enough. If
-  /// that is the case, it displays a different layout to fit the same elements. If [small]
-  /// the table title is not shown.
+  /// It shows a dropdown of columns to show, and actions to copy, export
+  /// and print data, as well as the filters of data.
   ///
   /// The columns to show dropdown only shows the columns that have name. If a column
   /// does not have name, it cannot be hidden.
-  Widget header(BoxConstraints constraints) {
+  Widget header() {
     final theme = context.watchDataTableTheme;
 
     final headerDecoration = theme?.headerDecoration;
 
-    final padding = theme?.titlePadding;
+    final padding = theme?.headerPadding;
 
     final filters = widget.filterSections;
 
@@ -517,7 +514,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                         );
 
                         if (newSelectedColumns is List<ColumnInfo>) {
-                          this.selectedColumns = {
+                          selectedColumns = {
                             for (final c in newSelectedColumns) c.key,
                           };
                           setState(() {});
@@ -873,7 +870,16 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     final dataTableTheme = context.watchDataTableTheme;
 
     final columnHeaderDecoration = dataTableTheme?.columnHeaderDecoration;
-    final padding = dataTableTheme?.columnHeaderPadding;
+
+    final verticalPadding = dataTableTheme?.columnHeaderVerticalPadding;
+    final horizontalPadding = dataTableTheme?.rowPadding;
+
+    final padding = EdgeInsets.only(
+      top: verticalPadding?.top ?? 0,
+      bottom: verticalPadding?.bottom ?? 0,
+      left: horizontalPadding?.left ?? 0,
+      right: horizontalPadding?.right ?? 0,
+    );
 
     final columnsToShow = this.columnsToShow;
 
@@ -968,7 +974,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 },
                 icon: Icon(
                   column.key != sortInfo?.columnInfo.key
-                      ? Icons.sort
+                      ? Icons.unfold_more
                       : sortInfo?.asc == true
                           ? Icons.keyboard_arrow_up_rounded
                           : Icons.keyboard_arrow_down_rounded,

@@ -8,6 +8,9 @@ class FilterSection<T> {
   /// Available filters to apply.
   final List<FilterItem<T>> filters;
 
+  /// Selected filters.
+  ///
+  /// This is used to show the selected filters in the filter dialog.
   List<FilterItem<T>>? selectedFilters;
 
   FilterSection({
@@ -16,13 +19,16 @@ class FilterSection<T> {
     this.selectedFilters,
   });
 
+  /// Creates a copy of this [FilterSection] with the given fields replaced.
   FilterSection copyWith({
     ColumnId? columnInfo,
     List<FilterItem>? filters,
+    List<FilterItem<T>>? selectedFilters,
   }) =>
       FilterSection(
         columnInfo: columnInfo ?? this.columnInfo,
         filters: filters ?? this.filters,
+        selectedFilters: selectedFilters ?? this.selectedFilters,
       );
 }
 
@@ -34,11 +40,8 @@ class FilterItem<T> {
   /// Filter's value to apply.
   final T value;
 
-  final dynamic sendValue;
-
   FilterItem({
     required this.filterName,
     required this.value,
-    this.sendValue,
   });
 }

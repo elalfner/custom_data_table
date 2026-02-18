@@ -138,7 +138,7 @@ class _SearchWidgetState extends State<SearchWidget> {
 
   Widget searchBar() {
     final searchColumns =
-        widget.columns.where((element) => element.canSearch).toList();
+        widget.columns.where((element) => element.canGeneralSearch).toList();
 
     final decoration = widget.decoration;
 
@@ -276,8 +276,6 @@ class _PopUpFieldState<T> extends State<PopUpField<T>> {
   Widget build(BuildContext context) {
     if (widget.onlyIcon) return popUpWidget();
 
-    final dataTableTheme = context.watchDataTableTheme;
-
     final inputBorder = Theme.of(context).inputDecorationTheme.border;
 
     OutlineInputBorder? outlineInputBorder;
@@ -285,48 +283,38 @@ class _PopUpFieldState<T> extends State<PopUpField<T>> {
     if (inputBorder is OutlineInputBorder) {
       outlineInputBorder = inputBorder;
     }
-    final selectColumnsInputBackground =
-        dataTableTheme?.selectColumnsInputBackground;
 
-    return Stack(
-      children: [
-        if (selectColumnsInputBackground != null)
-          Positioned.fill(
-            child: selectColumnsInputBackground,
-          ),
-        Material(
-          color: Theme.of(context).inputDecorationTheme.fillColor,
-          borderRadius: outlineInputBorder?.borderRadius,
-          child: InkWell(
-            borderRadius: outlineInputBorder?.borderRadius,
-            onTap: () {
-              dynamic state = _menuKey.currentState;
-              state.showButtonMenu();
-            },
-            child: Container(
-              height: 52,
-              padding: const EdgeInsets.only(left: 15, right: 5),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Expanded(
-                    child: Text(
-                      (widget.allIfEmpty
-                              ? selectedItems.isEmpty
-                              : selectedItems.length == items.length)
-                          ? context.appLocalizations.all.naturalCapitalized
-                          : selectedItems.map((e) => e.name).join(', '),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                  popUpWidget(),
-                ],
+    return Material(
+      color: Theme.of(context).inputDecorationTheme.fillColor,
+      borderRadius: outlineInputBorder?.borderRadius,
+      child: InkWell(
+        borderRadius: outlineInputBorder?.borderRadius,
+        onTap: () {
+          dynamic state = _menuKey.currentState;
+          state.showButtonMenu();
+        },
+        child: Container(
+          height: 52,
+          padding: const EdgeInsets.only(left: 15, right: 5),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(
+                child: Text(
+                  (widget.allIfEmpty
+                          ? selectedItems.isEmpty
+                          : selectedItems.length == items.length)
+                      ? context.appLocalizations.all.naturalCapitalized
+                      : selectedItems.map((e) => e.name).join(', '),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
               ),
-            ),
+              popUpWidget(),
+            ],
           ),
         ),
-      ],
+      ),
     );
   }
 
