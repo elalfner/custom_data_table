@@ -1,27 +1,41 @@
 import 'package:custom_data_table/l10n/localization_extension.dart';
+import 'package:custom_data_table/src/core/utils/date_time_extension.dart';
 import 'package:custom_data_table/src/core/utils/string_extension.dart';
+import 'package:custom_data_table/src/domain/entities/date_selection.dart';
+import 'package:custom_data_table/src/domain/entities/filter_item.dart';
+import 'package:custom_data_table/src/domain/enums/date_filter_type.dart';
+import 'package:custom_data_table/src/presentation/widgets/common/dates_filter_chip.dart';
+import 'package:custom_data_table/src/presentation/widgets/filter_section_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
-import 'package:custom_data_table/src/domain/entities/filter_item.dart';
-import 'package:custom_data_table/src/presentation/widgets/filter_section_widget.dart';
-import 'package:custom_data_table/src/presentation/widgets/common/dates_filter_chip.dart';
-import 'package:custom_data_table/src/domain/enums/date_filter_type.dart';
-import 'package:custom_data_table/src/core/utils/date_time_extension.dart';
-
+/// A widget that displays the selected filters.
+///
+/// This widget is used to display the selected filters in a list of chips.
+/// It contains the buttons to open the filters view and the date filter.
 class CustomFilters extends StatefulWidget {
+  /// The list of filter sections.
   final List<FilterSection>? sections;
 
+  /// The callback function that is called when the selected filters are changed.
   final Function(List<FilterSection> sections)? onChange;
 
+  /// The initial date filter.
   final DateSelection? initialDateFilter;
 
+  /// The first date of the date range.
   final DateTime? firstDate;
+
+  /// The last date of the date range.
   final DateTime? lastDate;
 
+  /// The callback function that is called when the date filter is changed.
+  ///
+  /// If `null`, the chip [DatesFilterChip] will not be displayed.
   final ChangeDateCallback? onChangeDateFilter;
 
+  /// The callback function that is called when the date filter is tapped.
   final VoidCallback? onTapDateFilter;
 
   const CustomFilters({
@@ -40,8 +54,10 @@ class CustomFilters extends StatefulWidget {
 }
 
 class _CustomFiltersState extends State<CustomFilters> {
+  /// The list of filter sections.
   late List<FilterSection> selectedFilters;
 
+  /// The date filter.
   DateSelection? dateFilter;
 
   @override
