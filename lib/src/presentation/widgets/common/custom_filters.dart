@@ -22,6 +22,8 @@ class CustomFilters extends StatefulWidget {
   final Function(List<FilterSection> sections)? onChange;
 
   /// The initial date filter.
+  ///
+  /// If `null`, the chip [DatesFilterChip] will be displayed with no date selected.
   final DateSelection? initialDateFilter;
 
   /// The first date of the date range.
@@ -201,9 +203,7 @@ class _CustomFiltersState extends State<CustomFilters> {
           ),
         if (widget.onChangeDateFilter != null)
           DatesFilterChip(
-            dateFilterType: dateFilterType,
-            date: date,
-            endDate: endDate,
+            dateFilter: dateFilter,
             firstDate: widget.firstDate,
             lastDate: widget.lastDate,
             onTapDateFilter: widget.onTapDateFilter,

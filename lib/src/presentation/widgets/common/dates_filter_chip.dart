@@ -17,14 +17,8 @@ typedef ChangeDateCallback = void Function(DateSelection? dateFilter);
 ///
 /// This widget is used to display a chip to filter dates.
 class DatesFilterChip extends StatelessWidget {
-  /// The type of date filter.
-  final DateFilterType? dateFilterType;
-
-  /// The date to filter.
-  final DateTime? date;
-
-  /// The end date to filter.
-  final DateTime? endDate;
+  /// The date filter.
+  final DateSelection? dateFilter;
 
   /// The first date to filter.
   final DateTime? firstDate;
@@ -40,9 +34,7 @@ class DatesFilterChip extends StatelessWidget {
 
   const DatesFilterChip({
     Key? key,
-    this.dateFilterType,
-    this.date,
-    this.endDate,
+    this.dateFilter,
     this.onChangeDateFilter,
     this.onTapDateFilter,
     this.firstDate,
@@ -70,11 +62,7 @@ class DatesFilterChip extends StatelessWidget {
 
         final customDateFilters = await showCustomDateFilters(
           context,
-          initialDateFilter: DateSelection(
-            dateFilterType: dateFilterType,
-            date: date,
-            endDate: endDate,
-          ),
+          initialDateFilter: dateFilter,
           firstDate: firstDate,
           lastDate: lastDate,
         );
