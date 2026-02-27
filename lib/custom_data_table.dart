@@ -18,6 +18,5 @@ export 'src/presentation/widgets/common/dates_filter_chip.dart';
 export 'src/presentation/widgets/common/selected_filters_widget.dart';
 export 'src/presentation/widgets/common/table_footer.dart';
 export 'src/presentation/widgets/custom_data_table.dart';
-export 'src/presentation/widgets/custom_table_search.dart';
 export 'src/presentation/widgets/filter_section_widget.dart';
 export 'src/presentation/widgets/search_widget.dart';
