@@ -829,36 +829,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     );
   }
 
-  Widget hideShowColumnsWidget() {
-    // Only allow to hide column that have name.
-    return PopUpField<ColumnInfo>(
-      tooltip: context.appLocalizations.showHideColumns,
-      items: widget.columns
-          .where((element) => element.name.isNotEmpty == true)
-          .map(
-            (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-          )
-          .toList(),
-      selectedFields: widget.columns
-          .where((element) => element.name.isNotEmpty == true)
-          .map(
-            (e) => PopUpMenuItem(key: e.key, name: e.name, value: e),
-          )
-          .toList(),
-      onChange: (values) {
-        final columnsWithoutName =
-            widget.columns.where((element) => element.name.isEmpty);
-
-        selectedColumns = {
-          for (final c in values) c.key,
-          for (final c in columnsWithoutName) c.key,
-        };
-
-        setState(() {});
-      },
-    );
-  }
-
   /// Widget that creates all columns titles.
   ///
   /// Creates all columns that are specified in [columns]. Each element of the list
