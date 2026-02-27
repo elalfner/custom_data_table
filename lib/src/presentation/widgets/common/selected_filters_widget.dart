@@ -1,10 +1,6 @@
-import 'package:custom_data_table/l10n/localization_extension.dart';
-import 'package:custom_data_table/src/core/utils/date_time_extension.dart';
 import 'package:custom_data_table/src/domain/entities/date_selection.dart';
 import 'package:custom_data_table/src/domain/entities/filter_item.dart';
-import 'package:custom_data_table/src/domain/enums/date_filter_type.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 /// A widget that displays the selected filters.
 ///
@@ -75,41 +71,21 @@ class _SelectedFiltersWidgetState extends State<SelectedFiltersWidget> {
   /// The [dateFilter] object is used to determine the type of date filter
   /// and the date values to display.
   List<Widget> selectedDatesFilter(DateSelection dateFilter) {
-    final dateFilterType = dateFilter.dateFilterType;
-    final date = dateFilter.date;
-    final endDate = dateFilter.endDate;
-
-    Widget chip(String label) {
-      return Chip(
-        elevation: 1,
-        label: Text(label),
-        deleteIcon: const Icon(
-          Icons.close,
-          size: 14,
-        ),
-        onDeleted: widget.onDateFilterClear,
-        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-        padding: EdgeInsets.zero,
-      );
-    }
+    final dateLabel = dateFilter.label(context);
 
     return [
-      if (dateFilterType == DateFilterType.date &&
-          date?.onlyDate == DateTime.now().onlyDate)
-        chip(context.appLocalizations.onlyToday),
-      if (dateFilterType == DateFilterType.date &&
-          date != null &&
-          date.onlyDate != DateTime.now().onlyDate)
-        chip(DateFormat.yMd().format(date)),
-      if (dateFilterType == DateFilterType.month && date != null)
-        chip(DateFormat.yMMMM().format(date)),
-      if (dateFilterType == DateFilterType.year && date != null)
-        chip(DateFormat.y().format(date)),
-      if (dateFilterType == DateFilterType.period &&
-          date != null &&
-          endDate != null)
-        chip(
-            '${DateFormat.yMd().add_Hm().format(date)} - ${DateFormat.yMd().add_Hm().format(endDate)}'),
+      if (dateLabel != null)
+        Chip(
+          elevation: 1,
+          label: Text(dateLabel),
+          deleteIcon: const Icon(
+            Icons.close,
+            size: 14,
+          ),
+          onDeleted: widget.onDateFilterClear,
+          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+          padding: EdgeInsets.zero,
+        ),
     ];
   }
 }

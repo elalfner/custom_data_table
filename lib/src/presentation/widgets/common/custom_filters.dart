@@ -1,14 +1,11 @@
 import 'package:custom_data_table/l10n/localization_extension.dart';
-import 'package:custom_data_table/src/core/utils/date_time_extension.dart';
 import 'package:custom_data_table/src/core/utils/string_extension.dart';
 import 'package:custom_data_table/src/domain/entities/date_selection.dart';
 import 'package:custom_data_table/src/domain/entities/filter_item.dart';
-import 'package:custom_data_table/src/domain/enums/date_filter_type.dart';
 import 'package:custom_data_table/src/presentation/widgets/common/dates_filter_chip.dart';
 import 'package:custom_data_table/src/presentation/widgets/common/select_filters_dialog.dart';
 import 'package:custom_data_table/src/presentation/widgets/filter_section_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 
 /// A widget that displays the selected filters.
 ///
@@ -64,8 +61,10 @@ class _CustomFiltersState extends State<CustomFilters> {
 
   @override
   void initState() {
+    // Initialize the selected filters.
     selectedFilters = widget.sections ?? [];
 
+    // Initialize the date filter.
     dateFilter = widget.initialDateFilter;
 
     super.initState();
@@ -73,10 +72,7 @@ class _CustomFiltersState extends State<CustomFilters> {
 
   @override
   Widget build(BuildContext context) {
-    final dateFilter = this.dateFilter;
-    final dateFilterType = dateFilter?.dateFilterType;
-    final date = dateFilter?.date;
-    final endDate = dateFilter?.endDate;
+    final dateLabel = dateFilter?.label(context);
 
     return Wrap(
       spacing: 5,
@@ -99,78 +95,10 @@ class _CustomFiltersState extends State<CustomFilters> {
                 widget.onChange?.call(selectedFilters);
               },
             ),
-        if (dateFilterType == DateFilterType.date &&
-            date?.onlyDate == DateTime.now().onlyDate)
+        if (dateLabel != null)
           Chip(
             elevation: 1,
-            label: Text(context.appLocalizations.onlyToday),
-            deleteIcon: const Icon(
-              Icons.close,
-              size: 14,
-            ),
-            onDeleted: () {
-              this.dateFilter = null;
-              setState(() {});
-
-              notifyDateFilterChange();
-            },
-          ),
-        if (dateFilterType == DateFilterType.date &&
-            date != null &&
-            date.onlyDate != DateTime.now().onlyDate)
-          Chip(
-            elevation: 1,
-            label: Text(DateFormat.yMd().format(date)),
-            deleteIcon: const Icon(
-              Icons.close,
-              size: 14,
-            ),
-            onDeleted: () {
-              this.dateFilter = null;
-              setState(() {});
-
-              notifyDateFilterChange();
-            },
-          ),
-        if (dateFilterType == DateFilterType.month && date != null)
-          Chip(
-            elevation: 1,
-            label: Text(DateFormat.yMMMM().format(date)),
-            deleteIcon: const Icon(
-              Icons.close,
-              size: 14,
-            ),
-            onDeleted: () {
-              this.dateFilter = null;
-              setState(() {});
-
-              setState(() {});
-
-              notifyDateFilterChange();
-            },
-          ),
-        if (dateFilterType == DateFilterType.year && date != null)
-          Chip(
-            elevation: 1,
-            label: Text(DateFormat.y().format(date)),
-            deleteIcon: const Icon(
-              Icons.close,
-              size: 14,
-            ),
-            onDeleted: () {
-              this.dateFilter = null;
-              setState(() {});
-
-              notifyDateFilterChange();
-            },
-          ),
-        if (dateFilterType == DateFilterType.period &&
-            date != null &&
-            endDate != null)
-          Chip(
-            elevation: 1,
-            label: Text(
-                '${DateFormat.yMd().add_Hm().format(date)} - ${DateFormat.yMd().add_Hm().format(endDate)}'),
+            label: Text(dateLabel),
             deleteIcon: const Icon(
               Icons.close,
               size: 14,
@@ -218,7 +146,13 @@ class _CustomFiltersState extends State<CustomFilters> {
     );
   }
 
+  /// Shows the [SelectFiltersDialog] to select filters.
+  ///
+  /// It updates the state and calls the [widget.onChange] callback with the new filters.
+  ///
+  /// If the user cancels the dialog, it does nothing.
   void showFilters() async {
+    // Show the select filters dialog
     final newFilters = await showDialog(
       context: context,
       builder: (context) => SelectFiltersDialog(
@@ -226,15 +160,19 @@ class _CustomFiltersState extends State<CustomFilters> {
       ),
     );
 
+    // Update the state
     setState(() {});
 
+    // If the user cancels the dialog, do nothing
     if (newFilters is! List<FilterSection>) {
       return;
     }
 
+    // Call the onChange callback with the new filters
     widget.onChange?.call(newFilters);
   }
 
+  /// Notifies the [widget.onChangeDateFilter] callback with the new date filter.
   void notifyDateFilterChange() => widget.onChangeDateFilter?.call(dateFilter);
 }
 

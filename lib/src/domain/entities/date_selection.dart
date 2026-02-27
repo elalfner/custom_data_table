@@ -25,6 +25,8 @@ class DateSelection {
   /// The label is formatted based on the [dateFilterType] and the selected
   /// [date] and [endDate].
   String? label(BuildContext context) {
+    final date = this.date;
+
     if (dateFilterType == DateFilterType.date &&
         date?.onlyDate == DateTime.now().onlyDate) {
       return context.appLocalizations.onlyToday;
@@ -32,22 +34,22 @@ class DateSelection {
 
     if (dateFilterType == DateFilterType.date &&
         date != null &&
-        date?.onlyDate != DateTime.now().onlyDate) {
-      return DateFormat.yMd().format(date!);
+        date.onlyDate != DateTime.now().onlyDate) {
+      return DateFormat.yMd().format(date);
     }
 
     if (dateFilterType == DateFilterType.month && date != null) {
-      return DateFormat.yMMMM().format(date!);
+      return DateFormat.yMMMM().format(date);
     }
 
     if (dateFilterType == DateFilterType.year && date != null) {
-      return DateFormat.y().format(date!);
+      return DateFormat.y().format(date);
     }
 
     if (dateFilterType == DateFilterType.period &&
         date != null &&
         endDate != null) {
-      return '${DateFormat.yMd().add_Hm().format(date!)} - ${DateFormat.yMd().add_Hm().format(endDate!)}';
+      return '${DateFormat.yMd().add_Hm().format(date)} - ${DateFormat.yMd().add_Hm().format(endDate!)}';
     }
 
     return null;
