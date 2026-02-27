@@ -395,7 +395,7 @@ class _DateFilterViewState extends State<_DateFilterView> {
                   duration: const Duration(milliseconds: 300),
                   child: dateFilterType != DateFilterType.period
                       ? const SizedBox()
-                      : TimeFilterWidget(
+                      : DateTimeRangePickerWidget(
                           startDate: date ?? DateTime.now().onlyDate,
                           endDate: endDate ??
                               DateTime.now()

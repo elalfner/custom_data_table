@@ -3,14 +3,27 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pointer_interceptor/pointer_interceptor.dart';
 
-class TimeFilterWidget extends StatelessWidget {
+/// A widget that allows to select a date and time range.
+///
+/// It shows a row with two date and time pickers.
+/// The first picker allows to select the start date and time.
+/// The second picker allows to select the end date and time.
+///
+/// The widget is used to filter data by date and time.
+class DateTimeRangePickerWidget extends StatelessWidget {
+  /// The start date and time.
   final DateTime startDate;
+
+  /// The end date and time.
   final DateTime endDate;
 
+  /// The callback that is called when the start date and time changes.
   final Function(DateTime dateTime) onChangeStart;
+
+  /// The callback that is called when the end date and time changes.
   final Function(DateTime dateTime) onChangeEnd;
 
-  const TimeFilterWidget({
+  const DateTimeRangePickerWidget({
     Key? key,
     required this.startDate,
     required this.endDate,
@@ -44,13 +57,26 @@ class TimeFilterWidget extends StatelessWidget {
     );
   }
 
+  /// A widget that allows to select a date and time.
+  ///
+  /// [context] The build context.
+  /// [dateTime] The initial date and time.
+  /// [onChange] The callback that is called when the date and time changes.
+  ///
+  /// When the date is changed, we add the time of the initial date to the new date.
+  /// When the time is changed, we add the time of the new date to the initial date.
   Widget timeWidget(
     BuildContext context, {
     required DateTime dateTime,
     required Function(DateTime dateTime) onChange,
   }) {
+    // Get only the date.
     final sDate = dateTime.onlyDate;
+
+    // Get only the time.
     final sTime = dateTime.timeOfDay;
+
+    final now = DateTime.now();
 
     return Wrap(
       alignment: WrapAlignment.center,
@@ -62,8 +88,8 @@ class TimeFilterWidget extends StatelessWidget {
             final date = await showDatePicker(
               context: context,
               initialDate: dateTime,
-              firstDate: DateTime.now().subtract(const Duration(days: 365 * 5)),
-              lastDate: dateTime.add(const Duration(days: 365)),
+              firstDate: now.copyWith(year: now.year - 10),
+              lastDate: now.copyWith(year: now.year + 1),
               builder: (context, child) => PointerInterceptor(
                 child: Stack(
                   children: [
