@@ -7,9 +7,16 @@ import 'package:intl/intl.dart';
 import 'per_page_widget.dart';
 import 'table_paginated_count_widget.dart';
 
+/// A widget that displays the footer of the table.
+///
+/// This widget is used to display the footer of the table.
+///
+/// It contains the pagination controls and the per page selector.
 class TableFooter extends StatefulWidget {
+  /// The paginator info.
   final PaginatorInfo paginatorInfo;
 
+  /// Callback that notifies when the per page value changes.
   final Function(int perPage)? onPerPageChange;
 
   /// Callback that notifies when the previous page button is pressed.
@@ -18,9 +25,8 @@ class TableFooter extends StatefulWidget {
   /// Callback that notifies when the next page button is pressed.
   final VoidCallback? onNextPage;
 
+  /// Callback that notifies when the selected page changes.
   final Function(int page)? onSelectedPage;
-
-  final double? availableWidth;
 
   const TableFooter({
     super.key,
@@ -29,7 +35,6 @@ class TableFooter extends StatefulWidget {
     this.onPreviousPage,
     this.onNextPage,
     this.onSelectedPage,
-    this.availableWidth,
   });
 
   @override
@@ -39,23 +44,12 @@ class TableFooter extends StatefulWidget {
 class _TableFooterState extends State<TableFooter> {
   @override
   Widget build(BuildContext context) {
-    final availableWidth = widget.availableWidth;
-    if (availableWidth != null) {
-      return content(availableWidth);
-    }
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return content(constraints.maxWidth);
-      },
-    );
+    return content();
   }
 
-  Widget content(double availableWidth) {
+  /// Builds the content of the footer.
+  Widget content() {
     final dataTableTheme = context.watchDataTableTheme;
-
-    // `true` if available space is smaller than this value.
-    final small = availableWidth < 600;
 
     final footerDecoration = dataTableTheme?.footerDecoration;
 
@@ -65,90 +59,79 @@ class _TableFooterState extends State<TableFooter> {
     final perPage = paginatorInfo.perPage;
     final total = paginatorInfo.total;
 
-    final children = [
-      if (perPage != null && currentPage != null && total != null)
-        RichText(
-          text: TextSpan(
-            style: Theme.of(context).textTheme.bodySmall,
-            text: '${context.appLocalizations.showing} '.naturalCapitalized,
-            children: [
-              TextSpan(
-                text: NumberFormat.currency(decimalDigits: 0, symbol: '')
-                    .format((((currentPage - 1) * perPage) + 1)),
-                children: [
-                  TextSpan(
-                    text: ' ${context.appLocalizations.to} ',
-                  ),
-                  TextSpan(
-                    text: NumberFormat.currency(decimalDigits: 0, symbol: '')
-                        .format(currentPage * perPage > total
-                            ? total
-                            : currentPage * perPage),
-                  ),
-                  TextSpan(
-                    text: ' ${context.appLocalizations.ofLabel} ',
-                  ),
-                  TextSpan(
-                    text: NumberFormat.currency(decimalDigits: 0, symbol: '')
-                        .format(total),
-                    children: [
-                      TextSpan(
-                        text: ' ${context.appLocalizations.results}',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
-        )
-      else
-        const SizedBox(),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (perPage != null && perPage != 0)
-            Flexible(
-              child: TablePerPageWidget(
-                paginatorInfo: paginatorInfo,
-                onChange: widget.onPerPageChange,
-              ),
-            ),
-          const SizedBox(width: 10),
-          TablePaginatedCountWidget(
-            paginatorInfo: paginatorInfo,
-            loading: false,
-            onPressedLast: widget.onPreviousPage,
-            onPressedNext: widget.onNextPage,
-            onSelectedPage: widget.onSelectedPage,
-          ),
-        ],
-      )
-    ];
-
     final padding = dataTableTheme?.footerPadding ??
         const EdgeInsets.symmetric(horizontal: 15, vertical: 5);
-
-    if (small) {
-      return Container(
-        decoration: footerDecoration,
-        padding: padding,
-        width: double.infinity,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: children,
-        ),
-      );
-    }
 
     return Container(
       padding: padding,
       decoration: footerDecoration,
       width: double.infinity,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: children,
+      child: Wrap(
+        alignment: WrapAlignment.spaceBetween,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          if (perPage != null && currentPage != null && total != null)
+            RichText(
+              text: TextSpan(
+                style: Theme.of(context).textTheme.bodySmall,
+                text: '${context.appLocalizations.showing} '.naturalCapitalized,
+                children: [
+                  TextSpan(
+                    text: NumberFormat.currency(decimalDigits: 0, symbol: '')
+                        .format((((currentPage - 1) * perPage) + 1)),
+                    children: [
+                      TextSpan(
+                        text: ' ${context.appLocalizations.to} ',
+                      ),
+                      TextSpan(
+                        text:
+                            NumberFormat.currency(decimalDigits: 0, symbol: '')
+                                .format(currentPage * perPage > total
+                                    ? total
+                                    : currentPage * perPage),
+                      ),
+                      TextSpan(
+                        text: ' ${context.appLocalizations.ofLabel} ',
+                      ),
+                      TextSpan(
+                        text:
+                            NumberFormat.currency(decimalDigits: 0, symbol: '')
+                                .format(total),
+                        children: [
+                          TextSpan(
+                            text: ' ${context.appLocalizations.results}',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            )
+          else
+            const SizedBox(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              if (perPage != null && perPage != 0)
+                Flexible(
+                  child: TablePerPageWidget(
+                    paginatorInfo: paginatorInfo,
+                    onChange: widget.onPerPageChange,
+                  ),
+                ),
+              const SizedBox(width: 10),
+              TablePaginatedCountWidget(
+                paginatorInfo: paginatorInfo,
+                loading: false,
+                onPressedLast: widget.onPreviousPage,
+                onPressedNext: widget.onNextPage,
+                onSelectedPage: widget.onSelectedPage,
+              ),
+            ],
+          )
+        ],
       ),
     );
   }

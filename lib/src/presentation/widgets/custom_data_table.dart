@@ -453,7 +453,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             },
           ),
         ),
-        footer(availableWidth: constraints.maxWidth),
+        footer(),
       ],
     );
   }
@@ -990,14 +990,13 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   ///
   /// Displays pages info. Contains buttons to navigate between pages.
   /// If paginator info is `null`, the footer is not displayed.
-  Widget footer({required double availableWidth}) {
+  Widget footer() {
     final paginatorInfo = widget.paginatorInfo;
 
     if (paginatorInfo == null) return const SizedBox();
 
     return TableFooter(
       paginatorInfo: paginatorInfo,
-      availableWidth: availableWidth,
       onNextPage: widget.onNextPage,
       onPerPageChange: widget.onPerPageChange,
       onPreviousPage: widget.onPreviousPage,
