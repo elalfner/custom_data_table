@@ -721,7 +721,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               padding: padding?.copyWith(top: 0, bottom: 0),
               child: SelectedFiltersWidget(
                 selectedFilters: filters,
-                dateFilters: dateFilter,
+                dateFilter: dateFilter,
                 onChange: widget.onChangeFilters,
                 onDateFilterClear: () {
                   dateFilter = null;

@@ -6,17 +6,28 @@ import 'package:custom_data_table/src/domain/enums/date_filter_type.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+/// A widget that displays the selected filters.
+///
+/// This widget is used to display the selected filters in a list of chips.
+///
+/// It shows custom filters and date filters.
 class SelectedFiltersWidget extends StatefulWidget {
+  /// The list of selected filters.
   final List<FilterSection>? selectedFilters;
-  final DateSelection? dateFilters;
 
+  /// The selected date filter.
+  final DateSelection? dateFilter;
+
+  /// The callback function that is called when the selected filters are changed.
   final Function(List<FilterSection> selectedFilters)? onChange;
+
+  /// The callback function that is called when the date filter is cleared.
   final VoidCallback? onDateFilterClear;
 
   const SelectedFiltersWidget({
     super.key,
     this.selectedFilters,
-    this.dateFilters,
+    this.dateFilter,
     this.onChange,
     this.onDateFilterClear,
   });
@@ -29,7 +40,7 @@ class _SelectedFiltersWidgetState extends State<SelectedFiltersWidget> {
   @override
   Widget build(BuildContext context) {
     final selectedFilters = widget.selectedFilters;
-    final dateFilters = widget.dateFilters;
+    final dateFilter = widget.dateFilter;
 
     return Wrap(
       spacing: 5,
@@ -54,19 +65,19 @@ class _SelectedFiltersWidgetState extends State<SelectedFiltersWidget> {
                   widget.onChange?.call(selectedFilters);
                 },
               ),
-        if (dateFilters != null) ...selectedDatesFilter(dateFilters),
+        if (dateFilter != null) ...selectedDatesFilter(dateFilter),
       ],
     );
   }
 
   /// Returns a list of [Chip] widgets representing the selected date filters.
   ///
-  /// The [dateFilters] object is used to determine the type of date filter
+  /// The [dateFilter] object is used to determine the type of date filter
   /// and the date values to display.
-  List<Widget> selectedDatesFilter(DateSelection dateFilters) {
-    final dateFilterType = dateFilters.dateFilterType;
-    final date = dateFilters.date;
-    final endDate = dateFilters.endDate;
+  List<Widget> selectedDatesFilter(DateSelection dateFilter) {
+    final dateFilterType = dateFilter.dateFilterType;
+    final date = dateFilter.date;
+    final endDate = dateFilter.endDate;
 
     Widget chip(String label) {
       return Chip(
