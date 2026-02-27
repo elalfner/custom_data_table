@@ -71,43 +71,7 @@ class _TableFooterState extends State<TableFooter> {
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [
           if (perPage != null && currentPage != null && total != null)
-            RichText(
-              text: TextSpan(
-                style: Theme.of(context).textTheme.bodySmall,
-                text: '${context.appLocalizations.showing} '.naturalCapitalized,
-                children: [
-                  TextSpan(
-                    text: NumberFormat.currency(decimalDigits: 0, symbol: '')
-                        .format((((currentPage - 1) * perPage) + 1)),
-                    children: [
-                      TextSpan(
-                        text: ' ${context.appLocalizations.to} ',
-                      ),
-                      TextSpan(
-                        text:
-                            NumberFormat.currency(decimalDigits: 0, symbol: '')
-                                .format(currentPage * perPage > total
-                                    ? total
-                                    : currentPage * perPage),
-                      ),
-                      TextSpan(
-                        text: ' ${context.appLocalizations.ofLabel} ',
-                      ),
-                      TextSpan(
-                        text:
-                            NumberFormat.currency(decimalDigits: 0, symbol: '')
-                                .format(total),
-                        children: [
-                          TextSpan(
-                            text: ' ${context.appLocalizations.results}',
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            )
+            resultsNumberWIdget(currentPage, perPage, total)
           else
             const SizedBox(),
           Row(
@@ -131,6 +95,47 @@ class _TableFooterState extends State<TableFooter> {
               ),
             ],
           )
+        ],
+      ),
+    );
+  }
+
+  /// Builds the results number widget.
+  ///
+  /// [currentPage] The current page.
+  /// [perPage] The number of items per page.
+  /// [total] The total number of items.
+  ///
+  /// Returns a [RichText] widget that displays the number of results.
+  RichText resultsNumberWIdget(int currentPage, int perPage, int total) {
+    return RichText(
+      text: TextSpan(
+        style: Theme.of(context).textTheme.bodySmall,
+        children: [
+          TextSpan(
+            text: NumberFormat.decimalPattern()
+                .format((((currentPage - 1) * perPage) + 1)),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+          ),
+          TextSpan(
+            text: ' ${context.appLocalizations.results}. ',
+          ),
+          TextSpan(
+            text: '${context.appLocalizations.showing} '.naturalCapitalized,
+          ),
+          TextSpan(
+            text: NumberFormat.decimalPattern()
+                .format((((currentPage - 1) * perPage) + 1)),
+          ),
+          TextSpan(
+            text: ' ${context.appLocalizations.to} ',
+          ),
+          TextSpan(
+            text: NumberFormat.decimalPattern().format(
+                currentPage * perPage > total ? total : currentPage * perPage),
+          ),
         ],
       ),
     );
