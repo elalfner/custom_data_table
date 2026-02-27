@@ -69,6 +69,8 @@ class _TableFooterState extends State<TableFooter> {
       child: Wrap(
         alignment: WrapAlignment.spaceBetween,
         crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 2,
+        runSpacing: 2,
         children: [
           if (perPage != null && currentPage != null && total != null)
             resultsNumberWIdget(currentPage, perPage, total)
@@ -89,8 +91,8 @@ class _TableFooterState extends State<TableFooter> {
               TablePaginatedCountWidget(
                 paginatorInfo: paginatorInfo,
                 loading: false,
-                onPressedLast: widget.onPreviousPage,
-                onPressedNext: widget.onNextPage,
+                onPreviousPage: widget.onPreviousPage,
+                onNextPage: widget.onNextPage,
                 onSelectedPage: widget.onSelectedPage,
               ),
             ],
