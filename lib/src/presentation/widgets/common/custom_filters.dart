@@ -5,10 +5,10 @@ import 'package:custom_data_table/src/domain/entities/date_selection.dart';
 import 'package:custom_data_table/src/domain/entities/filter_item.dart';
 import 'package:custom_data_table/src/domain/enums/date_filter_type.dart';
 import 'package:custom_data_table/src/presentation/widgets/common/dates_filter_chip.dart';
+import 'package:custom_data_table/src/presentation/widgets/common/select_filters_dialog.dart';
 import 'package:custom_data_table/src/presentation/widgets/filter_section_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:pointer_interceptor/pointer_interceptor.dart';
 
 /// A widget that displays the selected filters.
 ///
@@ -219,88 +219,23 @@ class _CustomFiltersState extends State<CustomFilters> {
   }
 
   void showFilters() async {
-    await showModalBottomSheet(
+    final newFilters = await showDialog(
       context: context,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
-      builder: (context) => PointerInterceptor(
-        child: filtersView(),
+      builder: (context) => SelectFiltersDialog(
+        filters: selectedFilters,
       ),
     );
 
     setState(() {});
 
-    widget.onChange?.call(selectedFilters);
+    if (newFilters is! List<FilterSection>) {
+      return;
+    }
+
+    widget.onChange?.call(newFilters);
   }
 
-  Widget filtersView() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Padding(
-          padding: const EdgeInsets.all(20).copyWith(bottom: 5),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  context.appLocalizations.moreFilters.naturalCapitalized,
-                  style: Theme.of(context).textTheme.titleLarge,
-                  softWrap: false,
-                  overflow: TextOverflow.fade,
-                ),
-              ),
-              TextButton(
-                onPressed: () {
-                  for (final section in selectedFilters) {
-                    section.selectedFilters = null;
-                  }
-                  Navigator.pop(context);
-                },
-                child: Text(
-                    context.appLocalizations.clearFilters.naturalCapitalized),
-              ),
-              const SizedBox(width: 5),
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text(MaterialLocalizations.of(context).okButtonLabel),
-              ),
-            ],
-          ),
-        ),
-        Flexible(
-          child: SizedBox(
-            width: double.infinity,
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(20).copyWith(top: 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  for (final section in selectedFilters)
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: FilterSectionWidget(
-                        section: section,
-                        selectedFilters: [
-                          for (final section in selectedFilters)
-                            ...section.selectedFilters ?? []
-                        ],
-                        onChange: (values) => section.selectedFilters = values,
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  void notifyDateFilterChange() {
-    widget.onChangeDateFilter?.call(dateFilter);
-  }
+  void notifyDateFilterChange() => widget.onChangeDateFilter?.call(dateFilter);
 }
 
 class FiltersView extends StatelessWidget {

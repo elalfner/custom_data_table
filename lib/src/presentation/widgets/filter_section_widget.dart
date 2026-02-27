@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class FilterSectionWidget<T> extends StatefulWidget {
   final FilterSection<T> section;
 
-  final Function(List<FilterItem<T>> values) onChange;
+  final void Function(List<FilterItem<T>> values) onChange;
 
   final List<FilterItem<T>>? selectedFilters;
 

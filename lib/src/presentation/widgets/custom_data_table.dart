@@ -739,11 +739,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   void showFilters(List<FilterSection> filters) async {
     final newFilters = await showDialog(
       context: context,
-      builder: (context) {
-        return SelectFiltersDialog(
-          filters: filters,
-        );
-      },
+      builder: (context) => SelectFiltersDialog(
+        filters: filters,
+      ),
     );
 
     if (newFilters is! List<FilterSection>) {
