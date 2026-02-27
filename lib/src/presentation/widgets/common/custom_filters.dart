@@ -331,78 +331,46 @@ class _SelectedFiltersWidgetState extends State<SelectedFiltersWidget> {
     );
   }
 
+  /// Returns a list of [Chip] widgets representing the selected date filters.
+  ///
+  /// The [dateFilters] object is used to determine the type of date filter
+  /// and the date values to display.
   List<Widget> selectedDatesFilter(DateSelection dateFilters) {
     final dateFilterType = dateFilters.dateFilterType;
     final date = dateFilters.date;
     final endDate = dateFilters.endDate;
 
+    Widget chip(String label) {
+      return Chip(
+        elevation: 1,
+        label: Text(label),
+        deleteIcon: const Icon(
+          Icons.close,
+          size: 14,
+        ),
+        onDeleted: widget.onDateFilterClear,
+        visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
+        padding: EdgeInsets.zero,
+      );
+    }
+
     return [
       if (dateFilterType == DateFilterType.date &&
           date?.onlyDate == DateTime.now().onlyDate)
-        Chip(
-          elevation: 1,
-          label: Text(context.appLocalizations.onlyToday),
-          deleteIcon: const Icon(
-            Icons.close,
-            size: 14,
-          ),
-          onDeleted: widget.onDateFilterClear,
-          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-          padding: EdgeInsets.zero,
-        ),
+        chip(context.appLocalizations.onlyToday),
       if (dateFilterType == DateFilterType.date &&
           date != null &&
           date.onlyDate != DateTime.now().onlyDate)
-        Chip(
-          elevation: 1,
-          label: Text(DateFormat.yMd().format(date)),
-          deleteIcon: const Icon(
-            Icons.close,
-            size: 14,
-          ),
-          onDeleted: widget.onDateFilterClear,
-          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-          padding: EdgeInsets.zero,
-        ),
+        chip(DateFormat.yMd().format(date)),
       if (dateFilterType == DateFilterType.month && date != null)
-        Chip(
-          elevation: 1,
-          label: Text(DateFormat.yMMMM().format(date)),
-          deleteIcon: const Icon(
-            Icons.close,
-            size: 14,
-          ),
-          onDeleted: widget.onDateFilterClear,
-          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-          padding: EdgeInsets.zero,
-        ),
+        chip(DateFormat.yMMMM().format(date)),
       if (dateFilterType == DateFilterType.year && date != null)
-        Chip(
-          elevation: 1,
-          label: Text(DateFormat.y().format(date)),
-          deleteIcon: const Icon(
-            Icons.close,
-            size: 14,
-          ),
-          onDeleted: widget.onDateFilterClear,
-          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-          padding: EdgeInsets.zero,
-        ),
+        chip(DateFormat.y().format(date)),
       if (dateFilterType == DateFilterType.period &&
           date != null &&
           endDate != null)
-        Chip(
-          elevation: 1,
-          label: Text(
-              '${DateFormat.yMd().add_Hm().format(date)} - ${DateFormat.yMd().add_Hm().format(endDate)}'),
-          deleteIcon: const Icon(
-            Icons.close,
-            size: 14,
-          ),
-          onDeleted: widget.onDateFilterClear,
-          visualDensity: const VisualDensity(horizontal: -4, vertical: -4),
-          padding: EdgeInsets.zero,
-        ),
+        chip(
+            '${DateFormat.yMd().add_Hm().format(date)} - ${DateFormat.yMd().add_Hm().format(endDate)}'),
     ];
   }
 }
