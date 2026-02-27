@@ -15,6 +15,7 @@ export 'src/presentation/widgets/common/both_directions_listview_builder.dart';
 export 'src/presentation/widgets/common/custom_filters.dart';
 export 'src/presentation/widgets/common/custom_month_picker.dart';
 export 'src/presentation/widgets/common/dates_filter_chip.dart';
+export 'src/presentation/widgets/common/selected_filters_widget.dart';
 export 'src/presentation/widgets/common/table_footer.dart';
 export 'src/presentation/widgets/custom_data_table.dart';
 export 'src/presentation/widgets/custom_table_search.dart';
