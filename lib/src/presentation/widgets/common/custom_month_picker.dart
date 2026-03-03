@@ -26,7 +26,7 @@ class _CustomMonthPickerState extends State<CustomMonthPicker> {
   @override
   void initState() {
     date = (widget.initialDate ?? DateTime.now()).onlyMonth;
-    firstDate = widget.firstDate ?? DateTime(date.year - 100);
+    firstDate = widget.firstDate ?? DateTime(date.year - 10);
     lastDate = widget.lastDate ?? DateTime.now().onlyMonth;
 
     super.initState();

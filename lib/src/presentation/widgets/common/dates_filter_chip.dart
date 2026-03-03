@@ -73,42 +73,60 @@ class DatesFilterChip extends StatelessWidget {
   }
 }
 
+/// Shows a dialog to filter dates.
+///
+/// This function is used to show a dialog to filter dates.
+///
+/// Returns the selected date filter.
+///
+/// [context] The context to show the dialog.
+/// [initialDateFilter] The selected date filter.
+/// [firstDate] The first date of the date range.
+/// [lastDate] The last date of the date range.
 Future<DateSelection?> showCustomDateFilters(
   BuildContext context, {
   DateSelection? initialDateFilter,
   DateTime? firstDate,
   DateTime? lastDate,
-}) async {
-  return await showDialog(
-    context: context,
-    barrierDismissible: false,
-    builder: (_) => _DateFilterView(
-      dateFilter: initialDateFilter,
-      firstDate: firstDate,
-      lastDate: lastDate,
-    ),
-  );
-}
+}) =>
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => _DateFilterView(
+        dateFilter: initialDateFilter,
+        firstDate: firstDate,
+        lastDate: lastDate,
+      ),
+    );
 
+/// A widget that displays a dialog to filter dates.
+///
+/// This widget is used to display a dialog to filter dates.
 class _DateFilterView extends StatefulWidget {
+  /// The selected date filter.
   final DateSelection? dateFilter;
 
+  /// The first date of the date range.
   final DateTime? firstDate;
+
+  /// The last date of the date range.
   final DateTime? lastDate;
 
-  const _DateFilterView(
-      {Key? key, this.dateFilter, this.firstDate, this.lastDate})
-      : super(key: key);
+  const _DateFilterView({
+    this.dateFilter,
+    this.firstDate,
+    this.lastDate,
+  });
 
   @override
   State<_DateFilterView> createState() => _DateFilterViewState();
 }
 
 class _DateFilterViewState extends State<_DateFilterView> {
-  static const startYear = 2020;
-
+  /// The selected date filter.
   DateSelection? dateFilter;
 
+  /// Whether the date filter is a week.
   bool get isWeek {
     final date = dateFilter?.date;
     if (date == null) return false;
@@ -129,7 +147,12 @@ class _DateFilterViewState extends State<_DateFilterView> {
     final endDate = dateFilter?.endDate;
     final dateFilterType = dateFilter?.dateFilterType;
 
-    final thisYear = date?.year == DateTime.now().year;
+    final thisYear = DateTime.now().year;
+
+    final isThisYear = date?.year == thisYear;
+
+    final startYear = widget.firstDate?.year ?? thisYear - 10;
+    final endYear = widget.lastDate?.year ?? (thisYear + 1);
 
     return PointerInterceptor(
       child: AlertDialog(
@@ -201,8 +224,8 @@ class _DateFilterViewState extends State<_DateFilterView> {
                       final selectedDate = await showDatePicker(
                         context: context,
                         initialDate: date ?? DateTime.now(),
-                        firstDate: widget.firstDate ?? DateTime(startYear),
-                        lastDate: widget.lastDate ?? DateTime.now(),
+                        firstDate: DateTime(startYear),
+                        lastDate: DateTime(endYear),
                         builder: (context, child) => Stack(
                           children: [
                             GestureDetector(
@@ -267,10 +290,10 @@ class _DateFilterViewState extends State<_DateFilterView> {
               Text(context.appLocalizations.byOtherMonth.naturalCapitalized),
               const SizedBox(height: 5),
               ChoiceChip(
-                selected: dateFilterType == DateFilterType.month && !thisYear,
+                selected: dateFilterType == DateFilterType.month && !isThisYear,
                 label: Text(
                   dateFilterType != DateFilterType.month ||
-                          thisYear ||
+                          isThisYear ||
                           date == null
                       ? context.appLocalizations.select.naturalCapitalized
                       : DateFormat.yMMMM().format(date),

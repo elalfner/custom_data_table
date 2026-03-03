@@ -7,7 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
+/// A widget that displays a table of data.
+///
+/// The table theme can be customized using [DataTableTheme].
 class CustomDataTable<T> extends StatefulWidget {
+  /// Controller to control the table.
   final TableController? controller;
 
   /// List of columns the table has.
@@ -22,7 +26,7 @@ class CustomDataTable<T> extends StatefulWidget {
   /// Function to convert the row of type Object to Map.
   ///
   /// The map entry key has to match with the key of any column contained in [columns].
-  /// In this way the table is going to show the value of the entry in the correct cell.
+  /// In this way, the table is going to show the value of the entry in the correct cell.
   final Map<String, dynamic> Function(T element) toMap;
 
   /// Function to get the element that is displaying in this cell.
@@ -35,11 +39,6 @@ class CustomDataTable<T> extends StatefulWidget {
   /// If not provided or returned `null`, then the cell is displaying a [Text]
   /// with the value that contains the map entry in the [key] as text.
   final Widget? Function(T element, Map<String, dynamic> map, String key)? cell;
-
-  /// Callback to notify when a Row of table is pressed.
-  ///
-  /// If not provided the rows cannot be pressed.
-  final Function(T value)? onElementPressed;
 
   /// Builder that allows to put another widget as parent of a row.
   ///
@@ -64,8 +63,10 @@ class CustomDataTable<T> extends StatefulWidget {
   /// Callback that notifies when the next page button is pressed.
   final VoidCallback? onNextPage;
 
+  /// Callback that notifies when the selected page has changed.
   final Function(int page)? onSelectedPage;
 
+  /// Callback that notifies when the number of elements per page has changed.
   final Function(int perPage)? onPerPageChange;
 
   /// Callback that notifies when the copy button has been pressed.
@@ -89,15 +90,21 @@ class CustomDataTable<T> extends StatefulWidget {
   /// If not provided, it does not show the search fields.
   final Function(List<SearchFieldInfo> values)? onChangeSearchTextField;
 
+  /// Information of current sort options.
   final SortInfo? sortInfo;
 
+  /// Whether the table is loading.
+  ///
+  /// If true, it shows a loading indicator.
   final bool isLoading;
 
+  /// Callback that notifies when the general search field has changed.
   final ValueChanged<String>? onChangeGeneralSearch;
 
   /// Sections of the filters.
   ///
-  /// Each element contains the name and id of the column, and list of filter parameters.
+  /// Each element contains the name and id of the column, list of filter
+  /// parameters, and the selected filters.
   final List<FilterSection>? filterSections;
 
   /// Callback that notifies when new filters in search widget are selected.
@@ -105,13 +112,19 @@ class CustomDataTable<T> extends StatefulWidget {
   /// If user selects new filters, or deselects filters the Callback is notified.
   final Function(List<FilterSection> sections)? onChangeFilters;
 
+  /// Initial date filter.
   final DateSelection? initialDateFilter;
 
+  /// First date of the date range.
   final DateTime? firstDate;
+
+  /// Last date of the date range.
   final DateTime? lastDate;
 
+  /// Callback that notifies when the date filter has changed.
   final ChangeDateCallback? onChangeDateFilter;
 
+  /// Controller for the general search field.
   final TextEditingController? generalSearchController;
 
   final bool canCopy;
@@ -127,7 +140,6 @@ class CustomDataTable<T> extends StatefulWidget {
     required this.data,
     required this.toMap,
     this.cell,
-    this.onElementPressed,
     this.rowBuilder,
     this.onSort,
     this.paginatorInfo,
@@ -797,7 +809,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
     final anyFlex = columnsToShow.any((element) => element.flex != null);
 
-    return Container(
+    final child = Container(
       decoration: index.isEven
           ? dataTableTheme?.evenRowTheme?.decoration
           : dataTableTheme?.oddRowTheme?.decoration,
@@ -827,6 +839,14 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         ],
       ),
     );
+
+    final rowBuilder = widget.rowBuilder;
+
+    if (rowBuilder != null) {
+      return rowBuilder(element, child);
+    }
+
+    return child;
   }
 
   /// Widget that creates all columns titles.

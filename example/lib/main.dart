@@ -467,7 +467,6 @@ class _MyHomePageState extends State<MyHomePage> {
                   }
                 },
                 onPrint: () {},
-                onElementPressed: (value) {},
                 filterSections: filters,
                 onChangeFilters: (values) {
                   filters = values;
