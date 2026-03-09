@@ -27,25 +27,30 @@ class DateSelection {
   String? label(BuildContext context) {
     final date = this.date;
 
+    // If the selected date is today, returns "Only today".
     if (dateFilterType == DateFilterType.date &&
         date?.onlyDate == DateTime.now().onlyDate) {
       return context.appLocalizations.onlyToday;
     }
 
+    // If the selected date is not today, returns the formatted date.
     if (dateFilterType == DateFilterType.date &&
         date != null &&
         date.onlyDate != DateTime.now().onlyDate) {
       return DateFormat.yMd().format(date);
     }
 
+    // If the selected date is a month, returns the formatted month.
     if (dateFilterType == DateFilterType.month && date != null) {
       return DateFormat.yMMMM().format(date);
     }
 
+    // If the selected date is a year, returns the formatted year.
     if (dateFilterType == DateFilterType.year && date != null) {
       return DateFormat.y().format(date);
     }
 
+    // If the selected date is a period, returns the formatted period.
     if (dateFilterType == DateFilterType.period &&
         date != null &&
         endDate != null) {

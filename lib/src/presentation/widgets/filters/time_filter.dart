@@ -153,6 +153,7 @@ class DateTimeRangePickerWidget extends StatelessWidget {
 
             if (time == null) return;
 
+            // Updates the time.
             onChange(
               sDate.onlyDate.add(
                 Duration(hours: time.hour, minutes: time.minute),

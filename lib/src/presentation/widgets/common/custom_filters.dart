@@ -176,10 +176,18 @@ class _CustomFiltersState extends State<CustomFilters> {
   void notifyDateFilterChange() => widget.onChangeDateFilter?.call(dateFilter);
 }
 
+/// A widget that displays the selected filters.
+///
+/// This widget is used to display the selected filters in a list of chips.
+/// It contains the buttons to open the filters view and the date filter.
 class FiltersView extends StatelessWidget {
+  /// The list of filter sections.
   final List<FilterSection> sections;
+
+  /// The callback function that is called when the selected filters are changed.
   final Function(List<FilterSection> sections)? onChange;
 
+  /// Whether to show the title of the filters.
   final bool showTitle;
 
   const FiltersView({

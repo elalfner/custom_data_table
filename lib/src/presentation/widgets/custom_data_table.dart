@@ -16,8 +16,8 @@ class CustomDataTable<T> extends StatefulWidget {
 
   /// List of columns the table has.
   ///
-  /// Each element of the list contains the name of the column, key to identify it, and the
-  /// information of the space that is taking (width).
+  /// Each element of the list contains the name of the column, key to identify
+  /// it, and the information of the space that is taking (width).
   final List<ColumnInfo> columns;
 
   /// Data to show in the table.
@@ -25,8 +25,9 @@ class CustomDataTable<T> extends StatefulWidget {
 
   /// Function to convert the row of type Object to Map.
   ///
-  /// The map entry key has to match with the key of any column contained in [columns].
-  /// In this way, the table is going to show the value of the entry in the correct cell.
+  /// The map entry key has to match with the key of any column contained in
+  /// [columns]. In this way, the table is going to show the value of the entry
+  /// in the correct cell.
   final Map<String, dynamic> Function(T element) toMap;
 
   /// Function to get the element that is displaying in this cell.
@@ -47,14 +48,14 @@ class CustomDataTable<T> extends StatefulWidget {
 
   /// Callback to notify when a column has pressed to sort by this column.
   ///
-  /// [sortInfo] contains the information that tell which column has marked to be
-  /// sorted, and if te order is ascendant or descendant.
+  /// [sortInfo] contains the information that tell which column has marked to
+  /// be sorted, and if te order is ascendant or descendant.
   final Function(SortInfo sortInfo)? onSort;
 
   /// Information of pagination.
   ///
-  /// It contains for example the page that is displayed, the number of total pages,
-  /// elements per page.
+  /// It contains for example the page that is displayed, the number of total
+  /// pages, elements per page.
   final PaginatorInfo? paginatorInfo;
 
   /// Callback that notifies when the previous page button is pressed.
@@ -127,10 +128,17 @@ class CustomDataTable<T> extends StatefulWidget {
   /// Controller for the general search field.
   final TextEditingController? generalSearchController;
 
+  /// Wether the copy button is displayed.
   final bool canCopy;
 
+  /// Builder to display an exception.
+  ///
+  /// If not provided, it shows a default exception builder.
   final Widget Function()? exceptionBuilder;
 
+  /// Builder to display a loading indicator.
+  ///
+  /// If not provided, it shows a [CircularProgressIndicator].
   final Widget Function()? loadingBuilder;
 
   const CustomDataTable({
@@ -179,57 +187,96 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// Columns selected to show in the table.
   late Set<String> selectedColumns;
 
+  /// Columns to show in the table.
   List<ColumnInfo> get columnsToShow => columns
       .where(
         (element) => selectedColumns.contains(element.key),
       )
       .toList();
 
-  /// Scroll controllers to show ScrollBar.
-  ///
+  /// Scroll controllers to control the vertical scroll of the table.
   final ScrollController _verticalScrollController = ScrollController();
+
+  /// Scroll controllers to control the horizontal scroll of the table.
+  ///
+  /// It is used to link the horizontal scroll of the content and the columns
+  /// header.
   final LinkedScrollControllerGroup _controllers =
       LinkedScrollControllerGroup();
+
+  /// Scroll controller to control the horizontal scroll of the content.
   late ScrollController _hContentScrollController;
+
+  /// Scroll controller to control the horizontal scroll of the columns header.
   late ScrollController _columnsHeaderController;
 
+  /// Controllers for the text fields of the columns.
+  ///
+  /// It is used to control the text fields of the columns.
   late Map<String, TextEditingController> textControllers;
 
+  /// List of controllers for the text fields declared in the widget.
+  ///
+  /// It is used to dispose the controllers when the widget is disposed.
   final List<TextEditingController> insideControllers = [];
 
+  /// Debouncer to debounce the search fields.
   final debouncer = Debouncer(milliseconds: 500);
+
+  /// Debouncer to debounce the column search fields.
   final debouncerIndividual = Debouncer(milliseconds: 500);
 
+  /// Notifies when the content height changes.
   final contentHeight = ValueNotifier<double?>(null);
 
+  /// Minimum height of a row.
   double get rowMinHeight => context.readDataTableTheme?.dataRowHeight ?? 38;
 
+  /// Initial date filter.
   DateSelection? dateFilter;
 
+  /// Controller for the general search field.
   TextEditingController? _newGeneralSearchController;
+
+  /// Controller for the general search field.
   late TextEditingController _generalSearchController;
+
+  /// Boolean to know if the table is searching.
+  bool searching = false;
+
+  /// Scroll controller to show Scrollbar.
+  final _headerScroll = ScrollController();
 
   @override
   void initState() {
     widget.controller?.clearColumnSearchFields = _clearColumnSearchFields;
 
+    // Initialize scroll controllers.
     _hContentScrollController = _controllers.addAndGet();
     _columnsHeaderController = _controllers.addAndGet();
 
     final columns = widget.columns;
 
+    // Initialize text controllers.
     textControllers = {
       for (final col in columns) col.key: createTextController(col),
     };
 
+    // Initialize selected columns. All columns are selected by default.
     selectedColumns = {for (final c in columns) c.key};
 
+    // Initialize sort info.
     sortInfo = widget.sortInfo;
 
+    // Initialize date filter.
     dateFilter = widget.initialDateFilter;
 
+    // Initialize general search controller.
     final generalSearchController = widget.generalSearchController;
 
+    // Initialize general search controller.
+    // If a controller is provided, it is used. Otherwise, a new controller is
+    // created.
     if (generalSearchController != null) {
       _generalSearchController = generalSearchController;
     } else {
@@ -242,6 +289,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     super.initState();
   }
 
+  /// Clears the text of all column search fields.
   void _clearColumnSearchFields() {
     for (final textController in textControllers.entries) {
       try {
@@ -250,12 +298,14 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     }
   }
 
+  /// Creates a text controller for a column.
   TextEditingController createTextController(ColumnInfo column) {
     final controllerInput = column.controllerInput;
     if (controllerInput != null) return controllerInput;
 
     final newController = TextEditingController();
 
+    // Add the new controller to the list of inside controllers.
     insideControllers.add(newController);
 
     return newController;
@@ -263,17 +313,19 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   @override
   void dispose() {
+    // Dispose text controllers.
     for (final textController in insideControllers) {
       try {
         textController.dispose();
       } catch (_) {}
     }
 
+    // Dispose general search controller.
+    _newGeneralSearchController?.dispose();
+
     // Dispose scroll controllers.
     _hContentScrollController.dispose();
     _verticalScrollController.dispose();
-
-    _newGeneralSearchController?.dispose();
 
     super.dispose();
   }
@@ -299,6 +351,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     return Container(
       margin: dataTableTheme?.tableMargin,
       child: Stack(
+        // ClipBehavior.none is used to avoid the table to be cut in negative
+        // positions.
         clipBehavior: Clip.none,
         children: [
           Container(
@@ -308,6 +362,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               child: _body(),
             ),
           ),
+          // Positioned loading indicator.
           if (widget.isLoading)
             Positioned(
               top: -10,
@@ -332,6 +387,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     );
   }
 
+  /// Returns the body of the table.
   Widget _body() {
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -340,6 +396,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     );
   }
 
+  /// Returns the table widget.
+  ///
+  /// This widget is used to display the table.
+  /// [constraints] are the constraints of the table.
   Widget tableWidget(BoxConstraints constraints) {
     final dataTableTheme = context.watchDataTableTheme;
 
@@ -351,8 +411,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
         (rowPadding?.right ?? 0) +
         (rowPadding?.left ?? 0);
 
-    final contentHeight = this.contentHeight;
-
+    // BoxConstraints for the table.
     final tableConstraints = BoxConstraints(
       minWidth: minWidth,
     );
@@ -361,36 +420,30 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
+        // Header of the table.
         header(),
+        // Builder to handle the columns widget.
         Builder(
           builder: (context) {
+            // If the width of the table is greater than the minimum width,
+            //the columns widget is displayed without scrolling.
             if (constraints.maxWidth > minWidth) {
-              return Container(
-                constraints: BoxConstraints(
-                  minWidth: minWidth,
-                ),
-                child: Column(
-                  children: [
-                    columnsWidget(false),
-                  ],
-                ),
-              );
+              return columnsWidget(false);
             }
 
+            // If the width of the table is less than the minimum width,
+            //the columns widget is displayed with scrolling.
             return SingleChildScrollView(
               controller: _columnsHeaderController,
               scrollDirection: Axis.horizontal,
               child: SizedBox(
                 width: tableConstraints.minWidth,
-                child: Column(
-                  children: [
-                    columnsWidget(true),
-                  ],
-                ),
+                child: columnsWidget(true),
               ),
             );
           },
         ),
+        // Flexible to handle the content of the table.
         Flexible(
           child: ValueListenableBuilder(
             valueListenable: contentHeight,
@@ -412,7 +465,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                     final data = widget.data;
                     final paginator = widget.paginatorInfo;
 
+                    // If the data or paginator is null, the loading or exception
+                    // builder is displayed.
                     if (data == null || paginator == null) {
+                      // If the data or paginator is null and the table is
+                      // loading, the loading builder is displayed.
                       if (widget.isLoading) {
                         return widget.loadingBuilder?.call() ??
                             const CircularProgressIndicator();
@@ -422,6 +479,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                       }
                     }
 
+                    // If the width of the table is greater than the minimum
+                    // width, the table content is displayed without scrolling.
                     if (constraints.maxWidth > minWidth) {
                       return Scrollbar(
                         controller: _verticalScrollController,
@@ -436,6 +495,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                       );
                     }
 
+                    // If the width of the table is less than the minimum width,
+                    // the table content is displayed with scrolling.
                     return Scrollbar(
                       controller: _verticalScrollController,
                       notificationPredicate: (notif) => notif.depth == 1,
@@ -465,14 +526,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             },
           ),
         ),
+        // Footer of the table.
         footer(),
       ],
     );
   }
-
-  bool searching = false;
-
-  final _headerScroll = ScrollController();
 
   /// Widget to show table header.
   ///
@@ -507,6 +565,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             decoration: headerDecoration,
             child: Row(
               children: [
+                // Columns to show dropdown.
                 Container(
                   padding: padding == null
                       ? null
@@ -518,12 +577,10 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                       onTap: () async {
                         final newSelectedColumns = await showDialog(
                           context: context,
-                          builder: (context) {
-                            return SelectColumnsToShowDialog(
-                              columns: columns,
-                              selectedColumns: columnsToShow,
-                            );
-                          },
+                          builder: (context) => SelectColumnsToShowDialog(
+                            columns: columns,
+                            selectedColumns: columnsToShow,
+                          ),
                         );
 
                         if (newSelectedColumns is List<ColumnInfo>) {
@@ -557,6 +614,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                     ),
                   ),
                 ),
+
+                // Filters and search bar.
                 Expanded(
                   child: Scrollbar(
                     controller: _headerScroll,
@@ -568,6 +627,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                       padding: padding?.copyWith(top: 0, bottom: 0),
                       child: Row(
                         children: [
+                          // Filters button.
                           if (filters != null)
                             Badge(
                               isLabelVisible: filters.any(
@@ -588,6 +648,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                 ),
                               ),
                             ),
+
+                          // Date filter button.
                           if (widget.onChangeDateFilter != null)
                             Padding(
                               padding: const EdgeInsets.only(right: 5),
@@ -608,6 +670,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                 ),
                               ),
                             ),
+
+                          // Copy button.
                           if ((widget.onCopy != null || widget.canCopy) &&
                               data != null &&
                               data.isNotEmpty)
@@ -618,11 +682,17 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                               ),
                               onPressed: widget.onCopy ??
                                   () async {
+                                    // Columns to show. Only this columns are copied.
                                     final columnsToShow = this.columnsToShow;
 
                                     final scaffoldMessenger =
                                         ScaffoldMessenger.of(context);
 
+                                    // Copy value.
+                                    // First row is the column names.
+                                    // Then each row is a row of data.
+                                    // Each column is separated by a tab.
+                                    // Each row is separated by a newline.
                                     final copyValue = [
                                       [
                                         for (final column in columnsToShow)
@@ -636,6 +706,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                         ].join('\t'),
                                     ].join('\n');
 
+                                    // Copy to clipboard.
                                     await Clipboard.setData(
                                         ClipboardData(text: copyValue));
 
@@ -651,6 +722,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                 size: 20,
                               ),
                             ),
+
+                          // Export button.
                           if (showExportButton)
                             MenuAnchor(
                               menuChildren: [
@@ -662,18 +735,22 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                         .naturalCapitalized),
                                   ),
                               ],
-                              builder: (context, controller, child) {
-                                return FilledButton.icon(
-                                  label: Text(context.appLocalizations.export
-                                      .naturalCapitalized),
-                                  onPressed: () => controller.open(),
-                                  icon: const Icon(
-                                    Icons.ios_share_outlined,
-                                    size: 15,
-                                  ),
-                                );
-                              },
+                              builder: (context, controller, child) =>
+                                  FilledButton.icon(
+                                label: Text(context.appLocalizations.export
+                                    .naturalCapitalized),
+                                onPressed: () => controller.open(),
+                                icon: const Icon(
+                                  Icons.ios_share_outlined,
+                                  size: 15,
+                                ),
+                              ),
                             ),
+
+                          // Search bar.
+                          // Only show if searching is true.
+                          // Debouncer is used to prevent the search from being called too often.
+                          // searching is true when the user presses the search icon.
                           if (searching)
                             Padding(
                               padding: const EdgeInsets.only(left: 10),
@@ -728,6 +805,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               ],
             ),
           ),
+
+          // Selected filters.
           if (filters != null || dateFilter != null)
             Container(
               padding: padding?.copyWith(top: 0, bottom: 0),
@@ -748,6 +827,12 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     );
   }
 
+  /// Show the filters dialog.
+  ///
+  /// [filters] are the filters to show in the dialog.
+  ///
+  /// Notifies [widget.onChangeFilters] when the filters are changed.
+  /// If the dialog is closed without saving, the filters will not be changed.
   void showFilters(List<FilterSection> filters) async {
     final newFilters = await showDialog(
       context: context,
@@ -756,13 +841,18 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       ),
     );
 
+    // If the dialog is closed without saving, the filters will not be changed.
     if (newFilters is! List<FilterSection>) {
       return;
     }
 
+    // Notifies [widget.onChangeFilters] when the filters are changed.
     widget.onChangeFilters?.call(newFilters);
   }
 
+  /// Show the date filters dialog.
+  ///
+  /// Notifies [widget.onChangeDateFilter] when the date filter is changed.
   void showDateFilters() async {
     final customDateFilters = await showCustomDateFilters(
       context,
@@ -771,12 +861,17 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       lastDate: widget.lastDate,
     );
 
+    // Notifies when the date filter is changed.
     widget.onChangeDateFilter?.call(customDateFilters);
 
     dateFilter = customDateFilters;
     setState(() {});
   }
 
+  /// Build the table content.
+  ///
+  /// [data] is the data to show in the table.
+  /// [scrollable] is whether the table should be scrollable.
   Widget tableContent({required data, required bool scrollable}) {
     final dataTableTheme = context.watchDataTableTheme;
 
@@ -790,23 +885,25 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
           controller: _verticalScrollController,
           itemCount: data.length,
           separatorBuilder: (context, index) => const Divider(),
-          itemBuilder: (context, index) {
-            return rowWidget(
-              data[index],
-              index,
-              scrollable,
-            );
-          },
+          itemBuilder: (context, index) =>
+              rowWidget(data[index], index, scrollable),
         ),
       ),
     );
   }
 
+  /// Build a row widget.
+  ///
+  /// [element] is the element to show in the row.
+  /// [index] is the index of the row.
+  /// [scrollable] is whether the row should be scrollable.
   Widget rowWidget(T element, int index, bool scrollable) {
     final dataTableTheme = context.watchDataTableTheme;
 
     final columnsToShow = this.columnsToShow;
 
+    // Whether any column has a flex. If there is no flex, all columns will have
+    // flex of its width.
     final anyFlex = columnsToShow.any((element) => element.flex != null);
 
     final child = Container(
@@ -823,6 +920,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 final width = col.width;
                 final flex = anyFlex ? col.flex : width.toInt();
 
+                // If the row is scrollable, or the column has no flex, or the
+                // column has a fixed width, it will have a fixed width with the
+                // specified width.
                 if (scrollable || flex == null || col.hasFixedWidth == true) {
                   return SizedBox(
                     width: width,
@@ -840,6 +940,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       ),
     );
 
+    // If a row builder is specified, it will be used to build the row.
     final rowBuilder = widget.rowBuilder;
 
     if (rowBuilder != null) {
@@ -852,9 +953,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// Widget that creates all columns titles.
   ///
   /// Creates all columns that are specified in [columns]. Each element of the list
-  /// contains the information of hoe much horizontal space it has to take.
-  /// If flex is specified, creates an [Expand] widget with that flex. In the other hand
-  /// if only width is specified, it creates a [SizedBox] with the size given.
+  /// contains the information of how much horizontal space it has to take.
+  /// If flex is specified, creates an [Expand] widget with that flex. In the other
+  /// hand, if only width is specified, it creates a [SizedBox] with the size given.
+  ///
+  /// [scrollable] is whether the table is scrollable.
   Widget columnsWidget(bool scrollable) {
     final dataTableTheme = context.watchDataTableTheme;
 
@@ -863,6 +966,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     final verticalPadding = dataTableTheme?.columnHeaderVerticalPadding;
     final horizontalPadding = dataTableTheme?.rowPadding;
 
+    // The padding of the column header. It is the vertical padding of the column
+    // header and the horizontal padding of the row.
     final padding = EdgeInsets.only(
       top: verticalPadding?.top ?? 0,
       bottom: verticalPadding?.bottom ?? 0,
@@ -870,8 +975,12 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
       right: horizontalPadding?.right ?? 0,
     );
 
+    // The columns to show. It is the list of columns that are specified in
+    // [columns] and are not hidden.
     final columnsToShow = this.columnsToShow;
 
+    // Whether any column has a flex. If there is no flex, all columns will have
+    // flex of its width.
     final anyFlex = columnsToShow.any((element) => element.flex != null);
 
     return Container(
@@ -887,6 +996,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                   final width = col.width;
                   final flex = anyFlex ? col.flex : width.toInt();
 
+                  // If the table is scrollable, or the column has no flex, or the
+                  // column has a fixed width, it will have a fixed width with the
+                  // specified width.
                   if (scrollable || flex == null || col.hasFixedWidth == true) {
                     return SizedBox(
                       width: width,
@@ -894,6 +1006,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                     );
                   }
 
+                  // Otherwise, it will have a flex of the specified flex.
                   return Expanded(
                     flex: flex,
                     child: columnWidget(col),
@@ -994,8 +1107,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     );
   }
 
+  /// Widget that creates the search input for a column.
+  ///
+  /// [column] is the column to create the search input for.
   Widget columnFieldWidget(ColumnInfo column) {
-    if (column.name.isEmpty || !column.canSearchInput) return const SizedBox();
+    if (column.name.isEmpty) return const SizedBox();
 
     final dataTableTheme = context.watchDataTableTheme;
 
@@ -1066,115 +1182,18 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   }
 }
 
-class ScrollWidget extends StatelessWidget {
-  final double? minWidth;
-  final double width;
-
-  final Widget child;
-
-  final ScrollController? scrollController;
-
-  const ScrollWidget(
-      {Key? key,
-      required this.minWidth,
-      required this.width,
-      required this.child,
-      this.scrollController})
-      : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final minWidth = this.minWidth;
-
-    if (minWidth == null || minWidth < width) return child;
-
-    return MediaQuery(
-      data: MediaQuery.of(context).removePadding(
-        removeBottom: true,
-        removeTop: true,
-      ),
-      child: SafeArea(
-        child: SingleChildScrollView(
-          controller: scrollController,
-          scrollDirection: Axis.horizontal,
-          child: SizedBox(
-            // The table width is the value calculated.
-            width: minWidth,
-            child: child,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class ScrollWidgetWithBar extends StatelessWidget {
-  final double? minWidth;
-  final double width;
-
-  final Widget child;
-
-  final ScrollController? hScrollController;
-  final ScrollController? vScrollController;
-
-  const ScrollWidgetWithBar({
-    Key? key,
-    required this.minWidth,
-    required this.width,
-    required this.child,
-    this.hScrollController,
-    this.vScrollController,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    final minWidth = this.minWidth;
-
-    if (minWidth == null || minWidth < width) {
-      return Scrollbar(
-        scrollbarOrientation: ScrollbarOrientation.right,
-        controller: vScrollController,
-        thumbVisibility: true,
-        child: child,
-      );
-    }
-
-    return MediaQuery(
-      data: MediaQuery.of(context).removePadding(
-        removeBottom: true,
-        removeTop: true,
-      ),
-      child: SafeArea(
-        child: Scrollbar(
-          scrollbarOrientation: ScrollbarOrientation.right,
-          controller: vScrollController,
-          thumbVisibility: true,
-          notificationPredicate: (notif) => notif.depth == 1,
-          child: Scrollbar(
-            controller: hScrollController,
-            thumbVisibility: true,
-            child: SingleChildScrollView(
-              controller: hScrollController,
-              scrollDirection: Axis.horizontal,
-              child: SizedBox(
-                // The table width is the value calculated.
-                width: minWidth,
-                child: child,
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
+/// Controller for the table.
 class TableController {
+  /// Clears the search fields of the table.
   late VoidCallback clearColumnSearchFields;
 }
 
+/// Dialog to select columns to show.
 class SelectColumnsToShowDialog extends StatefulWidget {
+  /// List of columns to show.
   final List<ColumnInfo> columns;
+
+  /// List of selected columns.
   final List<ColumnInfo> selectedColumns;
 
   const SelectColumnsToShowDialog(
@@ -1186,10 +1205,12 @@ class SelectColumnsToShowDialog extends StatefulWidget {
 }
 
 class _SelectColumnsToShowDialogState extends State<SelectColumnsToShowDialog> {
+  /// List of selected columns.
   late List<ColumnInfo> selectedColumns;
 
   @override
   void initState() {
+    // Initializes the selected columns.
     selectedColumns = [...widget.selectedColumns];
 
     super.initState();
@@ -1197,6 +1218,7 @@ class _SelectColumnsToShowDialogState extends State<SelectColumnsToShowDialog> {
 
   @override
   Widget build(BuildContext context) {
+    // List of columns to show.
     final columns = widget.columns;
 
     return AlertDialog(
@@ -1228,6 +1250,7 @@ class _SelectColumnsToShowDialogState extends State<SelectColumnsToShowDialog> {
       actions: [
         FilledButton(
           onPressed: () {
+            // Returns the selected columns.
             final selectedColumns = widget.columns.where(
               (element) {
                 return this.selectedColumns.any(

@@ -4,9 +4,25 @@ import 'package:custom_data_table/src/core/utils/date_time_extension.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+/// A widget that displays a month picker.
+///
+/// This widget is used to display a month picker.
+/// The picker allows the user to select a month and year.
+/// The picker is displayed in a dialog.
 class CustomMonthPicker extends StatefulWidget {
+  /// The initial date to display in the picker.
+  ///
+  /// If null, the current date is used.
   final DateTime? initialDate;
+
+  /// The first date that can be selected in the picker.
+  ///
+  /// If null, the current date minus 10 years is used.
   final DateTime? firstDate;
+
+  /// The last date that can be selected in the picker.
+  ///
+  /// If null, the current month is used.
   final DateTime? lastDate;
 
   const CustomMonthPicker(
@@ -17,10 +33,18 @@ class CustomMonthPicker extends StatefulWidget {
 }
 
 class _CustomMonthPickerState extends State<CustomMonthPicker> {
+  /// The current date to display in the picker.
   late DateTime date;
+
+  /// The last date that can be selected in the picker.
   late DateTime lastDate;
+
+  /// The first date that can be selected in the picker.
   late DateTime firstDate;
 
+  /// If true, the year picker is shown.
+  ///
+  /// If false, the month picker is shown.
   bool showYear = false;
 
   @override
@@ -39,6 +63,8 @@ class _CustomMonthPickerState extends State<CustomMonthPicker> {
         width: 550,
         child: LayoutBuilder(
           builder: (context, constaints) {
+            /// If the max width is less than 550, the picker is displayed in a column.
+            /// Otherwise, the picker is displayed in a row.
             if (constaints.maxWidth < 550) {
               return Column(
                 mainAxisSize: MainAxisSize.min,
@@ -131,6 +157,7 @@ class _CustomMonthPickerState extends State<CustomMonthPicker> {
     );
   }
 
+  /// Widget that displays the selected month and year.
   Widget selectedInfoWidget() {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -148,6 +175,10 @@ class _CustomMonthPickerState extends State<CustomMonthPicker> {
     );
   }
 
+  /// Widget that displays the picker body.
+  ///
+  /// If [showYear] is true, the year picker is shown.
+  /// Otherwise, the month picker is shown.
   Widget pickerBody() {
     return Column(
       children: [
@@ -164,6 +195,10 @@ class _CustomMonthPickerState extends State<CustomMonthPicker> {
     );
   }
 
+  /// Widget that displays the select year button.
+  ///
+  /// If [showYear] is true, the year picker is shown.
+  /// Otherwise, the month picker is shown.
   Widget selectYearButton() {
     return Row(
       children: [
@@ -196,6 +231,7 @@ class _CustomMonthPickerState extends State<CustomMonthPicker> {
     );
   }
 
+  /// Widget that displays the month picker.
   Widget monthPicker() {
     return GridView.builder(
       gridDelegate:
@@ -243,6 +279,7 @@ class _CustomMonthPickerState extends State<CustomMonthPicker> {
     );
   }
 
+  /// Widget that displays the year picker.
   Widget yearPicker() {
     const crossAxisCount = 4;
 
@@ -305,6 +342,7 @@ class _CustomMonthPickerState extends State<CustomMonthPicker> {
     );
   }
 
+  /// Widget that displays dialog buttons.
   Widget buttons() {
     return Row(
       mainAxisAlignment: MainAxisAlignment.end,
@@ -326,6 +364,15 @@ class _CustomMonthPickerState extends State<CustomMonthPicker> {
   }
 }
 
+/// Shows a dialog that allows the user to select a month and year.
+///
+/// [context] is the build context.
+/// [initialDate] is the initial date to display.
+/// [firstDate] is the first date that can be selected.
+/// [lastDate] is the last date that can be selected.
+/// [builder] is a builder that can be used to customize the dialog.
+///
+/// Returns the selected date or `null` if the dialog is dismissed.
 Future<DateTime?> showMonthPicker({
   required BuildContext context,
   DateTime? initialDate,

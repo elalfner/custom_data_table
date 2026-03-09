@@ -1,13 +1,19 @@
 import 'package:collection/collection.dart';
 import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:custom_data_table/src/core/utils/string_extension.dart';
+import 'package:custom_data_table/src/domain/entities/paginator_info.dart';
 import 'package:flutter/material.dart';
 
-import 'package:custom_data_table/src/domain/entities/paginator_info.dart';
-
+/// Widget that displays a per page picker.
+///
+/// This widget is used to display a per page picker.
+///
+/// The picker allows the user to select a per page value.
 class TablePerPageWidget extends StatelessWidget {
+  /// Paginator info.
   final PaginatorInfo paginatorInfo;
 
+  /// Function to call when the per page value changes.
   final Function(int page)? onChange;
 
   const TablePerPageWidget({
