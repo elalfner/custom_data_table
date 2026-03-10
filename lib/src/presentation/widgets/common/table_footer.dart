@@ -73,7 +73,7 @@ class _TableFooterState extends State<TableFooter> {
         runSpacing: 2,
         children: [
           if (perPage != null && currentPage != null && total != null)
-            resultsNumberWIdget(currentPage, perPage, total)
+            resultsNumberWidget(currentPage, perPage, total)
           else
             const SizedBox(),
           Row(
@@ -109,14 +109,13 @@ class _TableFooterState extends State<TableFooter> {
   /// [total] The total number of items.
   ///
   /// Returns a [RichText] widget that displays the number of results.
-  RichText resultsNumberWIdget(int currentPage, int perPage, int total) {
+  RichText resultsNumberWidget(int currentPage, int perPage, int total) {
     return RichText(
       text: TextSpan(
         style: Theme.of(context).textTheme.bodySmall,
         children: [
           TextSpan(
-            text: NumberFormat.decimalPattern()
-                .format((((currentPage - 1) * perPage) + 1)),
+            text: NumberFormat.decimalPattern().format(total),
             style: Theme.of(context).textTheme.bodySmall?.copyWith(
                   fontWeight: FontWeight.w600,
                 ),
