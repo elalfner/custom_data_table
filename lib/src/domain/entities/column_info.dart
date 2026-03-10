@@ -33,6 +33,9 @@ class ColumnInfo {
   /// `true` if the column can have a search input.
   final bool canSearchInput;
 
+  /// The initial value for the search input.
+  final String? initialSearchValue;
+
   /// The callback that is called when the search input changes.
   ValueChanged<String>? onChangeInput;
 
@@ -50,6 +53,7 @@ class ColumnInfo {
     this.flex,
     this.canSort = false,
     this.canSearchInput = false,
+    this.initialSearchValue,
     this.onChangeInput,
     this.controllerInput,
     this.extra,

@@ -300,13 +300,17 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
   /// Creates a text controller for a column.
   TextEditingController createTextController(ColumnInfo column) {
-    final controllerInput = column.controllerInput;
-    if (controllerInput != null) return controllerInput;
+    var newController = column.controllerInput;
 
-    final newController = TextEditingController();
+    if (newController == null) {
+      newController = TextEditingController();
+      // Add the new controller to the list of inside controllers.
+      insideControllers.add(newController);
+    }
 
-    // Add the new controller to the list of inside controllers.
-    insideControllers.add(newController);
+    if (column.initialSearchValue != null) {
+      newController.text = column.initialSearchValue!;
+    }
 
     return newController;
   }
