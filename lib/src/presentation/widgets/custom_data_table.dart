@@ -279,6 +279,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     // created.
     if (generalSearchController != null) {
       _generalSearchController = generalSearchController;
+      if (_generalSearchController.text.isNotEmpty) {
+        searching = true;
+      }
     } else {
       final textController = TextEditingController();
 
