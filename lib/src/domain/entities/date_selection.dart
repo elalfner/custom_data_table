@@ -20,6 +20,46 @@ class DateSelection {
 
   DateSelection({required this.dateFilterType, this.date, this.endDate});
 
+  factory DateSelection.fromDates(DateTime? date, DateTime? endDate) {
+    if (date == null || endDate == null) {
+      return DateSelection(
+        dateFilterType: DateFilterType.period,
+        date: date,
+        endDate: endDate,
+      );
+    }
+
+    if (date == endDate.onlyDate && date.endOfDay == endDate) {
+      return DateSelection(
+        dateFilterType: DateFilterType.date,
+        date: date,
+        endDate: endDate,
+      );
+    }
+
+    if (date == endDate.onlyMonth && date.endOfMonth == endDate) {
+      return DateSelection(
+        dateFilterType: DateFilterType.month,
+        date: date,
+        endDate: endDate,
+      );
+    }
+
+    if (date == endDate.onlyYear && date.endOfYear == endDate) {
+      return DateSelection(
+        dateFilterType: DateFilterType.year,
+        date: date,
+        endDate: endDate,
+      );
+    }
+
+    return DateSelection(
+      dateFilterType: DateFilterType.period,
+      date: date,
+      endDate: endDate,
+    );
+  }
+
   /// Returns a formatted label for the selected date(s).
   ///
   /// The label is formatted based on the [dateFilterType] and the selected

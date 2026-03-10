@@ -51,12 +51,12 @@ extension DateExtension on DateTime {
       .subtract(const Duration(milliseconds: 1));
 
   /// Devuelve la fecha final del mes.
-  DateTime get endOfMonth => onlyDate
+  DateTime get endOfMonth => onlyMonth
       .copyWith(month: month + 1)
       .subtract(const Duration(milliseconds: 1));
 
   /// Devuelve la fecha final del año.
-  DateTime get endOfYear => onlyDate
+  DateTime get endOfYear => onlyYear
       .copyWith(year: year + 1)
       .subtract(const Duration(milliseconds: 1));
 
