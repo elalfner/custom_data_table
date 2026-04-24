@@ -481,6 +481,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 onChangeDateFilter: (dateFilter) {
                   print(dateFilter);
                 },
+                onTapRow: (element) {
+                  print(element.toJsonTable());
+                },
               ),
             ),
           ],

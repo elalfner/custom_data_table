@@ -141,6 +141,9 @@ class CustomDataTable<T> extends StatefulWidget {
   /// If not provided, it shows a [CircularProgressIndicator].
   final Widget Function()? loadingBuilder;
 
+  /// Callback that notifies when the element of a row has been clicked.
+  final Function(T element)? onTapRow;
+
   const CustomDataTable({
     Key? key,
     this.controller,
@@ -172,6 +175,7 @@ class CustomDataTable<T> extends StatefulWidget {
     this.canCopy = true,
     this.exceptionBuilder,
     this.loadingBuilder,
+    this.onTapRow,
   }) : super(key: key);
 
   @override
@@ -913,48 +917,64 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     // flex of its width.
     final anyFlex = columnsToShow.any((element) => element.flex != null);
 
-    final child = Container(
-      decoration: index.isEven
-          ? dataTableTheme?.evenRowTheme?.decoration
-          : dataTableTheme?.oddRowTheme?.decoration,
-      padding: dataTableTheme?.rowPadding,
-      height: rowMinHeight,
-      child: Row(
-        children: [
-          for (final col in columnsToShow)
-            Builder(
-              builder: (context) {
-                final width = col.width;
-                final flex = anyFlex ? col.flex : width.toInt();
+    final onTapRow = widget.onTapRow;
 
-                // If the row is scrollable, or the column has no flex, or the
-                // column has a fixed width, it will have a fixed width with the
-                // specified width.
-                if (scrollable || flex == null || col.hasFixedWidth == true) {
-                  return SizedBox(
-                    width: width,
-                    child: cell(element, widget.toMap(element), col),
-                  );
-                }
+    final child = Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTapRow == null ? null : () => onTapRow(element),
+        child: Padding(
+          padding: dataTableTheme?.rowPadding ?? EdgeInsets.zero,
+          child: Row(
+            children: [
+              for (final col in columnsToShow)
+                Builder(
+                  builder: (context) {
+                    final width = col.width;
+                    final flex = anyFlex ? col.flex : width.toInt();
 
-                return Expanded(
-                  flex: flex,
-                  child: cell(element, widget.toMap(element), col),
-                );
-              },
-            ),
-        ],
+                    // If the row is scrollable, or the column has no flex, or the
+                    // column has a fixed width, it will have a fixed width with the
+                    // specified width.
+                    if (scrollable ||
+                        flex == null ||
+                        col.hasFixedWidth == true) {
+                      return SizedBox(
+                        width: width,
+                        child: cell(element, widget.toMap(element), col),
+                      );
+                    }
+
+                    return Expanded(
+                      flex: flex,
+                      child: cell(element, widget.toMap(element), col),
+                    );
+                  },
+                ),
+            ],
+          ),
+        ),
       ),
     );
 
-    // If a row builder is specified, it will be used to build the row.
-    final rowBuilder = widget.rowBuilder;
+    return Container(
+      decoration: index.isEven
+          ? dataTableTheme?.evenRowTheme?.decoration
+          : dataTableTheme?.oddRowTheme?.decoration,
+      height: rowMinHeight,
+      child: Builder(
+        builder: (context) {
+          // If a row builder is specified, it will be used to build the row.
+          final rowBuilder = widget.rowBuilder;
 
-    if (rowBuilder != null) {
-      return rowBuilder(element, child);
-    }
+          if (rowBuilder != null) {
+            return rowBuilder(element, child);
+          }
 
-    return child;
+          return child;
+        },
+      ),
+    );
   }
 
   /// Widget that creates all columns titles.
