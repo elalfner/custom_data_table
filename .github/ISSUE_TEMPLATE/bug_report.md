@@ -1,41 +1,78 @@
 ---
 name: Bug Report
-about: Create a report to help us improve CustomDataTable
+about: Report a reproducible bug or layout issue in CustomDataTable
 title: '[BUG] '
 labels: bug
 assignees: ''
 ---
 
-## Describe the Bug
-A clear and concise description of what the bug is.
+<!--
+  Thank you for taking the time to report this issue and help us improve CustomDataTable!
+  Before creating a report, please check if a similar issue already exists.
+-->
 
-## To Reproduce
-Steps to reproduce the behavior:
-1. Configure `CustomDataTable` with `...`
-2. Run on platform `...`
-3. Trigger action `...`
-4. See error or visual glitch
+## 1. Describe the Bug
+A clear and concise description of the bug or unexpected behavior.
 
-### Minimal Reproducible Code
+## 2. Parent Widget & Layout Context 📐
+*DataTables are highly sensitive to parent constraints (e.g., unbounded height or missing expanded widgets).*
+
+- **Direct Parent Widget:** [e.g. `Scaffold -> Expanded`, `SizedBox(width: 800, height: 600)`, `Column without Expanded`]
+- **Execution Mode:** [ ] Debug  [ ] Profile  [ ] Release
+- **If Web:** [ ] WASM (`--wasm`)  [ ] CanvasKit  [ ] HTML  [ ] Not running on Web
+
+## 3. Minimal Reproducible Example 💻
+Please provide a minimal, self-contained `main.dart` sample that reproduces the issue when run with `flutter run`:
+
 ```dart
-// Provide a minimal code snippet reproducing the issue
-CustomDataTable(
-  // ...
-)
+import 'package:flutter/material.dart';
+import 'package:custom_data_table/custom_data_table.dart';
+
+void main() => runApp(const MaterialApp(home: BugReproPage()));
+
+class BugReproPage extends StatelessWidget {
+  const BugReproPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: CustomDataTable(
+        // Paste minimal configuration reproducing the bug here
+      ),
+    );
+  }
+}
 ```
 
-## Expected Behavior
-A clear and concise description of what you expected to happen.
+## 4. Steps to Reproduce & Expected Behavior
+1. Run the app on `...`
+2. Perform action `...`
+3. See error or visual glitch
 
-## Screenshots or Videos
-If applicable, add screenshots or screen recordings to help explain your problem.
+- **Expected:** Description of what you expected to happen.
+- **Actual:** Description of what actually happened.
 
-## Environment
-- **CustomDataTable Version:** (e.g. 3.0.6)
-- **Flutter Version:** (output of `flutter --version`)
-- **Dart Version:**
-- **Target Platform(s):** [e.g. Android, iOS, Web, macOS, Windows, Linux]
-- **Target Device / OS Version:** [e.g. Pixel 7 / Android 14, Chrome on macOS]
+## 5. Visual Evidence 📸
+*(Drag & drop screenshots or screen recordings showing the issue, if applicable)*
 
-## Additional Context
-Add any other context about the problem here (e.g. stack trace, console logs).
+## 6. Full Error Stack Trace 🛑
+<details>
+<summary>Click to view exception and console logs</summary>
+
+```
+Paste full console output / stack trace here
+```
+</details>
+
+## 7. `flutter doctor -v` 🩺
+<details>
+<summary>Click to view flutter doctor output</summary>
+
+```
+Paste output of `flutter doctor -v` here
+```
+</details>
+
+---
+
+*Thank you for taking the time to report this issue and help make CustomDataTable better!*

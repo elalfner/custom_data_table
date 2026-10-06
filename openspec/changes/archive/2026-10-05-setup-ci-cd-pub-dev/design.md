@@ -1,64 +1,64 @@
 ## Context
 
-El paquete `custom_data_table` es una biblioteca Flutter para tablas de datos con soporte de scroll bidireccional, filtros por fecha/mes, ordenamiento, selección de registros y temas visuales personalizables.
+The `custom_data_table` package is a Flutter data table library supporting synchronized bi-directional scrolling, date/month filtering, column sorting, record selection, and customizable themes.
 
-Para consolidar la biblioteca como un paquete de calidad en [pub.dev](https://pub.dev), se requiere establecer:
-- Licencia de código abierto oficial.
-- Metadatos completos y validados en `pubspec.yaml`.
-- Documentación pública y ejemplos en `README.md` y `CHANGELOG.md`.
-- Pruebas automatizadas en `test/`.
-- Pipeline de Integración Continua (CI) de alta velocidad con caché para validar el estado del código en Pull Requests y Pushes.
+To establish the package as a top-tier open-source library on [pub.dev](https://pub.dev), the project requires:
+- An official open-source license.
+- Complete, validated package metadata in `pubspec.yaml`.
+- Comprehensive public documentation with usage snippets in `README.md` and `CHANGELOG.md`.
+- Automated test coverage in `test/`.
+- A high-speed Continuous Integration (CI) pipeline with caching to validate Pull Requests and branch pushes.
 
 ## Goals / Non-Goals
 
 **Goals:**
-- Acondicionar todos los archivos y metadatos del paquete para cumplir con las directrices de calidad y obtener el puntaje máximo en el analizador Pana (160/160).
-- Diseñar e implementar un workflow de GitHub Actions (`ci.yml`) con doble capa de caché (Flutter SDK 3.38.7 y pub cache).
-- Incorporar el paso de simulación `flutter pub publish --dry-run` en el CI para asegurar release-readiness continuo.
-- Implementar suite de pruebas iniciales con `testWidgets` y tests unitarios.
-- Configurar `.pubignore` para excluir tooling y artefactos de desarrollo del empaquetado final.
+- Prepare all package files and metadata to comply with pub.dev guidelines and achieve the maximum score on the Pana analyzer (160/160).
+- Design and implement a GitHub Actions workflow (`ci.yml`) featuring dual-layer caching (Flutter SDK 3.38.7 and Pub cache).
+- Incorporate `flutter pub publish --dry-run` into CI to ensure release-readiness without publishing prematurely.
+- Implement an automated test suite utilizing `testWidgets` and unit tests.
+- Configure `.pubignore` to exclude development tooling, IDE metadata, and build caches from the package archive.
 
 **Non-Goals:**
-- **Compilar APKs, AABs o Split-ABI**: El proyecto es un paquete de Dart/Flutter, no una aplicación ejecutable.
-- **Configurar NDK, Gradle o firmas Keystore**: Innecesarios para el ciclo de vida del paquete.
+- **Compiling APKs, AABs, or Split-ABI binaries**: The project is a pure Dart/Flutter library, not an executable mobile application.
+- **Configuring Android NDK, Gradle, or Keystore signing keys**: Not applicable to Flutter package lifecycles.
 
 ## Decisions
 
-### 1. Licencia MIT
-- **Decisión**: Adoptar la licencia **MIT** con titularidad a nombre de `Elias Alfaro (2026)`.
-- **Razón**: Máxima permisividad, estándar universal en código abierto y perfectamente aceptada por pub.dev para el máximo puntaje de licencia.
+### 1. MIT License
+- **Decision**: Adopt the standard **MIT License** with copyright attributed to `Elias Alfaro (2026)`.
+- **Rationale**: Universal open-source adoption, maximum permissiveness, and full compliance with pub.dev licensing criteria.
 
-### 2. Versión del Entorno: Flutter 3.38.7 y Dart 3.10.7
-- **Decisión**: Fijar `flutter-version: '3.38.7'` en `subosito/flutter-action@v2`.
-- **Razón**: Coincide de manera exacta con el entorno local de desarrollo del autor, previniendo discrepancias de análisis estático o sintaxis.
+### 2. Environment Alignment: Flutter 3.38.7 and Dart 3.10.7
+- **Decision**: Pin `flutter-version: '3.38.7'` in `subosito/flutter-action@v2`.
+- **Rationale**: Exactly mirrors the local development environment, eliminating discrepancies in compiler or analyzer behavior.
 
-### 3. Estrategia de Caché de Alto Rendimiento en CI
-- **Flutter SDK Cache**: Utilizar `cache: true` en `subosito/flutter-action@v2` con key basada en OS, canal y versión.
-- **Pub Cache**: Utilizar `actions/cache@v4` sobre el directorio `~/.pub-cache` con key basada en el hash de `pubspec.lock`.
-- **Razón**: Reduce el tiempo de ejecución del CI de ~4 minutos a menos de 45 segundos por build.
+### 3. High-Performance Caching in CI
+- **Flutter SDK Cache**: Use `cache: true` in `subosito/flutter-action@v2` keyed on OS, channel, and version.
+- **Pub Cache**: Use `actions/cache@v4` on `~/.pub-cache` keyed on `pubspec.lock` hash.
+- **Rationale**: Reduces CI execution time from ~4 minutes to under 45 seconds per run.
 
-### 4. Flujo de Validación Estricta en CI
-El pipeline ejecutará secuencialmente:
+### 4. Strict Validation Pipeline in CI
+The pipeline executes sequentially:
 1. `dart format --output=none --set-exit-if-changed .`
 2. `flutter analyze --fatal-infos`
 3. `flutter test`
 4. `flutter pub publish --dry-run`
-5. Análisis del directorio `example/` (`cd example && flutter pub get && flutter analyze --no-fatal-infos --no-fatal-warnings`).
+5. Example application analysis (`cd example && flutter pub get && flutter analyze --no-fatal-infos --no-fatal-warnings`).
 
-### 5. Versionado Semántico y Preparación para Release
-- El estado actual en git tiene el tag `3.0.5`.
-- Para consolidar todos los cambios de metadatos, documentación, licencia y tests sin generar inconsistencias con versiones previas, se prepara el paquete bajo la versión `3.0.6`.
+### 5. Semantic Versioning and Release Candidate
+- The current git history has tag `3.0.5`.
+- To bundle all metadata, documentation, license, test, and CI enhancements cleanly, the package is prepared as version `3.0.6`.
 
 ## Risks / Trade-offs
 
-- **[Riesgo] Discrepancias de formato en código existente** → *Mitigación*: Ejecutar `dart format` sobre el código para garantizar que el paso `--set-exit-if-changed` pase en verde.
-- **[Riesgo] Dependencias incompatibles en `example/`** → *Mitigación*: Asegurar que el `pubspec.yaml` de `example/` apunte correctamente al paquete local mediante `path: ../`.
-- **[Riesgo] Archivos no deseados en el archivo publicado** → *Mitigación*: `.pubignore` filtra tooling de agentes, artefactos de build y archivos temporales.
+- **[Risk] Formatting discrepancies in codebase** → *Mitigation*: Run `dart format` prior to committing so that `--set-exit-if-changed` passes consistently in CI.
+- **[Risk] Incompatible dependencies in `example/`** → *Mitigation*: Ensure `example/pubspec.yaml` points to the local parent package via `path: ../`.
+- **[Risk] Extraneous files bundled in pub package** → *Mitigation*: `.pubignore` filters out `.agent/`, `openspec/`, IDE configs, and build caches.
 
 ## Implementation Steps
 
-1. Actualizar `.gitignore` y configurar `.pubignore` para filtrar artefactos de desarrollo.
-2. Crear y actualizar `LICENSE`, `pubspec.yaml`, `README.md`, `CHANGELOG.md` y `test/`.
-3. Crear el workflow de CI en `.github/workflows/ci.yml`.
-4. Ejecutar validaciones locales (`format`, `analyze`, `test`, `dry-run`).
-5. Confirmar ejecución exitosa del CI en GitHub Actions.
+1. Update `.gitignore` and configure `.pubignore` to exclude development artifacts.
+2. Create and update `LICENSE`, `pubspec.yaml`, `README.md`, `CHANGELOG.md`, and `test/`.
+3. Create GitHub Actions CI workflow in `.github/workflows/ci.yml`.
+4. Execute local validation checks (`format`, `analyze`, `test`, `dry-run`).
+5. Confirm successful CI execution on GitHub Actions.

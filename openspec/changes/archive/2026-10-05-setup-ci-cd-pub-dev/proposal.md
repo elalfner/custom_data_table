@@ -1,40 +1,40 @@
 ## Why
 
-El paquete `custom_data_table` requiere acondicionar su infraestructura de calidad, documentación, licencia de código abierto y automatización de CI/CD para cumplir con los estándares requeridos y ser publicado y mantenido como un paquete de alto impacto en [pub.dev](https://pub.dev).
+The `custom_data_table` package requires standardization of its quality infrastructure, documentation, open-source licensing, and CI/CD automation to meet the highest industry standards for publishing and maintaining a high-impact package on [pub.dev](https://pub.dev).
 
-Esta propuesta establece la estandarización para alcanzar el puntaje máximo en pub.dev (Pana Score 160/160), adoptar formalmente la licencia MIT e implementar un pipeline de Integración Continua (CI) ultrarrápido con doble capa de caché para Flutter 3.38.7, incorporando validaciones de simulación `--dry-run`.
+This proposal establishes the roadmap to achieve the maximum score on pub.dev (Pana Score 160/160), adopt the official MIT License, and implement an ultra-fast Continuous Integration (CI) pipeline with dual-layer caching for Flutter 3.38.7, incorporating strict dry-run publication simulations.
 
 ## What Changes
 
-- **Acondicionamiento para pub.dev**:
-  - Adopción formal de la licencia **MIT** con copyright oficial.
-  - Actualización de metadatos en `pubspec.yaml` (descripción completa, enlaces oficiales, topics).
-  - Rediseño de `README.md` con ejemplos funcionales, características y referencia a `example/`.
-  - Actualización de `CHANGELOG.md` documentando las versiones acumuladas y la versión candidata `3.0.6`.
-  - Creación de pruebas unitarias y de widgets en `test/` para validar el renderizado y funciones base.
-  - Configuración de `.pubignore` para excluir tooling y artefactos de desarrollo del paquete final.
-- **Pipeline de CI Ultrarrápido (`.github/workflows/ci.yml`)**:
-  - Flutter 3.38.7 con caché activo de Flutter SDK (`subosito/flutter-action@v2`).
-  - Caché de dependencias pub (`~/.pub-cache`).
-  - Validación de formato (`dart format --output=none --set-exit-if-changed .`).
-  - Análisis estático riguroso (`flutter analyze --fatal-infos`).
-  - Ejecución de pruebas automatizadas (`flutter test`).
-  - Simulación estricta de publicación (`flutter pub publish --dry-run`) como seguro contra fallos de empaquetado.
-  - Verificación del proyecto `example/`.
-- **Candado de Publicación**:
-  - Toda validación opera en modo simulación `--dry-run`, manteniendo el control total de lanzamientos.
+- **Pub.dev Readiness**:
+  - Formal adoption of the **MIT License** with official copyright notice.
+  - Metadata enhancement in `pubspec.yaml` (comprehensive description, official repository and issue tracker URLs, search topics).
+  - Modernization of `README.md` with responsive usage examples, key features, and reference to `example/`.
+  - Structured `CHANGELOG.md` documenting historical milestones up to version `3.0.6`.
+  - Unit and widget test suite in `test/` verifying table rendering and date helper entities.
+  - Configuration of `.pubignore` to exclude development tooling, IDE configs, and build caches from the published package archive.
+- **Ultra-Fast CI Pipeline (`.github/workflows/ci.yml`)**:
+  - Flutter 3.38.7 with active Flutter SDK caching (`subosito/flutter-action@v2`).
+  - Pub dependencies cache (`~/.pub-cache`).
+  - Strict format verification (`dart format --output=none --set-exit-if-changed .`).
+  - Static code analysis (`flutter analyze --fatal-infos`).
+  - Automated test execution (`flutter test`).
+  - Dry-run publication simulation (`flutter pub publish --dry-run`) ensuring packaging compliance without uploading to pub.dev.
+  - Standalone verification of the `example/` project.
+- **Publication Safety Guard**:
+  - All CI validations operate in strict dry-run mode, preserving full developer control over release schedules.
 
 ## Capabilities
 
 ### New Capabilities
-- `package-readiness`: Estandarización de metadatos (`pubspec.yaml`), licencia MIT, documentación pública (`README.md`, `CHANGELOG.md`), `.pubignore` y suite de pruebas en `test/` requeridas para obtener 160/160 puntos en pub.dev.
-- `continuous-integration`: Pipeline automatizado de GitHub Actions con doble capa de caché (Flutter SDK y Pub Cache) para validación de formato, análisis estático, tests y simulación `--dry-run`.
+- `package-readiness`: Standardization of package metadata (`pubspec.yaml`), MIT License, public documentation (`README.md`, `CHANGELOG.md`), `.pubignore`, and test suite in `test/` required to achieve 160/160 points on pub.dev.
+- `continuous-integration`: Automated GitHub Actions pipeline with dual-layer caching (Flutter SDK and Pub Cache) for format checking, static analysis, test execution, and dry-run validation.
 
 ### Modified Capabilities
 <!-- No modified capabilities; initial change -->
 
 ## Impact
 
-- **Código fuente**: Inclusión de tests en `test/`, limpieza de archivos no deseados en `.gitignore` (`.DS_Store`, build artifacts).
-- **Metadatos del paquete**: `pubspec.yaml`, `LICENSE`, `README.md`, `CHANGELOG.md`, `.pubignore`.
-- **DevOps**: Creación del directorio `.github/workflows/` con el workflow de CI.
+- **Source Code**: Automated tests in `test/`, exclusion of development artifacts in `.gitignore` and `.pubignore`.
+- **Package Metadata**: `pubspec.yaml`, `LICENSE`, `README.md`, `CHANGELOG.md`.
+- **DevOps**: GitHub Actions CI workflow in `.github/workflows/ci.yml`.
