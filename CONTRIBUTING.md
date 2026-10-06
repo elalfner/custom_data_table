@@ -16,8 +16,12 @@ We follow a Git Flow branching model:
 
 - **`main`**: Production-ready code matching the latest stable release.
 - **`dev`**: **Default branch**. All feature branches and bug fixes must be branched from and targeted to `dev`.
-- **`feature/<TICKET>-<description>`**: New features and capabilities (e.g., `feature/CDT-12-custom-cell-align`).
-- **`fix/<TICKET>-<description>`**: Bug fixes and patches (e.g., `fix/CDT-13-header-padding`).
+
+### Branch Naming
+- **Community Contributors:** Name your branch after the feature or the GitHub Issue:
+  - `feature/<short-description>` or `feature/<issue-number>-<short-description>` (e.g., `feature/custom-empty-view`, `feature/5-empty-state`)
+  - `fix/<short-description>` or `fix/<issue-number>-<short-description>` (e.g., `fix/8-padding-overflow`)
+- **Core Team (Jira):** `feature/CDT-<ticket>-<desc>` or `fix/CDT-<ticket>-<desc>` (e.g., `feature/CDT-12-custom-cell-align`).
 
 ---
 
@@ -32,7 +36,8 @@ We follow a Git Flow branching model:
 3. **Checkout `dev` and create your branch:**
    ```bash
    git checkout dev
-   git checkout -b feature/CDT-xxx-your-feature-name
+   git checkout -b feature/your-feature-name
+   # or with an issue number: git checkout -b feature/5-your-feature-name
    ```
 4. **Install dependencies:**
    ```bash
@@ -80,14 +85,19 @@ Before submitting a pull request, make sure your code passes all CI checks:
 We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification:
 
 ```
-<type>(<scope>): [<TICKET_ID>] <short description in imperative mood>
+<type>(<scope>): [<OPTIONAL_TICKET_OR_ISSUE>] <short description in imperative mood>
 ```
 
-**Examples:**
-- `feat(theme): [CDT-14] add support for custom column borders`
-- `fix(filters): [CDT-15] resolve date picker range overflow on small screens`
-- `docs(readme): [CDT-16] update usage snippet with pagination info`
-- `test(table): [CDT-17] add widget test for horizontal scroll controller`
+- **For Community Contributors:**
+  - If resolving a GitHub Issue, reference the issue number:
+    `feat(table): [#5] add empty state placeholder` *(GitHub will automatically link the issue)*
+  - If not tied to an existing issue, the ticket reference is omitted:
+    `feat(theme): add dark mode alternate row colors`
+    `fix(filters): resolve date picker range overflow on small screens`
+- **For Core Team (Jira):**
+  - Use your internal Jira ticket ID:
+    `feat(theme): [CDT-14] add support for custom column borders`
+    `fix(scroll): [CDT-18] sync horizontal headers on trackpad swipe`
 
 ---
 
@@ -95,7 +105,7 @@ We follow the [Conventional Commits](https://www.conventionalcommits.org/) speci
 
 1. Push your branch to your GitHub fork:
    ```bash
-   git push -u origin feature/CDT-xxx-your-feature-name
+   git push -u origin feature/your-feature-name
    ```
 2. Open a Pull Request targeting the **`dev`** branch (never `main` directly).
 3. Fill out the PR description with:
