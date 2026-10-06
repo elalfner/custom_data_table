@@ -1,0 +1,61 @@
+name: Flutter Package CI
+
+on:
+  push:
+    branches: [ main, master, dev ]
+  pull_request:
+    branches: [ main, master, dev ]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.head_ref || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Analyze, Test & Dry-Run
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.38.7'
+          channel: 'stable'
+          cache: true
+          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:"
+
+      - name: Cache Pub Dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Install Package Dependencies
+        run: flutter pub get
+
+      - name: Verify Code Formatting
+        run: dart format --output=none --set-exit-if-changed .
+
+      - name: Run Static Code Analysis
+        run: flutter analyze --fatal-infos
+
+      - name: Run Package Tests
+        run: flutter test
+
+      - name: Verify pub.dev Readiness (Dry-Run Only)
+        run: |
+          echo "Simulating package publication to pub.dev (Strict Dry-Run, NO upload)..."
+          dart pub publish --dry-run
+
+      - name: Validate Example App
+        run: |
+          echo "Validating example application..."
+          cd example
+          flutter pub get
+          flutter analyze --no-fatal-infos --no-fatal-warnings

@@ -4,6 +4,7 @@
 *.pyc
 *.swp
 .DS_Store
+**/.DS_Store
 .atom/
 .buildlog/
 .history
@@ -16,10 +17,9 @@ migrate_working_dir/
 *.iws
 .idea/
 
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
+# Visual Studio Code
+.vscode/
+!.vscode/settings.json
 
 # Flutter/Dart/Pub related
 # Libraries should not include pubspec.lock, per https://dart.dev/guides/libraries/private-files#pubspeclock.
@@ -28,5 +28,18 @@ migrate_working_dir/
 .dart_tool/
 .packages
 build/
+**/build/
+.flutter-plugins
 .flutter-plugins-dependencies
-.vscode/launch.json
+
+# Android / iOS / Native artifacts
+local.properties
+**/local.properties
+*.jks
+*.keystore
+key.properties
+**/Pods/
+**/.symlinks/
+
+# Agent runtime cache
+.agent/

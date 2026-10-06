@@ -104,7 +104,7 @@ class _CustomFiltersState extends State<CustomFilters> {
               size: 14,
             ),
             onDeleted: () {
-              this.dateFilter = null;
+              dateFilter = null;
               setState(() {});
 
               notifyDateFilterChange();

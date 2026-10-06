@@ -1,0 +1,19 @@
+# Exclude development and workspace tooling from published package
+.agent/
+openspec/
+.idea/
+.vscode/
+.dart_tool/
+build/
+**/build/
+android/
+ios/
+linux/
+macos/
+windows/
+web/
+*.iml
+*.ipr
+*.iws
+.DS_Store
+**/.DS_Store

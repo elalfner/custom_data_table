@@ -1,7 +1,15 @@
 name: custom_data_table
-description: A new Flutter package project.
-version: 3.0.5
-homepage:
+description: A customizable Flutter DataTable with bi-directional scrolling, advanced date/month filtering, pagination, and dynamic theme support.
+version: 3.0.6
+homepage: https://github.com/elalfner/custom_data_table
+repository: https://github.com/elalfner/custom_data_table
+issue_tracker: https://github.com/elalfner/custom_data_table/issues
+topics:
+  - datatable
+  - table
+  - ui
+  - data-grid
+  - widgets
 
 environment:
   sdk: ">=2.19.1 <4.0.0"
