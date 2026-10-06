@@ -1,42 +1,35 @@
 import 'package:flutter/material.dart';
 
-/// Funciones adicionales al DateTime.
+/// Extension methods for [DateTime] utilities.
 extension DateExtension on DateTime {
-  /// Deja la pura fecha y elimina el tiempo.
+  /// Strips time components and returns only the date portion (midnight).
   DateTime get onlyDate => DateTime(year, month, day);
 
-  /// Deja solo el mes y año.
+  /// Strips day and time components, returning only the year and month.
   DateTime get onlyMonth => DateTime(year, month);
 
-  /// Deja solo el año.
+  /// Strips month, day, and time components, returning only the year.
   DateTime get onlyYear => DateTime(year);
 
-  /// Deja solo el tiempo y elimina la fecha.
+  /// Strips date components and returns only the time portion.
   DateTime get onlyTime => DateTime(0, 0, 0, hour, minute, second);
 
-  /// Deja solo el tiempo y lo convierte a [TimeOfDay].
+  /// Converts the time portion into a [TimeOfDay] instance.
   TimeOfDay get timeOfDay => TimeOfDay(hour: hour, minute: minute);
 
-  /// Comprueba si la fecha proporcionada esta entre dos fechas.
+  /// Checks if this date falls strictly between [from] and [to].
   ///
-  /// [from] fecha inicial.
-  /// [to] fecha final.
-  ///
-  /// Devuelve `true` si esta entre las dos fechas.
+  /// Returns `true` if this date is after [from] and before [to].
   bool isBetween(DateTime? from, DateTime? to) {
     if (from == null || to == null) return false;
 
     return from.isBefore(this) && to.isAfter(this);
   }
 
-  /// Comprueba si la fecha proporcionada esta entre dos fechas incluyendo
-  /// las fechas de inicio y fin.
+  /// Checks if this date falls between [from] and [to], inclusive of boundaries.
   ///
-  /// [from] fecha inicial.
-  /// [to] fecha final.
-  ///
-  /// Devuelve `true` si esta entre las dos fechas incluyendo las fechas de
-  /// inicio y fin.
+  /// Returns `true` if this date is equal to [from], equal to [to],
+  /// or strictly between them.
   bool isBetweenIncluding(DateTime? from, DateTime? to) {
     if (from == null || to == null) return false;
 
@@ -45,53 +38,25 @@ extension DateExtension on DateTime {
         from.isBefore(this) && to.isAfter(this);
   }
 
-  /// Devuelve la fecha final del dia.
+  /// Returns the end of the day (`23:59:59.999`).
   DateTime get endOfDay => onlyDate
       .add(const Duration(days: 1))
       .subtract(const Duration(milliseconds: 1));
 
-  /// Devuelve la fecha final del mes.
+  /// Returns the end of the month (`YYYY-MM-lastDay 23:59:59.999`).
   DateTime get endOfMonth => onlyMonth
       .copyWith(month: month + 1)
       .subtract(const Duration(milliseconds: 1));
 
-  /// Devuelve la fecha final del año.
+  /// Returns the end of the year (`YYYY-12-31 23:59:59.999`).
   DateTime get endOfYear => onlyYear
       .copyWith(year: year + 1)
       .subtract(const Duration(milliseconds: 1));
 
-  /// Devuelve la fecha inicial de la semana.
-  ///
-  /// La semana empieza el dia lunes.
-  ///
-  /// Ejemplo:
-  /// ```dart
-  /// final date = DateTime(2022, 1, 1);
-  /// final startOfWeek = date.startOfWeek;
-  /// ```
-  ///
-  /// Devuelve `DateTime(2022, 1, 1)`.
-  ///
-  /// Otro ejemplo:
-  /// ```dart
-  /// final date = DateTime(2022, 1, 2);
-  /// final startOfWeek = date.startOfWeek;
-  /// ```
-  ///
-  /// Devuelve `DateTime(2022, 1, 1)`.
+  /// Returns the start of the week (Monday at midnight).
   DateTime get startOfWeek => onlyDate.subtract(Duration(days: weekday - 1));
 
-  /// Devuelve la fecha final de la semana.
-  ///
-  /// La semana termina el dia domingo.
-  ///
-  /// Ejemplo:
-  /// ```dart
-  /// final date = DateTime(2022, 1, 1);
-  /// final endOfWeek = date.endOfWeek;
-  /// ```
-  ///
-  /// Devuelve `DateTime(2022, 1, 7)`.
+  /// Returns the end of the week (Sunday at `23:59:59.999`).
   DateTime get endOfWeek => startOfWeek
       .add(const Duration(days: DateTime.daysPerWeek))
       .subtract(const Duration(milliseconds: 1));

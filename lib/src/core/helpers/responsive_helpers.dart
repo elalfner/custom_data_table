@@ -3,32 +3,29 @@ import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
-/// Funciones que permiten definir de que tamaño es la pantalla de dispositivo
-/// y que tipo de layout debe de mostrar (Celular, Tablet, Escritorio) y con sus
-/// respectivas orientaciones de pantalla.
+/// Helper utilities to determine device screen sizes and responsive layouts
+/// (Mobile, Tablet, Desktop) across different device orientations.
 
-/// Breakpoints de ancho de pantalla para determinar el tipo de dispositivo que se está
-/// usando.
-
+/// Screen width breakpoints for responsive layout detection.
 const int largeScreenSize = 1366;
 const int mediumScreenSize = 700;
 const int smallScreenSize = 360;
 
-/// Define los posibles tamaños de pantalla, divididos en pequeño, mediano y grande.
+/// Represents responsive screen size categories: small, medium, and large.
 enum ScreenSize {
-  /// Celulares.
+  /// Mobile devices.
   small,
 
-  /// Tablets y escritorios pequeños.
+  /// Tablets and compact desktop windows.
   medium,
 
-  /// Tamaño de escritorio.
+  /// Full desktop screens.
   large,
 }
 
-/// Funciones adicionales al tamaño de la pantalla.
+/// Extension methods for [ScreenSize] layout properties.
 extension ScreenSizeExtension on ScreenSize {
-  /// Obtiene el padding que debe de tener la pantalla dependiendo de su tamaño.
+  /// Returns the recommended screen padding based on device size.
   double get padding {
     switch (this) {
       case ScreenSize.small:
@@ -41,30 +38,25 @@ extension ScreenSizeExtension on ScreenSize {
   }
 }
 
-/// Funciones adicionales al contexto.
+/// Extension methods for responsive queries on [BuildContext].
 extension ContextExtension on BuildContext {
-  /// Obtiene el tipo de pantalla en la que se está mostrando la vista.
+  /// Determines the active [ScreenSize] category for this context.
   ScreenSize get screenSize {
-    // Obtiene los valores de tamaños de la pantalla.
     double width = MediaQuery.of(this).size.width;
     double height = MediaQuery.of(this).size.height;
 
-    // Si el ancho de la pantalla es menor del breakpoint de pantalla mediana, la
-    // pantalla es de tamaño pequeño.
-    // Si la pantalla se está corriendo en celular en modo horizontal la primera
-    // condición no entra (ya que es tamaño de ancho mediano) entonces hay que comprobar
-    // que el alto de pantalla debe de ser menor a cierto valor para considerarse
-    // tamaño de pantalla pequeño.
+    // If screen width is below medium breakpoint, consider it small.
+    // In landscape on mobile, width might exceed mediumScreenSize,
+    // so also check height constraints.
     if (width < mediumScreenSize ||
         ((kIsWeb || Platform.isIOS || Platform.isAndroid) && height < 450)) {
       return ScreenSize.small;
     }
 
-    // Si el ancho de la pantalla es menor del breakpoint de pantalla grande, la
-    // pantalla es de tamaño mediano.
+    // If screen width is below large breakpoint, consider it medium.
     if (width < largeScreenSize) return ScreenSize.medium;
 
-    // Si no entra en ninguna condición, entonces la pantalla es grande.
+    // Otherwise, treat as large screen.
     return ScreenSize.large;
   }
 }

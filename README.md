@@ -1,24 +1,51 @@
 # CustomDataTable
 
-[![pub package](https://img.shields.io/pub/v/custom_data_table.svg)](https://pub.dev/packages/custom_data_table)
-[![License: MIT](https://img.shields.io/badge/license-MIT-purple.svg)](https://opensource.org/licenses/MIT)
+<p align="center">
+  <strong>The ultimate high-performance, enterprise-ready, and deeply customizable DataTable for Flutter.</strong>
+</p>
 
-A powerful, customizable, and responsive Flutter DataTable designed to handle large datasets effortlessly. Features synchronized bi-directional scrolling, column search inputs, multi-range date and month filtering, pagination, and complete theme customization.
-
----
-
-## Features
-
-- ↔️ **Bi-directional Synchronized Scrolling**: Smooth horizontal and vertical scrolling for wide tables with frozen or synchronized headers.
-- 🔍 **Integrated Column Search**: Search inputs embedded directly in each column header with real-time filtering callbacks.
-- 📅 **Advanced Date & Month Pickers**: Built-in dialogs for single date, date ranges, and month picker filtering.
-- 📄 **Pagination & Footer Controls**: Customizable table footer displaying total count, current page, and page selector.
-- 🎨 **Extensive Theming (`DatatableThemeData`)**: Full control over header background, row striping, borders, typography, and padding.
-- 🌐 **Localization Ready**: Built-in support for English and Spanish formats and date localizations.
+<p align="center">
+  <a href="https://pub.dev/packages/custom_data_table"><img src="https://img.shields.io/pub/v/custom_data_table.svg" alt="Pub Version"></a>
+  <a href="https://pub.dev/packages/custom_data_table/score"><img src="https://img.shields.io/pub/points/custom_data_table.svg" alt="Pub Points"></a>
+  <a href="https://pub.dev/packages/custom_data_table"><img src="https://img.shields.io/pub/likes/custom_data_table.svg" alt="Pub Likes"></a>
+  <a href="https://opensource.org/licenses/MIT"><img src="https://img.shields.io/badge/license-MIT-purple.svg" alt="License: MIT"></a>
+  <img src="https://img.shields.io/badge/platform-flutter%20%7C%20android%20%7C%20ios%20%7C%20web%20%7C%20macos%20%7C%20windows%20%7C%20linux-blue.svg" alt="Platforms">
+</p>
 
 ---
 
-## Getting Started
+## 🚀 Why CustomDataTable?
+
+Building complex data grids, admin dashboards, and enterprise reporting screens in Flutter can be difficult. Flutter's default `DataTable` and `PaginatedDataTable` often fall short when you need per-column search, pinned headers, smart responsive column weighting, or deep brand theming.
+
+**CustomDataTable** is designed from the ground up to give developers full control over their data presentation with zero compromises:
+
+| Feature | Standard Flutter `DataTable` | **CustomDataTable** |
+| :--- | :---: | :---: |
+| **Integrated Column Search** | ❌ Build it yourself | ✅ **Live search inputs inside headers** |
+| **Synchronized Scrolling** | ❌ Complex / Desynchronized | ✅ **Bi-directional with locked headers** |
+| **Responsive Column Weights (`flex`)** | ❌ Rigid pixel widths | ✅ **Proportional `flex` + min-width safeguard** |
+| **Fixed Width Columns (`hasFixedWidth`)** | ❌ Limited | ✅ **Lock IDs, checkboxes, or actions in place** |
+| **Domain Model Mapping** | ⚠️ Manual cell mapping | ✅ **Generic `CustomDataTable<T>` native support** |
+| **100% Custom Cells & Rows** | ⚠️ Rigid data cells | ✅ **Inject any widget (`cell` & `rowBuilder`)** |
+| **Excel / Sheets Export** | ❌ Not included | ✅ **One-click tab-separated clipboard copy** |
+| **Column Visibility Selector** | ❌ Custom implementation needed | ✅ **Built-in Show/Hide columns modal dialog** |
+| **Built-in Search Debounce** | ❌ Manual streams/timers | ✅ **Automatic 500ms debounce protects APIs** |
+| **Date & Calendar Filters** | ❌ None | ✅ **Dialogs for Day, Week, Month, Year & Time** |
+| **App-Wide Theming** | ⚠️ Basic styling only | ✅ **`CustomDatatableTheme` via Provider** |
+| **Internationalization (i18n)** | ❌ Manual boilerplate | ✅ **English & Spanish built-in** |
+
+---
+
+## 📸 Style Showcase & Brand Integration
+
+`CustomDataTable` was architected so it **never looks like an out-of-place third-party widget**. It seamlessly adapts to your application's design system—whether Material 3, Cupertino, clean SaaS minimalism, or high-contrast corporate dark mode:
+
+> *Showcase gallery coming soon: Light Clean, Enterprise Dark, Modern Vibrant, and Compact Dashboard styles!*
+
+---
+
+## 📦 Installation
 
 Add `custom_data_table` to your `pubspec.yaml`:
 
@@ -35,54 +62,93 @@ flutter pub get
 
 ---
 
-## Usage
+## 💡 Quick Start: Type-Safe Domain Objects
 
-Here is a minimal example showing how to set up `CustomDataTable`:
+You don't need to manually transform your data into low-level rows and cells. Pass your typed model list (`List<T>`) directly to `CustomDataTable<T>`:
 
 ```dart
 import 'package:flutter/material.dart';
 import 'package:custom_data_table/custom_data_table.dart';
 
-class SimpleTablePage extends StatelessWidget {
-  const SimpleTablePage({super.key});
+// 1. Define your domain entity
+class User {
+  final int id;
+  final String name;
+  final String role;
+  final String status;
+
+  const User({
+    required this.id,
+    required this.name,
+    required this.role,
+    required this.status,
+  });
+}
+
+// 2. Render with CustomDataTable<User>
+class UsersTablePage extends StatelessWidget {
+  const UsersTablePage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final users = [
+      const User(id: 1, name: 'Alice Smith', role: 'Lead Architect', status: 'Active'),
+      const User(id: 2, name: 'Bob Jones', role: 'Product Designer', status: 'Pending'),
+      const User(id: 3, name: 'Charlie Brown', role: 'DevOps Engineer', status: 'Active'),
+    ];
+
     return Scaffold(
-      appBar: AppBar(title: const Text('CustomDataTable Demo')),
-      body: CustomDataTable<Map<String, String>>(
+      appBar: AppBar(title: const Text('Team Directory')),
+      body: CustomDataTable<User>(
+        // Define columns with responsive widths, flex weights, and search capabilities
         columns: [
           ColumnInfo(
             key: 'id',
             name: 'ID',
-            width: 80,
+            width: 70,
+            hasFixedWidth: true, // Fixed width: stays exactly 70px
           ),
           ColumnInfo(
             key: 'name',
-            name: 'Name',
+            name: 'Full Name',
             width: 180,
-            canSearchInput: true,
+            flex: 3,              // Flex weight: takes 3x more space proportionally
+            canSearchInput: true,  // Adds real-time search input inside header
           ),
           ColumnInfo(
             key: 'role',
             name: 'Role',
             width: 150,
+            flex: 2,
+          ),
+          ColumnInfo(
+            key: 'status',
+            name: 'Status',
+            width: 120,
+            flex: 1,
           ),
         ],
-        data: const [
-          {'id': '1', 'name': 'Alice', 'role': 'Admin'},
-          {'id': '2', 'name': 'Bob', 'role': 'Member'},
-        ],
-        paginatorInfo: PaginatorInfo(
-          lastPage: 1,
-          currentPage: 1,
-          perPage: 10,
-          total: 2,
-        ),
-        toMap: (element) => element,
-        onTapRow: (element) {
-          debugPrint('Tapped row: $element');
+        data: users,
+        // Map your typed entity properties to column keys
+        toMap: (user) => {
+          'id': user.id,
+          'name': user.name,
+          'role': user.role,
+          'status': user.status,
         },
+        // Interactive row tap callback with Material ripple effect
+        onTapRow: (user) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('Selected user: ${user.name}')),
+          );
+        },
+        // Pagination configuration
+        paginatorInfo: PaginatorInfo(
+          currentPage: 1,
+          lastPage: 1,
+          perPage: 10,
+          total: users.length,
+        ),
       ),
     );
   }
@@ -91,41 +157,230 @@ class SimpleTablePage extends StatelessWidget {
 
 ---
 
-## Theming
+## 📐 Smart Responsive Column Layout
 
-Wrap `CustomDataTable` or your app root with `DatatableTheme` to customize colors, fonts, and dimensions:
+`CustomDataTable` features an intelligent two-tier responsive sizing algorithm:
+
+1. **Proportional Distribution on Wide Screens**:
+   On Desktop, Web, or Tablet screens, columns expand smoothly to fill the container according to their `flex` weight (or `width`).
+2. **Fixed Columns (`hasFixedWidth: true`)**:
+   Mark columns as fixed when you want precise pixel dimensions that never stretch (e.g., Checkboxes, IDs, Status badges, Action buttons).
+3. **Graceful Horizontal Scroll on Mobile**:
+   When the screen width becomes narrower than the combined minimum widths of all columns, `CustomDataTable` automatically switches to synchronized horizontal scrolling without truncating content or overflowing the screen.
 
 ```dart
-DatatableTheme(
-  data: DatatableThemeData(
-    headerColor: const Color(0xFF1E293B),
-    headerTextColor: Colors.white,
-    rowColor1: Colors.white,
-    rowColor2: const Color(0xFFF8FAFC),
-    columnHeaderHeight: 48,
-  ),
-  child: CustomDataTable(
-    // ...
-  ),
+// Fixed width column (e.g., actions toolbar)
+ColumnInfo(
+  key: 'actions',
+  name: 'Actions',
+  width: 90,
+  hasFixedWidth: true, // Remains exactly 90px wide
+)
+
+// Flexible column (e.g., description or remarks)
+ColumnInfo(
+  key: 'description',
+  name: 'Description',
+  width: 200,
+  flex: 4, // Dynamically expands to absorb available space
 )
 ```
 
 ---
 
-## Example App
+## 🧩 100% Customizable Cells & Rows: Any Widget You Want
 
-For a full working demonstration with mock user data, filter dialogs, date range selections, and pagination, check out the [`example/`](https://github.com/elalfner/custom_data_table/tree/main/example) directory included in the repository.
+Unlike standard tables where cells are restricted to plain text, `CustomDataTable` lets you inject **any Flutter widget** into any cell or wrap entire rows with zero boilerplate.
 
-To run the example locally:
+### 1. Custom Cell Rendering (`cell`)
+Return custom widgets for specific columns, or return `null` to use default styled text:
 
-```bash
-cd example
-flutter pub get
-flutter run
+```dart
+CustomDataTable<User>(
+  // ...
+  cell: (user, map, key) {
+    switch (key) {
+      // 🟢 Status Badge with dynamic colors
+      case 'status':
+        final isActive = user.status == 'Active';
+        return Chip(
+          avatar: Icon(isActive ? Icons.check_circle : Icons.schedule, size: 16),
+          label: Text(user.status),
+          backgroundColor: isActive ? Colors.green.shade50 : Colors.amber.shade50,
+          labelStyle: TextStyle(
+            color: isActive ? Colors.green.shade900 : Colors.amber.shade900,
+            fontWeight: FontWeight.w600,
+            fontSize: 12,
+          ),
+        );
+
+      // 👤 Avatar + User Details in a single cell
+      case 'name':
+        return Row(
+          children: [
+            CircleAvatar(
+              radius: 14,
+              child: Text(user.name[0]),
+            ),
+            const SizedBox(width: 8),
+            Text(user.name, style: const TextStyle(fontWeight: FontWeight.w600)),
+          ],
+        );
+
+      // 🔘 Action Buttons
+      case 'actions':
+        return Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit_outlined, size: 18),
+              onPressed: () => editUser(user),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete_outline, size: 18, color: Colors.red),
+              onPressed: () => deleteUser(user),
+            ),
+          ],
+        );
+
+      // Default: return null to let CustomDataTable render the styled text
+      default:
+        return null;
+    }
+  },
+)
+```
+
+### 2. Wrap Entire Rows (`rowBuilder`)
+Want swipe-to-delete, right-click desktop menus, or hover tooltips? Wrap the row widget using `rowBuilder`:
+
+```dart
+CustomDataTable<User>(
+  // ...
+  rowBuilder: (user, child) {
+    return Dismissible(
+      key: ValueKey(user.id),
+      direction: DismissDirection.endToStart,
+      background: Container(
+        color: Colors.red,
+        alignment: Alignment.centerRight,
+        padding: const EdgeInsets.only(right: 20),
+        child: const Icon(Icons.delete, color: Colors.white),
+      ),
+      onDismissed: (_) => deleteUser(user),
+      child: Tooltip(
+        message: 'Click row to view profile for ${user.name}',
+        child: child, // The pre-styled, interactive row
+      ),
+    );
+  },
+)
 ```
 
 ---
 
-## License
+## ⚡ Enterprise Features Out-of-the-Box
+
+`CustomDataTable` includes enterprise utilities that would otherwise take weeks to build:
+
+* 📋 **One-Click Copy to Excel & Google Sheets**:
+  Clicking the copy button (`canCopy: true`) formats headers and filtered rows separated by tabs (`\t`) and newlines (`\n`). Paste directly into Excel, Google Sheets, or Apple Numbers with perfect column alignment!
+* 👁️ **Dynamic Column Visibility (Show / Hide Columns)**:
+  Built-in modal dialog allows users to toggle which columns they want visible on the fly.
+* ⏱️ **Automatic 500ms Search Debounce**:
+  Built-in debouncers buffer keystrokes in search inputs, preventing query storms against your backend APIs and databases.
+* 🎛️ **Programmatic Table Control (`TableController`)**:
+  Reset and clear all column search filters programmatically from external buttons:
+  ```dart
+  final tableController = TableController();
+  // Clear all filters:
+  tableController.clearColumnSearchFields();
+  ```
+* 📅 **Multi-Mode Date & Calendar Pickers (`DateSelection`)**:
+  Built-in modal pickers for **Today**, **This Week**, **By Date**, **By Month** (dedicated month picker), **By Year**, and **Period of Time** with start and end times.
+* 🏷️ **Faceted Filter Sections (`filterSections`)**:
+  Group filters into categories (e.g. Department, Status, Priority). Active filters are displayed as dismissible chips with a "Clear all" action.
+* 🌐 **Web-Optimized (`PointerInterceptor`)**:
+  Dialogs and popups include pointer interception to avoid Web iframe/HTML element click-through bugs.
+
+---
+
+## 🎨 Global & Local Theming
+
+### Option 1: Global App-Wide Theme (Recommended)
+Define your table styling once at the root of your application. All `CustomDataTable` instances throughout your app will automatically inherit your branding:
+
+```dart
+MaterialApp(
+  builder: (context, child) {
+    return CustomDatatableTheme(
+      data: CustomDatatableThemeData(
+        columnHeaderHeight: 48,
+        tableDecoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey.shade200),
+        ),
+        headerDecoration: BoxDecoration(
+          color: const Color(0xFF1E293B), // Slate 800
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+        ),
+        columnTitleTextStyle: const TextStyle(
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          fontSize: 13,
+        ),
+        evenRowTheme: RowTheme(
+          decoration: const BoxDecoration(color: Colors.white),
+        ),
+        oddRowTheme: RowTheme(
+          decoration: BoxDecoration(color: Colors.grey.shade50), // Alternating zebra striping
+        ),
+        rowPadding: const EdgeInsets.symmetric(horizontal: 16),
+      ),
+      child: child!,
+    );
+  },
+  home: const UsersTablePage(),
+);
+```
+
+### Option 2: Local Table Override
+Override styling for an individual table by wrapping it in a local `CustomDatatableTheme`:
+
+```dart
+CustomDatatableTheme(
+  data: Theme.of(context).readDataTableTheme?.copyWith(
+    columnHeaderHeight: 56,
+  ) ?? CustomDatatableThemeData(),
+  child: CustomDataTable(...),
+)
+```
+
+---
+
+## 🌍 Internationalization (i18n)
+
+`CustomDataTable` includes native localization out of the box:
+* 🇺🇸 **English (`en`)**
+* 🇪🇸 **Spanish (`es`)**
+
+All pagination summaries (*"showing 1 to 10 of 100 results"*), search inputs, date dialogs (*"today"*, *"this week"*, *"select date"*), and column options automatically adapt to the active app `Locale`.
+
+> *Want to add French, German, or Portuguese? Translations are easy to add in `lib/l10n/`. Community contributions are welcome!*
+
+---
+
+## 🤝 Contributing, Bugs & Feature Requests
+
+We welcome feedback, suggestions, and contributions!
+
+* **Found a bug?** Open an issue using our [Bug Report Template](https://github.com/elalfner/custom_data_table/issues/new?template=bug_report.md).
+* **Need a feature?** Propose ideas via our [Feature Request Template](https://github.com/elalfner/custom_data_table/issues/new?template=feature_request.md).
+* **Want to contribute code?** Check out our [Contributing Guide (CONTRIBUTING.md)](CONTRIBUTING.md) to learn about our Git Flow and verification standards.
+
+---
+
+## 📄 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

@@ -723,8 +723,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
                                     scaffoldMessenger.showSnackBar(
                                       const SnackBar(
-                                        content:
-                                            Text('Copiado al portapapeles'),
+                                        content: Text('Copied to clipboard'),
                                       ),
                                     );
                                   },
