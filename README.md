@@ -359,6 +359,58 @@ CustomDatatableTheme(
 
 ---
 
+## 💡 Layout Guidelines & Best Practices
+
+To ensure smooth rendering and avoid common Flutter layout constraints pitfalls, keep these guidelines in mind:
+
+### 1. Bounded Height Constraints (`RenderFlex` & Dashboards)
+Like standard Flutter scrollable views and data grids, `CustomDataTable` uses vertical scroll virtualization internally. It requires bounded vertical constraints:
+
+* **Inside a `Column` (Admin Dashboards / Full Screens):** Wrap `CustomDataTable` in an `Expanded` or `Flexible`:
+  ```dart
+  Column(
+    children: [
+      const DashboardHeader(),
+      Expanded(
+        child: CustomDataTable<User>(...),
+      ),
+    ],
+  )
+  ```
+
+* **Inside a vertically scrolling page (`SingleChildScrollView` / `ListView`):** Give the table a defined boundary:
+  ```dart
+  SingleChildScrollView(
+    child: Column(
+      children: [
+        const SummaryCards(),
+        SizedBox(
+          height: 600, // Explicit height boundary
+          child: CustomDataTable<User>(...),
+        ),
+      ],
+    ),
+  )
+  ```
+
+### 2. Multi-line Cells & Custom Row Heights
+By default, standard row height is calibrated for single-line text (`38px`). If your cells contain multi-line text, avatar groups, or tall badge chips, set `dataRowHeight` in your theme to match your design:
+
+```dart
+CustomDatatableTheme(
+  data: CustomDatatableThemeData(
+    dataRowHeight: 64, // Accommodates multi-line content or avatars
+  ),
+  child: CustomDataTable<User>(...),
+)
+```
+
+### 3. Locking vs. Flexing Columns
+* **Fixed Width (`hasFixedWidth: true`):** Use for ID columns, checkbox selectors, status indicators, and action button toolbars that should remain exactly at their assigned pixel width.
+* **Proportional Weight (`flex: N`):** Use for text-heavy columns (Names, Descriptions, Emails) so they expand proportionally to fill available space on wide screens.
+
+---
+
 ## 🌍 Internationalization (i18n)
 
 `CustomDataTable` includes native localization out of the box:
