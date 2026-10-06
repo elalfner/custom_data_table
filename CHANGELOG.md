@@ -1,43 +1,17 @@
 # Changelog
 
-All notable changes to this project will be documented in this file.
+All notable changes to the `custom_data_table` package will be documented in this file.
+This project adheres to [Semantic Versioning](https://semver.org/).
 
 ## 3.0.6
 
-* **Pub.dev Readiness**: Added official MIT License, comprehensive documentation, and pub.dev compliant metadata.
-* **Continuous Integration**: Added GitHub Actions CI workflow with Flutter 3.38.7 and Pub caching.
-* **Testing**: Added widget and unit test suite for `CustomDataTable` and date helper entities.
-* **Maintenance**: Sanitized `.gitignore` and aligned repository URLs.
+Initial public release of `custom_data_table` on pub.dev.
 
-## 3.0.5
-
-* **Feature**: Added `onTapRow` callback to `CustomDataTable`.
-* **Fix**: Fixed row builder rendering and alignment.
-
-## 3.0.4
-
-* **Feature**: Initialize `CustomDataTable` search state when `generalSearchController` has initial text.
-* **Maintenance**: Version bump and internal fixes.
-
-## 3.0.3
-
-* **Feature**: Added `DateSelection.fromDates` factory for intelligent date range selection.
-* **Refactor**: Refined `DateTime` extension methods for accurate month and year end calculations.
-
-## 3.0.2
-
-* **Refactor**: Adjusted table footer's result count display to show total items.
-* **Fix**: Fixed typo in `resultsNumberWidget`.
-
-## 3.0.1
-
-* **Refactor**: Internal improvements in theme handling and cell padding adjustments.
-
-## 3.0.0
-
-* **Breaking**: Migrated internal architecture to clean architecture structure.
-* **Feature**: Column search inputs integrated directly into table headers.
-* **Feature**: Bi-directional synchronized scrolling for extensive datasets.
-* **Feature**: Advanced date and month filtering dialogs with `DateSelection`.
-* **Feature**: Customizable theming via `DatatableTheme` and `DatatableThemeData`.
-* **Feature**: Responsive table footer with pagination support.
+### Key Capabilities
+* **Interactive Rows**: Handle row taps via `onTapRow: (element) => ...` with built-in Material ink ripple effects, or customize row layouts using `rowBuilder`.
+* **Integrated Column Search**: Search inputs embedded directly inside column headers for instant, per-column filtering.
+* **Pre-Populated Search**: Support for pre-filled `generalSearchController` and `ColumnInfo.initialSearchValue` that filters data immediately upon initial render.
+* **Smart Date Filtering**: Built-in `DateSelection` dialogs with intelligent range detection (single date, month, year, or custom period).
+* **Synchronized Bi-Directional Scrolling**: Smooth horizontal and vertical scrolling with pinned headers for wide datasets.
+* **Fully Customizable Theming**: Configure colors, alternating row striping, borders, paddings, and header styles via `DatatableThemeData`.
+* **Responsive Pagination Footer**: Built-in footer supporting page navigation, customizable rows-per-page options, and formatted item count summaries.
