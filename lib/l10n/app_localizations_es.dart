@@ -1,10 +1,12 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
 
 /// The translations for Spanish Castilian (`es`).
-class AppLocalizationsEs extends DataTableLocalizations {
-  AppLocalizationsEs([String locale = 'es']) : super(locale);
+class DataTableLocalizationsEs extends DataTableLocalizations {
+  DataTableLocalizationsEs([String locale = 'es']) : super(locale);
 
   @override
   String get showing => 'mostrando';
@@ -37,12 +39,6 @@ class AppLocalizationsEs extends DataTableLocalizations {
   String get search => 'buscar';
 
   @override
-  String get searchAdjective => 'búsqueda';
-
-  @override
-  String get filterSearch => 'filtrar búsqueda';
-
-  @override
   String get clearFilters => 'limpiar filtros';
 
   @override
@@ -73,16 +69,10 @@ class AppLocalizationsEs extends DataTableLocalizations {
   String get select => 'Seleccionar';
 
   @override
-  String get resultsTitle => 'listado';
-
-  @override
-  String get showHideColumns => 'Mostrar/Ocultar columnas';
-
-  @override
-  String get moreOptions => 'más opciones';
-
-  @override
   String get copy => 'copiar';
+
+  @override
+  String get copiedToClipboard => 'Copiado al portapapeles';
 
   @override
   String get print => 'imprimir';
@@ -91,19 +81,7 @@ class AppLocalizationsEs extends DataTableLocalizations {
   String get export => 'exportar';
 
   @override
-  String get all => 'todos';
-
-  @override
   String get thisWeek => 'Esta semana';
-
-  @override
-  String get clearAll => 'limpiar todo';
-
-  @override
-  String get showingAll => 'mostrando todo';
-
-  @override
-  String get selectedColumns => 'columnas seleccionadas';
 
   @override
   String get columnsToShow => 'columnas a mostrar';

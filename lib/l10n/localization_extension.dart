@@ -12,13 +12,13 @@ extension BuildContextExtension on BuildContext {
         .firstOrNull;
     try {
       return DataTableLocalizations.of(this) ??
-          lookupAppLocalizations(
+          lookupDataTableLocalizations(
             (languageCode == null ? null : Locale(languageCode)) ??
                 const Locale('en'),
           );
     } catch (_) {
       return DataTableLocalizations.of(this) ??
-          lookupAppLocalizations(
+          lookupDataTableLocalizations(
             const Locale('en'),
           );
     }

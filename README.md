@@ -808,6 +808,25 @@ CustomDatatableTheme(
 
 All pagination summaries (*"showing 1 to 10 of 100 results"*), search inputs, date dialogs (*"today"*, *"this week"*, *"select date"*), and column options automatically adapt to the active app `Locale`.
 
+To enable these translations in your app, add the `DataTableLocalizations.localizationsDelegates` to your `MaterialApp`'s `localizationsDelegates` list, along with the standard `GlobalMaterialLocalizations.delegates`:
+
+```dart
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:custom_data_table/custom_data_table.dart';
+
+MaterialApp(
+  localizationsDelegates: const [
+    ...GlobalMaterialLocalizations.delegates,
+    ...DataTableLocalizations.localizationsDelegates,
+  ],
+  supportedLocales: const [
+    Locale('en'), // English
+    Locale('es'), // Spanish
+  ],
+  home: const MyHomePage(),
+);
+```
+
 > *Want to add French, German, or Portuguese? Translations are easy to add in `lib/l10n/`. Community contributions are welcome!*
 
 ---
