@@ -722,16 +722,24 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                         ].join('\t'),
                                     ].join('\n');
 
-                                    // Copy to clipboard.
-                                    await Clipboard.setData(
-                                        ClipboardData(text: copyValue));
+                                    try {
+                                      // Copy to clipboard.
+                                      await Clipboard.setData(
+                                          ClipboardData(text: copyValue));
 
-                                    scaffoldMessenger.showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                            appLocalizations.copiedToClipboard),
-                                      ),
-                                    );
+                                      scaffoldMessenger.showSnackBar(
+                                        SnackBar(
+                                          content: Text(appLocalizations
+                                              .copiedToClipboard),
+                                        ),
+                                      );
+                                    } on PlatformException catch (e) {
+                                      debugPrint(
+                                          'PlatformException during clipboard copy: $e');
+                                    } catch (e) {
+                                      debugPrint(
+                                          'Error during clipboard copy: $e');
+                                    }
                                   },
                               icon: const Icon(
                                 Icons.copy,

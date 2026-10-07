@@ -39,3 +39,12 @@ The documentation SHALL guide consumers on configuring `MaterialApp` with `Globa
 #### Scenario: Developer consults i18n instructions in README
 - **WHEN** a developer views the `README.md` internationalization section
 - **THEN** a runnable Flutter code sample demonstrates setting `localizationsDelegates: DataTableLocalizations.localizationsDelegates` and `supportedLocales: DataTableLocalizations.supportedLocales` in `MaterialApp`
+
+### Requirement: Resilient Clipboard Platform Error Handling
+The `CustomDataTable` SHALL handle clipboard platform failures gracefully without throwing unhandled exceptions or presenting false confirmation feedback.
+
+#### Scenario: Graceful handling of clipboard platform exception
+- **GIVEN** a table with clipboard copy enabled
+- **WHEN** the user invokes the copy action and the platform throws a `PlatformException` (e.g. browser focus or permission restriction)
+- **THEN** the exception is captured defensively without breaking the widget tree
+- **AND** the confirmation SnackBar is not displayed

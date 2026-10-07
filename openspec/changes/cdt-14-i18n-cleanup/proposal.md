@@ -9,18 +9,19 @@ Cleaning up dead localization keys, localizing the copy action feedback, and pro
 ## What Changes
 
 - **Localization Catalog Pruning**: Remove 9 obsolete, unreferenced translation keys (`all`, `clearAll`, `filterSearch`, `moreOptions`, `resultsTitle`, `searchAdjective`, `selectedColumns`, `showHideColumns`, `showingAll`) from `lib/l10n/app_en.arb` and `lib/l10n/app_es.arb`.
-- **Copy Action Localization**:
+- **Copy Action Localization & Resilience**:
   - Add `copiedToClipboard` key to both `app_en.arb` ("Copied to clipboard") and `app_es.arb` ("Copiado al portapapeles").
   - Update `CustomDataTable` copy action to display `context.appLocalizations.copiedToClipboard` in the `SnackBar`.
   - Add `tooltip: context.appLocalizations.copy.naturalCapitalized` to the copy `IconButton`.
+  - Wrap `Clipboard.setData(...)` and SnackBar display in a defensive `try-catch` block to handle browser focus / platform permission restrictions gracefully.
 - **Localization Code Regeneration**: Re-run Flutter's official localization generator tool to refresh `DataTableLocalizations` classes cleanly.
 - **Documentation Enhancement**: Update `README.md` to include clear setup instructions for `MaterialApp` localizations using `GlobalMaterialLocalizations.delegates` and `DataTableLocalizations.localizationsDelegates`.
-- **Automated Verification**: Ensure all widget and unit tests pass, static analysis has 0 warnings/errors, and test coverage covers the localized copy button and tooltip.
+- **Automated Verification**: Ensure all widget and unit tests pass, static analysis has 0 warnings/errors, and test coverage covers the localized copy button, tooltip, and clipboard error resilience.
 
 ## Capabilities
 
 ### New Capabilities
-- `table-localization`: Comprehensive localization support covering table toolbar actions (copy feedback, tooltips), ARB catalog hygiene, and host app delegate configuration.
+- `table-localization`: Comprehensive localization support covering table toolbar actions (copy feedback, tooltips), ARB catalog hygiene, host app delegate configuration, and platform clipboard resilience.
 
 ### Modified Capabilities
 <!-- None: existing capability specs do not cover table i18n -->

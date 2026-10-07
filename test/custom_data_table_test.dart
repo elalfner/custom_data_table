@@ -187,5 +187,54 @@ void main() {
 
       expect(find.text('Copiado al portapapeles'), findsOneWidget);
     });
+    testWidgets(
+        'Platform clipboard exceptions are handled gracefully without unhandled errors',
+        (tester) async {
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (MethodCall methodCall) async {
+          if (methodCall.method == 'Clipboard.setData') {
+            throw PlatformException(
+                code: 'CLIPBOARD_ERROR', message: 'Simulated clipboard error');
+          }
+          return null;
+        },
+      );
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          locale: const Locale('en'),
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: [ColumnInfo(key: 'id', name: 'ID', width: 60)],
+                data: const [
+                  {'id': '1'}
+                ],
+                paginatorInfo: PaginatorInfo(
+                    lastPage: 1, currentPage: 1, perPage: 10, total: 1),
+                toMap: (element) => element,
+                canCopy: true,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      final copyButton = find.widgetWithIcon(IconButton, Icons.copy);
+      expect(copyButton, findsOneWidget);
+
+      // Tap should not cause an unhandled exception
+      tester.widget<IconButton>(copyButton).onPressed!();
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 750));
+
+      expect(find.text('Copied to clipboard'), findsNothing);
+    });
   });
 }

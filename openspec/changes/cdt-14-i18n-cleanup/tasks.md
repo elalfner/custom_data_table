@@ -23,3 +23,8 @@
 - [x] 5.2 Run `dart format --output=none --set-exit-if-changed .`
 - [x] 5.3 Run `flutter analyze --fatal-infos` ensuring 0 warnings, 0 errors, and 0 infos
 - [x] 5.4 Run `flutter test` ensuring 100% passing tests
+
+## 6. Clipboard Resilience & Platform Error Handling [Iteration 1]
+
+- [x] 6.1 Wrap `Clipboard.setData` and copy confirmation SnackBar in a defensive `try-catch` block in `lib/src/presentation/widgets/custom_data_table.dart`
+- [x] 6.2 Add regression widget test in `test/custom_data_table_test.dart` verifying that platform clipboard exceptions are handled gracefully without unhandled errors

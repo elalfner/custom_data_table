@@ -36,9 +36,16 @@ Currently, the feedback message displayed when copying table data to the clipboa
 - **Decision**: Provide a dedicated code snippet in `README.md` showing both `DataTableLocalizations.localizationsDelegates` and `GlobalMaterialLocalizations.delegates`.
 - **Rationale**: `DataTableLocalizations.localizationsDelegates` already includes `GlobalMaterialLocalizations.delegate`, `GlobalCupertinoLocalizations.delegate`, and `GlobalWidgetsLocalizations.delegate`. Explaining this simplifies developer integration and guarantees localized date pickers and dialogs.
 
+### 4. Resilient Clipboard Error Handling (Review Iteration 1)
+- **Decision**: Enclose `Clipboard.setData(...)` and `scaffoldMessenger.showSnackBar(...)` in a `try-catch` block, logging any exception via `debugPrint`.
+- **Rationale**: On Flutter Web and secured sandboxed platforms, `Clipboard.setData()` throws a `PlatformException` if the browser tab lacks user-activation focus or if clipboard permissions are restricted. Without a defensive catch block, an unhandled exception is thrown, and the UI can become unresponsive. Furthermore, the confirmation SnackBar must only be displayed when copying successfully succeeds to prevent false-positive user feedback.
+- **Alternatives Considered**: Suppressing errors silently without logs. Rejected because diagnostic logging via `debugPrint` is vital for developers debugging web sandbox or permission restrictions.
+
 ## Risks / Trade-offs
 
 - **[Risk]**: Consumer applications relying on the 9 pruned keys on `DataTableLocalizations`.
   - **Mitigation**: Those keys were unreferenced remnants never consumed by `CustomDataTable` widgets. Removing them reduces catalog bloat and clarifies the actual library surface.
 - **[Risk]**: Regressions in test suite when accessing localized strings in widget tests.
   - **Mitigation**: Ensure widget test harnesses provide localization delegates (`DataTableLocalizations.localizationsDelegates`) when verifying copy interactions.
+- **[Risk]**: Clipboard failures on restricted browser environments.
+  - **Mitigation**: Gracefully catch `PlatformException`, log diagnostics with `debugPrint`, and avoid showing false-positive confirmation SnackBars.
