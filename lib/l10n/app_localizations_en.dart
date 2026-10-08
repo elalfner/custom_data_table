@@ -1,10 +1,12 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
 import 'app_localizations.dart';
 
 // ignore_for_file: type=lint
 
 /// The translations for English (`en`).
-class AppLocalizationsEn extends DataTableLocalizations {
-  AppLocalizationsEn([String locale = 'en']) : super(locale);
+class DataTableLocalizationsEn extends DataTableLocalizations {
+  DataTableLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
   String get showing => 'showing';
@@ -37,12 +39,6 @@ class AppLocalizationsEn extends DataTableLocalizations {
   String get search => 'search';
 
   @override
-  String get searchAdjective => 'search';
-
-  @override
-  String get filterSearch => 'filter search';
-
-  @override
   String get clearFilters => 'clear filters';
 
   @override
@@ -73,16 +69,10 @@ class AppLocalizationsEn extends DataTableLocalizations {
   String get select => 'select';
 
   @override
-  String get resultsTitle => 'results';
-
-  @override
-  String get showHideColumns => 'Show/Hide columns';
-
-  @override
-  String get moreOptions => 'more options';
-
-  @override
   String get copy => 'copy';
+
+  @override
+  String get copiedToClipboard => 'Copied to clipboard';
 
   @override
   String get print => 'print';
@@ -91,19 +81,7 @@ class AppLocalizationsEn extends DataTableLocalizations {
   String get export => 'export';
 
   @override
-  String get all => 'all';
-
-  @override
   String get thisWeek => 'This week';
-
-  @override
-  String get clearAll => 'clear all';
-
-  @override
-  String get showingAll => 'showing all';
-
-  @override
-  String get selectedColumns => 'selected columns';
 
   @override
   String get columnsToShow => 'columns to show';

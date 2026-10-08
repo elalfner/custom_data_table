@@ -10,10 +10,10 @@ import 'app_localizations_es.dart';
 
 // ignore_for_file: type=lint
 
-/// Callers can lookup localized strings with an instance of AppLocalizations
-/// returned by `AppLocalizations.of(context)`.
+/// Callers can lookup localized strings with an instance of DataTableLocalizations
+/// returned by `DataTableLocalizations.of(context)`.
 ///
-/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// Applications need to include `DataTableLocalizations.delegate()` in their app's
 /// `localizationDelegates` list, and the locales they support in the app's
 /// `supportedLocales` list. For example:
 ///
@@ -21,8 +21,8 @@ import 'app_localizations_es.dart';
 /// import 'l10n/app_localizations.dart';
 ///
 /// return MaterialApp(
-///   localizationsDelegates: AppLocalizations.localizationsDelegates,
-///   supportedLocales: AppLocalizations.supportedLocales,
+///   localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+///   supportedLocales: DataTableLocalizations.supportedLocales,
 ///   home: MyApplicationHome(),
 /// );
 /// ```
@@ -59,7 +59,7 @@ import 'app_localizations_es.dart';
 /// Select and expand the newly-created Localizations item then, for each
 /// locale your application supports, add a new item and select the locale
 /// you wish to add from the pop-up menu in the Value field. This list should
-/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// be consistent with the languages listed in the DataTableLocalizations.supportedLocales
 /// property.
 abstract class DataTableLocalizations {
   DataTableLocalizations(String locale)
@@ -73,7 +73,7 @@ abstract class DataTableLocalizations {
   }
 
   static const LocalizationsDelegate<DataTableLocalizations> delegate =
-      _AppLocalizationsDelegate();
+      _DataTableLocalizationsDelegate();
 
   /// A list of this localizations delegate along with the default localizations
   /// delegates.
@@ -159,18 +159,6 @@ abstract class DataTableLocalizations {
   /// **'search'**
   String get search;
 
-  /// No description provided for @searchAdjective.
-  ///
-  /// In en, this message translates to:
-  /// **'search'**
-  String get searchAdjective;
-
-  /// No description provided for @filterSearch.
-  ///
-  /// In en, this message translates to:
-  /// **'filter search'**
-  String get filterSearch;
-
   /// No description provided for @clearFilters.
   ///
   /// In en, this message translates to:
@@ -231,29 +219,17 @@ abstract class DataTableLocalizations {
   /// **'select'**
   String get select;
 
-  /// No description provided for @resultsTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'results'**
-  String get resultsTitle;
-
-  /// No description provided for @showHideColumns.
-  ///
-  /// In en, this message translates to:
-  /// **'Show/Hide columns'**
-  String get showHideColumns;
-
-  /// No description provided for @moreOptions.
-  ///
-  /// In en, this message translates to:
-  /// **'more options'**
-  String get moreOptions;
-
   /// No description provided for @copy.
   ///
   /// In en, this message translates to:
   /// **'copy'**
   String get copy;
+
+  /// No description provided for @copiedToClipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get copiedToClipboard;
 
   /// No description provided for @print.
   ///
@@ -267,35 +243,11 @@ abstract class DataTableLocalizations {
   /// **'export'**
   String get export;
 
-  /// No description provided for @all.
-  ///
-  /// In en, this message translates to:
-  /// **'all'**
-  String get all;
-
   /// No description provided for @thisWeek.
   ///
   /// In en, this message translates to:
   /// **'This week'**
   String get thisWeek;
-
-  /// No description provided for @clearAll.
-  ///
-  /// In en, this message translates to:
-  /// **'clear all'**
-  String get clearAll;
-
-  /// No description provided for @showingAll.
-  ///
-  /// In en, this message translates to:
-  /// **'showing all'**
-  String get showingAll;
-
-  /// No description provided for @selectedColumns.
-  ///
-  /// In en, this message translates to:
-  /// **'selected columns'**
-  String get selectedColumns;
 
   /// No description provided for @columnsToShow.
   ///
@@ -310,14 +262,14 @@ abstract class DataTableLocalizations {
   String get columns;
 }
 
-class _AppLocalizationsDelegate
+class _DataTableLocalizationsDelegate
     extends LocalizationsDelegate<DataTableLocalizations> {
-  const _AppLocalizationsDelegate();
+  const _DataTableLocalizationsDelegate();
 
   @override
   Future<DataTableLocalizations> load(Locale locale) {
     return SynchronousFuture<DataTableLocalizations>(
-        lookupAppLocalizations(locale));
+        lookupDataTableLocalizations(locale));
   }
 
   @override
@@ -325,20 +277,20 @@ class _AppLocalizationsDelegate
       <String>['en', 'es'].contains(locale.languageCode);
 
   @override
-  bool shouldReload(_AppLocalizationsDelegate old) => false;
+  bool shouldReload(_DataTableLocalizationsDelegate old) => false;
 }
 
-DataTableLocalizations lookupAppLocalizations(Locale locale) {
+DataTableLocalizations lookupDataTableLocalizations(Locale locale) {
   // Lookup logic when only language code is specified.
   switch (locale.languageCode) {
     case 'en':
-      return AppLocalizationsEn();
+      return DataTableLocalizationsEn();
     case 'es':
-      return AppLocalizationsEs();
+      return DataTableLocalizationsEs();
   }
 
   throw FlutterError(
-      'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+      'DataTableLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
       'an issue with the localizations generation tool. Please file an issue '
       'on GitHub with a reproducible sample app and the gen-l10n configuration '
       'that was used.');

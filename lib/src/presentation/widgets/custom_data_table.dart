@@ -687,6 +687,8 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                               data != null &&
                               data.isNotEmpty)
                             IconButton(
+                              tooltip: context
+                                  .appLocalizations.copy.naturalCapitalized,
                               style: IconButton.styleFrom(
                                 foregroundColor:
                                     Theme.of(context).colorScheme.onSurface,
@@ -698,6 +700,9 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
 
                                     final scaffoldMessenger =
                                         ScaffoldMessenger.of(context);
+
+                                    final appLocalizations =
+                                        context.appLocalizations;
 
                                     // Copy value.
                                     // First row is the column names.
@@ -717,15 +722,24 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                                         ].join('\t'),
                                     ].join('\n');
 
-                                    // Copy to clipboard.
-                                    await Clipboard.setData(
-                                        ClipboardData(text: copyValue));
+                                    try {
+                                      // Copy to clipboard.
+                                      await Clipboard.setData(
+                                          ClipboardData(text: copyValue));
 
-                                    scaffoldMessenger.showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Copied to clipboard'),
-                                      ),
-                                    );
+                                      scaffoldMessenger.showSnackBar(
+                                        SnackBar(
+                                          content: Text(appLocalizations
+                                              .copiedToClipboard),
+                                        ),
+                                      );
+                                    } on PlatformException catch (e) {
+                                      debugPrint(
+                                          'PlatformException during clipboard copy: $e');
+                                    } catch (e) {
+                                      debugPrint(
+                                          'Error during clipboard copy: $e');
+                                    }
                                   },
                               icon: const Icon(
                                 Icons.copy,
