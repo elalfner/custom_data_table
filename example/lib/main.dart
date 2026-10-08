@@ -223,7 +223,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   List<FilterItem>? filtersUserType;
 
-  PaginatorInfo paginatorInfo = PaginatorInfo(
+  PaginatorInfo? paginatorInfo = PaginatorInfo(
     lastPage: 1500,
     currentPage: 1400,
     perPage: 8,
@@ -258,6 +258,46 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                FilledButton.tonal(
+                  key: const Key('btn_paginated'),
+                  onPressed: () {
+                    setState(() {
+                      paginatorInfo = PaginatorInfo(
+                        lastPage: 1500,
+                        currentPage: 1400,
+                        perPage: 8,
+                        total: 12000,
+                      );
+                    });
+                  },
+                  child: const Text('Modo Paginado'),
+                ),
+                FilledButton.tonal(
+                  key: const Key('btn_unpaginated'),
+                  onPressed: () {
+                    setState(() {
+                      paginatorInfo = null;
+                    });
+                  },
+                  child: const Text('Sin Paginador (null)'),
+                ),
+                FilledButton.tonal(
+                  key: const Key('btn_single_page'),
+                  onPressed: () {
+                    setState(() {
+                      paginatorInfo =
+                          PaginatorInfo.singlePage(total: data.length);
+                    });
+                  },
+                  child: const Text('Single Page Helper'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 10),
             FilledButton(
               onPressed: () async {
                 final a = await showCustomDateFilters(context);
@@ -418,18 +458,24 @@ class _MyHomePageState extends State<MyHomePage> {
                 },
                 paginatorInfo: paginatorInfo,
                 onPreviousPage: () {
-                  paginatorInfo = paginatorInfo.copyWith(
-                      currentPage: (paginatorInfo.currentPage ?? 0) - 1);
-                  setState(() {});
+                  if (paginatorInfo != null) {
+                    paginatorInfo = paginatorInfo!.copyWith(
+                        currentPage: (paginatorInfo!.currentPage ?? 0) - 1);
+                    setState(() {});
+                  }
                 },
                 onNextPage: () {
-                  paginatorInfo = paginatorInfo.copyWith(
-                      currentPage: (paginatorInfo.currentPage ?? 0) + 1);
-                  setState(() {});
+                  if (paginatorInfo != null) {
+                    paginatorInfo = paginatorInfo!.copyWith(
+                        currentPage: (paginatorInfo!.currentPage ?? 0) + 1);
+                    setState(() {});
+                  }
                 },
                 onSelectedPage: (page) {
-                  paginatorInfo = paginatorInfo.copyWith(currentPage: page);
-                  setState(() {});
+                  if (paginatorInfo != null) {
+                    paginatorInfo = paginatorInfo!.copyWith(currentPage: page);
+                    setState(() {});
+                  }
                 },
                 onChangeGeneralSearch: (value) {
                   print(value);

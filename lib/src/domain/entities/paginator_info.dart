@@ -38,6 +38,21 @@ class PaginatorInfo {
     this.perPage,
   });
 
+  /// Creates a single-page paginator information.
+  ///
+  /// This is used when the data is not paginated or fits entirely in a
+  /// single page.
+  ///
+  /// The [total] parameter indicates the total number of items available.
+  factory PaginatorInfo.singlePage({required int total}) => PaginatorInfo(
+        currentPage: 1,
+        lastPage: 1,
+        perPage: total,
+        total: total,
+        count: total,
+        hasMorePages: false,
+      );
+
   /// Creates a copy of this [PaginatorInfo] with the given fields replaced.
   PaginatorInfo copyWith({
     int? count,

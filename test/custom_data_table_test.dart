@@ -37,6 +37,17 @@ void main() {
       expect(selection.date, start);
       expect(selection.endDate, end);
     });
+
+    test('PaginatorInfo.singlePage initializes correctly', () {
+      final info = PaginatorInfo.singlePage(total: 42);
+
+      expect(info.currentPage, 1);
+      expect(info.lastPage, 1);
+      expect(info.perPage, 42);
+      expect(info.total, 42);
+      expect(info.count, 42);
+      expect(info.hasMorePages, false);
+    });
   });
 
   group('Widget Tests - CustomDataTable', () {
@@ -85,6 +96,92 @@ void main() {
       // Verify Data cells are present
       expect(find.text('Alice'), findsOneWidget);
       expect(find.text('Bob'), findsOneWidget);
+
+      // Verify TableFooter is rendered when paginatorInfo is present
+      expect(find.byType(TableFooter), findsOneWidget);
+    });
+
+    testWidgets(
+        'CustomDataTable renders columns and rows without TableFooter when paginatorInfo is null',
+        (tester) async {
+      final columns = [
+        ColumnInfo(key: 'id', name: 'ID', width: 60),
+      ];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: CustomDataTable<Map<String, String>>(
+              columns: columns,
+              data: const [
+                {'id': '1'}
+              ],
+              paginatorInfo: null,
+              toMap: (element) => element,
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('ID'), findsOneWidget);
+      expect(find.text('1'), findsOneWidget);
+      expect(find.byType(TableFooter), findsNothing);
+    });
+
+    testWidgets(
+        'CustomDataTable renders loadingBuilder when data is null and isLoading is true',
+        (tester) async {
+      final columns = [
+        ColumnInfo(key: 'id', name: 'ID', width: 60),
+      ];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: CustomDataTable<Map<String, String>>(
+              columns: columns,
+              data: null,
+              isLoading: true,
+              loadingBuilder: () => const Text('Custom Loading...'),
+              toMap: (element) => element,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Custom Loading...'), findsOneWidget);
+    });
+
+    testWidgets(
+        'CustomDataTable renders exceptionBuilder when data is null and isLoading is false',
+        (tester) async {
+      final columns = [
+        ColumnInfo(key: 'id', name: 'ID', width: 60),
+      ];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: CustomDataTable<Map<String, String>>(
+              columns: columns,
+              data: null,
+              isLoading: false,
+              exceptionBuilder: () => const Text('Custom Exception...'),
+              toMap: (element) => element,
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Custom Exception...'), findsOneWidget);
     });
   });
   group('Widget Tests - Localization', () {

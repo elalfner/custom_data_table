@@ -692,6 +692,28 @@ class _UsersTableScreenState extends State<UsersTableScreen>
 }
 ```
 
+### 7. Unpaginated / Single-Page Tables
+
+If your data is not paginated or you want to display all results on a single page, you can omit the paginator entirely or use the `singlePage` factory constructor to show the total count without navigation controls:
+
+```dart
+// Option A: No pagination footer at all
+CustomDataTable(
+  columns: [...],
+  data: myData,
+  paginatorInfo: null, // Hides the TableFooter completely
+  toMap: (e) => e.toMap(),
+)
+
+// Option B: Show footer with item count, but no page navigation
+CustomDataTable(
+  columns: [...],
+  data: myData,
+  paginatorInfo: PaginatorInfo.singlePage(total: myData.length),
+  toMap: (e) => e.toMap(),
+)
+```
+
 ---
 
 ## 🎨 Global & Local Theming

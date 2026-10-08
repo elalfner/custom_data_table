@@ -55,7 +55,9 @@ class CustomDataTable<T> extends StatefulWidget {
   /// Information of pagination.
   ///
   /// It contains for example the page that is displayed, the number of total
-  /// pages, elements per page.
+  /// pages, and elements per page. If `null`, the table renders in an unpaginated
+  /// state and no footer is displayed. For tables with a single page of data
+  /// that still want to display item counts, use [PaginatorInfo.singlePage].
   final PaginatorInfo? paginatorInfo;
 
   /// Callback that notifies when the previous page button is pressed.
@@ -460,10 +462,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             valueListenable: contentHeight,
             builder: (context, contentHeight, child) {
               final data = widget.data;
-              final paginator = widget.paginatorInfo;
-
-              final error =
-                  (data == null || paginator == null) && !widget.isLoading;
+              final error = data == null && !widget.isLoading;
 
               return Container(
                 constraints: contentHeight == null || error
@@ -474,12 +473,11 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                 child: Builder(
                   builder: (context) {
                     final data = widget.data;
-                    final paginator = widget.paginatorInfo;
 
-                    // If the data or paginator is null, the loading or exception
+                    // If the data is null, the loading or exception
                     // builder is displayed.
-                    if (data == null || paginator == null) {
-                      // If the data or paginator is null and the table is
+                    if (data == null) {
+                      // If the data is null and the table is
                       // loading, the loading builder is displayed.
                       if (widget.isLoading) {
                         return widget.loadingBuilder?.call() ??
