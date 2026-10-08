@@ -7,6 +7,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:linked_scroll_controller/linked_scroll_controller.dart';
 
+/// Calculates the table content height based on item count and row height.
+double calculateContentHeight({
+  required int itemCount,
+  required double minRowHeight,
+  required double dividerHeight,
+}) {
+  if (itemCount == 0) return 0;
+  return (minRowHeight * itemCount) + (dividerHeight * (itemCount - 1));
+}
+
 /// A widget that displays a table of data.
 ///
 /// The table theme can be customized using [DataTableTheme].
@@ -232,9 +242,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
   /// Debouncer to debounce the column search fields.
   final debouncerIndividual = Debouncer(milliseconds: 500);
 
-  /// Notifies when the content height changes.
-  final contentHeight = ValueNotifier<double?>(null);
-
   /// Minimum height of a row.
   double get rowMinHeight => context.readDataTableTheme?.dataRowHeight ?? 38;
 
@@ -350,17 +357,6 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
     final tableBorderRadius =
         (dataTableTheme?.tableDecoration)?.borderRadius ?? BorderRadius.zero;
 
-    final dividerHeight = dataTableTheme?.dividerHeight;
-
-    final data = widget.data;
-
-    if (data != null) {
-      contentHeight.value = data.isEmpty
-          ? 0
-          : (rowMinHeight * data.length +
-              ((dividerHeight ?? 0) * (data.length - 1)));
-    }
-
     return Container(
       margin: dataTableTheme?.tableMargin,
       child: Stack(
@@ -456,84 +452,101 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
             );
           },
         ),
-        // Flexible to handle the content of the table.
-        Flexible(
-          child: ValueListenableBuilder(
-            valueListenable: contentHeight,
-            builder: (context, contentHeight, child) {
-              final data = widget.data;
-              final error = data == null && !widget.isLoading;
+        // Table content wrapper adaptable to constraints.
+        Builder(
+          builder: (context) {
+            final data = widget.data;
+            final error = data == null && !widget.isLoading;
+            final dividerHeight = dataTableTheme?.dividerHeight ?? 0;
 
-              return Container(
-                constraints: contentHeight == null || error
-                    ? null
-                    : BoxConstraints(
-                        maxHeight: contentHeight + 10,
-                      ),
-                child: Builder(
-                  builder: (context) {
-                    final data = widget.data;
+            double? currentContentHeight;
+            if (data != null) {
+              currentContentHeight = calculateContentHeight(
+                itemCount: data.length,
+                minRowHeight: rowMinHeight,
+                dividerHeight: dividerHeight,
+              );
+            }
 
-                    // If the data is null, the loading or exception
-                    // builder is displayed.
-                    if (data == null) {
-                      // If the data is null and the table is
-                      // loading, the loading builder is displayed.
-                      if (widget.isLoading) {
-                        return widget.loadingBuilder?.call() ??
-                            const CircularProgressIndicator();
-                      } else {
-                        return widget.exceptionBuilder?.call() ??
-                            const SizedBox();
-                      }
+            final tableContentContainer = Container(
+              constraints: currentContentHeight == null || error
+                  ? null
+                  : BoxConstraints(
+                      maxHeight: currentContentHeight + 10,
+                    ),
+              child: Builder(
+                builder: (context) {
+                  // If the data is null, the loading or exception
+                  // builder is displayed.
+                  if (data == null) {
+                    // If the data is null and the table is
+                    // loading, the loading builder is displayed.
+                    if (widget.isLoading) {
+                      return widget.loadingBuilder?.call() ??
+                          const CircularProgressIndicator();
+                    } else {
+                      return widget.exceptionBuilder?.call() ??
+                          const SizedBox();
                     }
+                  }
 
-                    // If the width of the table is greater than the minimum
-                    // width, the table content is displayed without scrolling.
-                    if (constraints.maxWidth > minWidth) {
-                      return Scrollbar(
-                        controller: _verticalScrollController,
-                        thumbVisibility: true,
-                        child: Container(
-                          constraints: tableConstraints,
-                          child: tableContent(
-                            data: data,
-                            scrollable: false,
-                          ),
-                        ),
-                      );
-                    }
-
-                    // If the width of the table is less than the minimum width,
-                    // the table content is displayed with scrolling.
+                  // If the width of the table is greater than the minimum
+                  // width, the table content is displayed without scrolling.
+                  if (constraints.maxWidth > minWidth) {
                     return Scrollbar(
                       controller: _verticalScrollController,
-                      notificationPredicate: (notif) => notif.depth == 1,
                       thumbVisibility: true,
-                      child: Scrollbar(
-                        controller: _hContentScrollController,
-                        thumbVisibility: true,
-                        child: Padding(
-                          padding: const EdgeInsets.only(bottom: 10),
-                          child: SingleChildScrollView(
-                            controller: _hContentScrollController,
-                            scrollDirection: Axis.horizontal,
-                            child: SizedBox(
-                              width: minWidth,
-                              child: tableContent(
-                                scrollable: true,
-                                data: data,
-                              ),
+                      child: Container(
+                        constraints: tableConstraints,
+                        child: tableContent(
+                          data: data,
+                          scrollable: false,
+                        ),
+                      ),
+                    );
+                  }
+
+                  // If the width of the table is less than the minimum width,
+                  // the table content is displayed with scrolling.
+                  return Scrollbar(
+                    controller: _verticalScrollController,
+                    notificationPredicate: (notif) => notif.depth == 1,
+                    thumbVisibility: true,
+                    child: Scrollbar(
+                      controller: _hContentScrollController,
+                      thumbVisibility: true,
+                      child: Padding(
+                        padding: const EdgeInsets.only(bottom: 10),
+                        child: SingleChildScrollView(
+                          controller: _hContentScrollController,
+                          scrollDirection: Axis.horizontal,
+                          child: SizedBox(
+                            width: minWidth,
+                            child: tableContent(
+                              scrollable: true,
+                              data: data,
                             ),
                           ),
                         ),
                       ),
-                    );
-                  },
-                ),
-              );
-            },
-          ),
+                    ),
+                  );
+                },
+              ),
+            );
+
+            if (constraints.hasBoundedHeight) {
+              return Flexible(child: tableContentContainer);
+            } else {
+              if (currentContentHeight != null) {
+                return SizedBox(
+                  height: currentContentHeight + 10,
+                  child: tableContentContainer,
+                );
+              }
+              return tableContentContainer;
+            }
+          },
         ),
         // Footer of the table.
         footer(),

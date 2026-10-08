@@ -334,4 +334,98 @@ void main() {
       expect(find.text('Copied to clipboard'), findsNothing);
     });
   });
+
+  group('Unit Tests - calculateContentHeight', () {
+    test('returns 0 when itemCount is 0', () {
+      expect(
+        calculateContentHeight(
+          itemCount: 0,
+          minRowHeight: 40,
+          dividerHeight: 1,
+        ),
+        0,
+      );
+    });
+
+    test('calculates height correctly for populated list', () {
+      expect(
+        calculateContentHeight(
+          itemCount: 3,
+          minRowHeight: 40,
+          dividerHeight: 1,
+        ),
+        122, // (40 * 3) + (1 * 2) = 120 + 2 = 122
+      );
+    });
+  });
+
+  group('Widget Tests - Bounded and Unbounded Constraints', () {
+    testWidgets('CustomDataTable renders properly inside bounded height',
+        (tester) async {
+      final columns = [
+        ColumnInfo(key: 'id', name: 'ID', width: 60),
+      ];
+
+      final sampleData = [
+        {'id': '1'},
+        {'id': '2'},
+      ];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              height: 400,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: sampleData,
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('ID'), findsOneWidget);
+      expect(find.text('1'), findsOneWidget);
+    });
+
+    testWidgets(
+        'CustomDataTable renders properly inside unbounded vertical viewport',
+        (tester) async {
+      final columns = [
+        ColumnInfo(key: 'id', name: 'ID', width: 60),
+      ];
+
+      final sampleData = [
+        {'id': '1'},
+        {'id': '2'},
+      ];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: sampleData,
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('ID'), findsOneWidget);
+      expect(find.text('1'), findsOneWidget);
+    });
+  });
 }
