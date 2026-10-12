@@ -174,5 +174,279 @@ void main() {
       expect(vController.hasClients, isTrue);
       expect(hController.hasClients, isTrue);
     });
+
+    testWidgets(
+        'renders default empty state when data is empty and emptyBuilder is null',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 500,
+              height: 300,
+              child: Column(
+                children: [
+                  TableContent<Map<String, String>>(
+                    constraints: const BoxConstraints(
+                      maxWidth: 500,
+                      maxHeight: 300,
+                    ),
+                    columns: columns,
+                    data: const [],
+                    toMap: (element) => element,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.inbox_outlined), findsOneWidget);
+      expect(
+        tester.widget<Icon>(find.byIcon(Icons.inbox_outlined)).size,
+        30.0,
+      );
+      expect(find.text('No results found'), findsOneWidget);
+    });
+
+    testWidgets('renders custom emptyBuilder when data is empty',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 500,
+              height: 300,
+              child: Column(
+                children: [
+                  TableContent<Map<String, String>>(
+                    constraints: const BoxConstraints(
+                      maxWidth: 500,
+                      maxHeight: 300,
+                    ),
+                    columns: columns,
+                    data: const [],
+                    emptyBuilder: () => const Text('Custom Empty Placeholder'),
+                    toMap: (element) => element,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Custom Empty Placeholder'), findsOneWidget);
+      expect(find.byIcon(Icons.inbox_outlined), findsNothing);
+    });
+
+    testWidgets(
+        'allocates 100.0 px height in unbounded vertical constraints when data is empty',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: LayoutBuilder(
+                builder: (context, constraints) =>
+                    TableContent<Map<String, String>>(
+                  constraints: constraints,
+                  columns: columns,
+                  data: const [],
+                  toMap: (element) => element,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+
+      final emptySizedBox = tester.widget<SizedBox>(
+        find
+            .ancestor(
+              of: find.byIcon(Icons.inbox_outlined),
+              matching: find.byType(SizedBox),
+            )
+            .first,
+      );
+      expect(emptySizedBox.height, 100.0);
+    });
+
+    testWidgets(
+        'bounds height to 100.0 px in bounded vertical constraints when data is empty',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 500,
+              height: 400,
+              child: Column(
+                children: [
+                  TableContent<Map<String, String>>(
+                    constraints: const BoxConstraints(
+                      maxWidth: 500,
+                      maxHeight: 350,
+                    ),
+                    columns: columns,
+                    data: const [],
+                    toMap: (element) => element,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+
+      final emptyContainerFinder = find
+          .ancestor(
+            of: find.byIcon(Icons.inbox_outlined),
+            matching: find.byType(Container),
+          )
+          .first;
+      expect(tester.getSize(emptyContainerFinder).height, 100.0);
+    });
+
+    testWidgets(
+        'renders centered default loading indicator when data is null, isLoading is true, and loadingBuilder is null',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                TableContent<Map<String, String>>(
+                  constraints: const BoxConstraints(
+                    maxWidth: 500,
+                    maxHeight: 300,
+                  ),
+                  columns: columns,
+                  data: null,
+                  toMap: (element) => element,
+                  isLoading: true,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      final indicatorFinder = find.byType(CircularProgressIndicator);
+      expect(indicatorFinder, findsOneWidget);
+
+      final indicator =
+          tester.widget<CircularProgressIndicator>(indicatorFinder);
+      expect(indicator.strokeWidth, 3.0);
+
+      final centerFinder = find.ancestor(
+        of: indicatorFinder,
+        matching: find.byType(Center),
+      );
+      expect(centerFinder, findsWidgets);
+
+      final sizedBoxFinder = find.ancestor(
+        of: indicatorFinder,
+        matching: find.byType(SizedBox),
+      );
+      final sizedBox = tester.widget<SizedBox>(sizedBoxFinder.first);
+      expect(sizedBox.width, 30.0);
+      expect(sizedBox.height, 30.0);
+    });
+
+    testWidgets(
+        'allocates 100.0 px height in unbounded vertical constraints when data is null and isLoading is true',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: LayoutBuilder(
+                builder: (context, constraints) =>
+                    TableContent<Map<String, String>>(
+                  constraints: constraints,
+                  columns: columns,
+                  data: null,
+                  isLoading: true,
+                  toMap: (element) => element,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+
+      final height100SizedBoxFinder = find.ancestor(
+        of: find.byType(CircularProgressIndicator),
+        matching: find.byWidgetPredicate(
+          (widget) => widget is SizedBox && widget.height == 100.0,
+        ),
+      );
+      expect(height100SizedBoxFinder, findsOneWidget);
+    });
+
+    testWidgets(
+        'bounds height to 100.0 px in bounded vertical constraints when data is null and isLoading is true',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: SizedBox(
+              width: 500,
+              height: 400,
+              child: Column(
+                children: [
+                  TableContent<Map<String, String>>(
+                    constraints: const BoxConstraints(
+                      maxWidth: 500,
+                      maxHeight: 350,
+                    ),
+                    columns: columns,
+                    data: null,
+                    isLoading: true,
+                    toMap: (element) => element,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+
+      final loadingContainerFinder = find
+          .ancestor(
+            of: find.byType(CircularProgressIndicator),
+            matching: find.byType(Container),
+          )
+          .first;
+      expect(tester.getSize(loadingContainerFinder).height, 100.0);
+    });
   });
 }

@@ -17,6 +17,9 @@ class TableFooter extends StatefulWidget {
   /// The paginator info.
   final PaginatorInfo paginatorInfo;
 
+  /// Whether the table is currently loading data.
+  final bool isLoading;
+
   /// Callback that notifies when the per page value changes.
   final Function(int perPage)? onPerPageChange;
 
@@ -32,6 +35,7 @@ class TableFooter extends StatefulWidget {
   const TableFooter({
     super.key,
     required this.paginatorInfo,
+    this.isLoading = false,
     this.onPerPageChange,
     this.onPreviousPage,
     this.onNextPage,
@@ -91,7 +95,7 @@ class _TableFooterState extends State<TableFooter> {
               const SizedBox(width: 10),
               TablePaginatedCountWidget(
                 paginatorInfo: paginatorInfo,
-                loading: false,
+                loading: widget.isLoading,
                 onPreviousPage: widget.onPreviousPage,
                 onNextPage: widget.onNextPage,
                 onSelectedPage: widget.onSelectedPage,
@@ -111,6 +115,25 @@ class _TableFooterState extends State<TableFooter> {
   ///
   /// Returns a [RichText] widget that displays the number of results.
   RichText resultsNumberWidget(int currentPage, int perPage, int total) {
+    if (total == 0) {
+      return RichText(
+        text: TextSpan(
+          style: Theme.of(context).textTheme.bodySmall,
+          children: [
+            TextSpan(
+              text: NumberFormat.decimalPattern().format(0),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            TextSpan(
+              text: ' ${context.appLocalizations.results}.',
+            ),
+          ],
+        ),
+      );
+    }
+
     return RichText(
       text: TextSpan(
         style: Theme.of(context).textTheme.bodySmall,

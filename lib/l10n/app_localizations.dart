@@ -260,6 +260,12 @@ abstract class DataTableLocalizations {
   /// In en, this message translates to:
   /// **'columns'**
   String get columns;
+
+  /// No description provided for @noResultsFound.
+  ///
+  /// In en, this message translates to:
+  /// **'No results found'**
+  String get noResultsFound;
 }
 
 class _DataTableLocalizationsDelegate
