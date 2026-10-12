@@ -17,3 +17,5 @@ web/
 *.iws
 .DS_Store
 **/.DS_Store
+evidence/
+.agents/
