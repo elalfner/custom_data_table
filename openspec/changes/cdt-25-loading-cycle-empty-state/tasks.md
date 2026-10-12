@@ -48,3 +48,10 @@
 - [x] 7.4 In `example/lib/main.dart`, synchronize `paginatorInfo` when toggling `btn_toggle_data` between static data and empty list.
 - [x] 7.5 Update widget tests covering single-page pill styling, compact empty state height, and zero-results footer text.
 - [x] 7.6 Verify formatting (`dart format`), static analysis (`flutter analyze --fatal-infos`), and tests (`flutter test`).
+
+## 8. Review Iteration: Centered Initial Loading Indicator and Height Parity [Iteration 4]
+
+- [x] 8.1 In `TableContent`, wrap default `CircularProgressIndicator` in `Center` with 30.0 px sizing (`SizedBox(width: 30, height: 30, child: CircularProgressIndicator(strokeWidth: 3))`).
+- [x] 8.2 In `TableContent`, unify compact 100.0 px height (`isCompactState = (data != null && data.isEmpty) || (data == null && widget.isLoading)`) across bounded (`BoxConstraints(maxHeight: 100.0)`) and unbounded (`SizedBox(height: 100.0)`) modes.
+- [x] 8.3 Update widget tests verifying initial loading state renders centered and matches 100.0 px height in bounded and unbounded contexts.
+- [x] 8.4 Verify formatting (`dart format`), static analysis (`flutter analyze --fatal-infos`), and test suite (`flutter test`).

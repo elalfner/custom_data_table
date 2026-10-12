@@ -126,10 +126,11 @@ class _TableContentState<T> extends State<TableContent<T>> {
       );
     }
 
-    final isDataEmpty = data != null && data.isEmpty;
+    final isCompactState =
+        (data != null && data.isEmpty) || (data == null && widget.isLoading);
 
     final tableContentContainer = Container(
-      constraints: isDataEmpty
+      constraints: isCompactState
           ? const BoxConstraints(maxHeight: 100.0)
           : (currentContentHeight == null || error
               ? null
@@ -141,7 +142,7 @@ class _TableContentState<T> extends State<TableContent<T>> {
           if (data == null) {
             if (widget.isLoading) {
               return widget.loadingBuilder?.call() ??
-                  const CircularProgressIndicator();
+                  _buildDefaultLoadingWidget(context);
             } else {
               return widget.exceptionBuilder?.call() ?? const SizedBox();
             }
@@ -190,7 +191,7 @@ class _TableContentState<T> extends State<TableContent<T>> {
     if (widget.constraints.hasBoundedHeight) {
       return Flexible(child: tableContentContainer);
     } else {
-      if (data != null && data.isEmpty) {
+      if (isCompactState) {
         return SizedBox(
           height: 100.0,
           child: tableContentContainer,
@@ -204,6 +205,16 @@ class _TableContentState<T> extends State<TableContent<T>> {
       }
       return tableContentContainer;
     }
+  }
+
+  Widget _buildDefaultLoadingWidget(BuildContext context) {
+    return const Center(
+      child: SizedBox(
+        width: 30,
+        height: 30,
+        child: CircularProgressIndicator(strokeWidth: 3),
+      ),
+    );
   }
 
   Widget _buildDefaultEmptyWidget(BuildContext context) {

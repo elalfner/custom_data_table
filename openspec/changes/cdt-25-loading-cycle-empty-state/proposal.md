@@ -22,6 +22,7 @@ This change optimizes the loading lifecycle, locks pagination navigation when lo
 - **Review Iteration 1 - Interactive Example App**: Enhance `example/` with an interactive toggle between a realistic single-page static table mode and a simulated asynchronous web service with simulated latency, allowing interactive verification of pagination lock, loaders, and empty states.
 - **Review Iteration 2 - Zero-Shift Page Selector Stability**: Decouple page selector interactivity from its layout structure in `TablePaginatedCountWidget`, keeping the dropdown arrow icon and background pill visible and properly styled with `disabledColor` during loading, eliminating the 17px layout shift.
 - **Review Iteration 3 - Visual Polish, Empty State Dimensions, and Paginator Sync**: Harmonize single-page selector pill styling with `TablePerPageWidget`, bound empty state viewports to a compact, proportionate height (100.0 px), and ensure zero-results footer formatting and example state synchronization operate accurately.
+- **Review Iteration 4 - Centered Initial Loading Indicator and Height Parity**: Center the default `CircularProgressIndicator` with a 30.0 px size, and enforce the same 100.0 px compact height across both initial loading (`data == null && isLoading == true`) and empty state (`data != null && data.isEmpty`).
 
 ## Capabilities
 

@@ -64,3 +64,14 @@ The `example/` application SHALL provide interactive controls to simulate asynch
 #### Scenario: Zero results footer text
 - **WHEN** `paginatorInfo.total` is `0`
 - **THEN** `TableFooter` renders `0 results` without displaying a "showing 1 to 0" range
+
+### Requirement: Centered Initial Loading Indicator and Height Parity
+`TableContent` SHALL render its default loading indicator centered horizontally and vertically when `loadingBuilder` is null, and SHALL enforce the same 100.0 px compact height parity between initial loading (`data == null && isLoading == true`) and empty state (`data != null && data.isEmpty`) in both bounded and unbounded vertical constraints.
+
+#### Scenario: Default loading indicator centering and sizing
+- **WHEN** `data` is `null`, `isLoading` is `true`, and `loadingBuilder` is `null`
+- **THEN** `TableContent` renders a centered `CircularProgressIndicator` sized at 30.0 px
+
+#### Scenario: Initial loading height parity with empty state
+- **WHEN** `data` is `null` and `isLoading` is `true`
+- **THEN** `TableContent` allocates an exact 100.0 px height in unbounded mode (`SizedBox(height: 100.0)`) and constrains height to 100.0 px in bounded mode (`BoxConstraints(maxHeight: 100.0)`), matching empty state dimensions

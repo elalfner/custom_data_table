@@ -107,6 +107,64 @@ void main() {
     });
 
     testWidgets(
+        'CustomDataTable renders centered default CircularProgressIndicator with compact height when data is null and isLoading is true',
+        (tester) async {
+      final columns = [
+        ColumnInfo(key: 'id', name: 'ID', width: 60),
+      ];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: null,
+                isLoading: true,
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pump();
+
+      final indicatorFinder = find.byType(CircularProgressIndicator);
+      expect(indicatorFinder, findsOneWidget);
+
+      final indicator =
+          tester.widget<CircularProgressIndicator>(indicatorFinder);
+      expect(indicator.strokeWidth, 3.0);
+
+      final centerFinder = find.ancestor(
+        of: indicatorFinder,
+        matching: find.byType(Center),
+      );
+      expect(centerFinder, findsWidgets);
+
+      final sizedBoxFinder = find.ancestor(
+        of: indicatorFinder,
+        matching: find.byType(SizedBox),
+      );
+      final sizedBox = tester.widget<SizedBox>(sizedBoxFinder.first);
+      expect(sizedBox.width, 30.0);
+      expect(sizedBox.height, 30.0);
+
+      final loadingContainerFinder = find
+          .ancestor(
+            of: indicatorFinder,
+            matching: find.byType(Container),
+          )
+          .first;
+      expect(tester.getSize(loadingContainerFinder).height, 100.0);
+    });
+
+    testWidgets(
         'CustomDataTable renders exceptionBuilder when data is null and isLoading is false',
         (tester) async {
       final columns = [

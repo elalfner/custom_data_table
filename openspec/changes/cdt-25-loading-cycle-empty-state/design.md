@@ -79,6 +79,12 @@ The original Jira ticket referenced resetting `contentHeight.value = null` when 
   - In `example/lib/main.dart`, synchronize `paginatorInfo` when toggling `btn_toggle_data` (clearing to `data = []` also updates `paginatorInfo = PaginatorInfo.singlePage(total: 0)`).
 - **Rationale**: Elevates visual polish, ensures mathematical and visual accuracy when datasets are empty, and unifies control styling across all pagination states.
 
+### 8. Review Iteration 4: Centered Initial Loading Indicator and Height Parity
+- **Decision**:
+  - In `TableContent`, wrap default `CircularProgressIndicator` in `Center` with a 30.0 px `SizedBox` (`width: 30, height: 30, child: CircularProgressIndicator(strokeWidth: 3)`), ensuring horizontal and vertical centering and visual scale parity with the 30px empty state inbox icon.
+  - In `TableContent`, unify compact height (100.0 px) across both initial loading (`data == null && widget.isLoading`) and empty state (`data != null && data.isEmpty`) in both bounded (`BoxConstraints(maxHeight: 100.0)`) and unbounded (`SizedBox(height: 100.0)`) modes.
+- **Rationale**: Guarantees zero height jump when transitioning from initial loading to empty state, and fixes the uncentered top-left alignment of the default circular spinner.
+
 ## Risks / Trade-offs
 
 - **[Risk] Custom empty widget overflow in bounded layouts** → **Mitigation**: Constrain the empty widget with `Center` and `SingleChildScrollView` or `Flexible` so large custom empty state widgets do not cause layout overflows.
