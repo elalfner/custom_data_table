@@ -19,11 +19,12 @@ The original Jira ticket referenced resetting `contentHeight.value = null` when 
 - Provide an optional `emptyBuilder` on `CustomDataTable` (forwarded to `TableContent`) that renders when `data != null && data.isEmpty`.
 - When `emptyBuilder` is null, provide a localized default empty state showing an icon and `"No results found"` / `"No se han encontrado resultados"` (`context.appLocalizations.noResultsFound`).
 - Ensure empty states allocate a comfortable minimum height (160.0 px under unbounded constraints, centered within `Flexible` under bounded constraints) without collapsing to 10px.
+- Enhance the `example/` app with an interactive toggle between a realistic single-page static mode and a simulated asynchronous web service with simulated network delay to facilitate visual inspection in `/jira-app-review`.
 - Maintain complete backwards compatibility for existing `CustomDataTable` consumers.
 
 **Non-Goals:**
 - Mutating or reintroducing reactive `ValueNotifier` instances for height (resolved in CDT-22).
-- Managing asynchronous data fetching or state management outside `CustomDataTable` (callers remain responsible for data fetching logic).
+- Managing asynchronous data fetching or state management inside the library itself (the package remains presentation-focused; async simulation lives in `example/`).
 - Changing pagination math, per-page dropdown behavior, or column filtering logic.
 
 ## Decisions
@@ -56,7 +57,19 @@ The original Jira ticket referenced resetting `contentHeight.value = null` when 
     - Under bounded constraints, center within `Flexible` taking available viewport space.
 - **Rationale**: An empty table should inform the user clearly that no records match instead of shrinking into an invisible 10px line.
 
+### 5. Review Iteration 1: Interactive Example App with Simulated Web Service & Realistic Single Page
+- **Decision**:
+  - In `example/lib/services/mock_user_service.dart` (or `example/lib/main.dart`), implement an in-memory asynchronous user service with simulated network delay (e.g. 1000-1200ms) that returns paginated data (`List<User>` and `PaginatorInfo`).
+  - In `example/lib/main.dart`:
+    - Provide a mode toggle:
+      - **Realistic Static Mode (Single Page)**: A clean, realistic list of fixed users with single-page paginator (`PaginatorInfo.singlePage(total: 7)`), eliminating confusing artificial 1500 pages.
+      - **Simulated Web Service Mode (Async)**: Asynchronous pagination with 100 total users, 10 per page, tracking `_isLoading`. When navigating pages, `isLoading` is set to `true` during the delay, demonstrating the locked controls and top linear progress bar.
+    - Provide quick test buttons:
+      - `Initial Fetch (data == null)`: triggers central loader and then loads records.
+      - `Simulate Empty ([])`: returns 0 records to demonstrate the new empty state.
+
 ## Risks / Trade-offs
 
 - **[Risk] Custom empty widget overflow in bounded layouts** → **Mitigation**: Constrain the empty widget with `Center` and `SingleChildScrollView` or `Flexible` so large custom empty state widgets do not cause layout overflows.
 - **[Risk] Existing callers expecting top loader on empty/null data** → **Mitigation**: Callers already expect central loader on initial load; top bar was visually conflicting with the central spinner.
+- **[Risk] Network dependency in example app** → **Mitigation**: The simulated web service is 100% in-memory with `Future.delayed`, requiring zero external network or HTTP dependencies.

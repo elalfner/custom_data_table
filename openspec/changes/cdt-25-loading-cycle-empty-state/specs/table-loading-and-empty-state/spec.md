@@ -32,3 +32,14 @@
 #### Scenario: Default localized empty placeholder when emptyBuilder is omitted
 - **WHEN** `data` is empty (`[]`) and `emptyBuilder` is null
 - **THEN** `CustomDataTable` renders a centered localized empty state with an icon and `noResultsFound` text ("No results found" in English, "No se han encontrado resultados" in Spanish)
+
+### Requirement: Interactive Example Application Verification
+The `example/` application SHALL provide interactive controls to simulate asynchronous network data fetching with latency alongside a realistic static single-page mode.
+
+#### Scenario: Asynchronous web service simulation in example
+- **WHEN** the user selects the simulated web service mode in `example/lib/main.dart` and triggers page navigation
+- **THEN** the table displays `isLoading: true`, activates the top linear indicator, locks pagination navigation buttons during the simulated latency delay, and renders updated page items upon completion
+
+#### Scenario: Realistic static single page mode in example
+- **WHEN** the user selects the static data mode in `example/lib/main.dart`
+- **THEN** the table displays a realistic set of records configured with single-page pagination metadata

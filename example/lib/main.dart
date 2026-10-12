@@ -8,6 +8,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 
 import 'models/user.dart';
+import 'services/mock_user_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -211,27 +212,46 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  List<User> data = [
+  static final List<User> staticData = [
     User(id: 1, name: 'Hugo', phone: '3347294736', userType: UserType.admin),
     User(id: 2, name: 'Paco', phone: '3392053734', userType: UserType.admin),
-    User(id: 5, name: 'Luis', phone: '3392053734', userType: UserType.user),
-    User(id: 5, name: 'Luis', phone: '3392053734', userType: UserType.user),
-    User(id: 5, name: 'Luis', phone: '3392053734', userType: UserType.user),
-    User(id: 5, name: 'Luis', phone: '3392053734', userType: UserType.user),
-    User(id: 5, name: 'Luis', phone: '3392053734', userType: UserType.user),
+    User(id: 3, name: 'Luis', phone: '3392053734', userType: UserType.user),
+    User(id: 4, name: 'Donald', phone: '3392053734', userType: UserType.user),
+    User(id: 5, name: 'Daisy', phone: '3392053734', userType: UserType.user),
+    User(id: 6, name: 'Mickey', phone: '3392053734', userType: UserType.user),
+    User(id: 7, name: 'Minnie', phone: '3392053734', userType: UserType.user),
   ];
 
-  List<FilterItem>? filtersUserType;
+  List<User>? data = List<User>.from(staticData);
+  PaginatorInfo? paginatorInfo =
+      PaginatorInfo.singlePage(total: staticData.length);
 
-  PaginatorInfo? paginatorInfo = PaginatorInfo(
-    lastPage: 1500,
-    currentPage: 1400,
-    perPage: 8,
-    total: 12000,
-  );
-
-  late List<FilterSection> filters;
+  bool isWebServiceMode = false;
+  bool isLoading = false;
   bool isBoundedMode = true;
+
+  List<FilterItem>? filtersUserType;
+  late List<FilterSection> filters;
+
+  Future<void> _fetchWebData({
+    int page = 1,
+    int perPage = 8,
+    bool forceEmpty = false,
+  }) async {
+    setState(() => isLoading = true);
+    final result = await MockUserService.fetchUsers(
+      page: page,
+      perPage: perPage,
+      forceEmpty: forceEmpty,
+    );
+    if (mounted) {
+      setState(() {
+        data = result.items;
+        paginatorInfo = result.paginator;
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   void initState() {
@@ -261,37 +281,123 @@ class _MyHomePageState extends State<MyHomePage> {
           runSpacing: 8,
           children: [
             FilledButton.tonal(
-              key: const Key('btn_paginated'),
+              key: const Key('btn_toggle_mode'),
+              style: isWebServiceMode
+                  ? FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    )
+                  : null,
               onPressed: () {
                 setState(() {
-                  paginatorInfo = PaginatorInfo(
-                    lastPage: 1500,
-                    currentPage: 1400,
-                    perPage: 8,
-                    total: 12000,
-                  );
+                  isWebServiceMode = !isWebServiceMode;
+                  if (isWebServiceMode) {
+                    _fetchWebData(page: 1, perPage: 8);
+                  } else {
+                    data = List<User>.from(staticData);
+                    paginatorInfo =
+                        PaginatorInfo.singlePage(total: staticData.length);
+                    isLoading = false;
+                  }
                 });
               },
-              child: const Text('Modo Paginado'),
+              child: Text(
+                isWebServiceMode
+                    ? 'Mode: Web Service (Async)'
+                    : 'Mode: Static (Single Page)',
+              ),
             ),
-            FilledButton.tonal(
-              key: const Key('btn_unpaginated'),
-              onPressed: () {
-                setState(() {
-                  paginatorInfo = null;
-                });
-              },
-              child: const Text('Sin Paginador (null)'),
-            ),
-            FilledButton.tonal(
-              key: const Key('btn_single_page'),
-              onPressed: () {
-                setState(() {
-                  paginatorInfo = PaginatorInfo.singlePage(total: data.length);
-                });
-              },
-              child: const Text('Single Page Helper'),
-            ),
+            if (isWebServiceMode) ...[
+              FilledButton.tonal(
+                key: const Key('btn_initial_fetch'),
+                onPressed: isLoading
+                    ? null
+                    : () async {
+                        setState(() {
+                          data = null;
+                        });
+                        await _fetchWebData(
+                          page: 1,
+                          perPage: paginatorInfo?.perPage ?? 8,
+                        );
+                      },
+                child: const Text('Initial Fetch (null)'),
+              ),
+              FilledButton.tonal(
+                key: const Key('btn_simulate_empty'),
+                onPressed: isLoading
+                    ? null
+                    : () {
+                        _fetchWebData(
+                          page: 1,
+                          perPage: paginatorInfo?.perPage ?? 8,
+                          forceEmpty: true,
+                        );
+                      },
+                child: const Text('Simulate Empty ([])'),
+              ),
+              FilledButton.tonal(
+                key: const Key('btn_reload_page'),
+                onPressed: isLoading
+                    ? null
+                    : () {
+                        _fetchWebData(
+                          page: paginatorInfo?.currentPage ?? 1,
+                          perPage: paginatorInfo?.perPage ?? 8,
+                        );
+                      },
+                child: const Text('Reload Page'),
+              ),
+            ] else ...[
+              FilledButton.tonal(
+                key: const Key('btn_paginated'),
+                onPressed: () {
+                  setState(() {
+                    paginatorInfo = PaginatorInfo(
+                      lastPage: 1500,
+                      currentPage: 1400,
+                      perPage: 8,
+                      total: 12000,
+                    );
+                  });
+                },
+                child: const Text('Modo Paginado'),
+              ),
+              FilledButton.tonal(
+                key: const Key('btn_unpaginated'),
+                onPressed: () {
+                  setState(() {
+                    paginatorInfo = null;
+                  });
+                },
+                child: const Text('Sin Paginador (null)'),
+              ),
+              FilledButton.tonal(
+                key: const Key('btn_single_page'),
+                onPressed: () {
+                  setState(() {
+                    paginatorInfo =
+                        PaginatorInfo.singlePage(total: data?.length ?? 0);
+                  });
+                },
+                child: const Text('Single Page Helper'),
+              ),
+              FilledButton.tonal(
+                key: const Key('btn_toggle_data'),
+                onPressed: () {
+                  setState(() {
+                    if (data == null || data!.isEmpty) {
+                      data = List<User>.from(staticData);
+                    } else {
+                      data = [];
+                    }
+                  });
+                },
+                child: Text(
+                  (data?.isEmpty ?? true) ? 'Restore Data' : 'Empty Data ([])',
+                ),
+              ),
+            ],
             FilledButton.tonal(
               key: const Key('btn_bounded'),
               style: isBoundedMode
@@ -321,62 +427,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 });
               },
               child: const Text('Unbounded (SingleChildScrollView)'),
-            ),
-            FilledButton.tonal(
-              key: const Key('btn_toggle_data'),
-              onPressed: () {
-                setState(() {
-                  if (data.isEmpty) {
-                    data = [
-                      User(
-                        id: 1,
-                        name: 'Hugo',
-                        phone: '3347294736',
-                        userType: UserType.admin,
-                      ),
-                      User(
-                        id: 2,
-                        name: 'Paco',
-                        phone: '3392053734',
-                        userType: UserType.admin,
-                      ),
-                      User(
-                        id: 5,
-                        name: 'Luis',
-                        phone: '3392053734',
-                        userType: UserType.user,
-                      ),
-                      User(
-                        id: 5,
-                        name: 'Luis',
-                        phone: '3392053734',
-                        userType: UserType.user,
-                      ),
-                      User(
-                        id: 5,
-                        name: 'Luis',
-                        phone: '3392053734',
-                        userType: UserType.user,
-                      ),
-                      User(
-                        id: 5,
-                        name: 'Luis',
-                        phone: '3392053734',
-                        userType: UserType.user,
-                      ),
-                      User(
-                        id: 5,
-                        name: 'Luis',
-                        phone: '3392053734',
-                        userType: UserType.user,
-                      ),
-                    ];
-                  } else {
-                    data = [];
-                  }
-                });
-              },
-              child: Text(data.isEmpty ? 'Restore Data' : 'Empty Data ([])'),
             ),
             FilledButton.tonal(
               onPressed: () async {
@@ -492,6 +542,8 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget _buildTable() {
     return CustomDataTable<User>(
       data: data,
+      isLoading: isLoading,
+      emptyBuilder: null,
       columns: [
         ColumnInfo(
           name: 'Id',
@@ -561,21 +613,43 @@ class _MyHomePageState extends State<MyHomePage> {
       },
       paginatorInfo: paginatorInfo,
       onPreviousPage: () {
-        if (paginatorInfo != null) {
+        if (isWebServiceMode) {
+          final prevPage = (paginatorInfo?.currentPage ?? 1) - 1;
+          if (prevPage >= 1) {
+            _fetchWebData(
+              page: prevPage,
+              perPage: paginatorInfo?.perPage ?? 8,
+            );
+          }
+        } else if (paginatorInfo != null) {
           paginatorInfo = paginatorInfo!
               .copyWith(currentPage: (paginatorInfo!.currentPage ?? 0) - 1);
           setState(() {});
         }
       },
       onNextPage: () {
-        if (paginatorInfo != null) {
+        if (isWebServiceMode) {
+          final nextPage = (paginatorInfo?.currentPage ?? 1) + 1;
+          final lastPage = paginatorInfo?.lastPage ?? 1;
+          if (nextPage <= lastPage) {
+            _fetchWebData(
+              page: nextPage,
+              perPage: paginatorInfo?.perPage ?? 8,
+            );
+          }
+        } else if (paginatorInfo != null) {
           paginatorInfo = paginatorInfo!
               .copyWith(currentPage: (paginatorInfo!.currentPage ?? 0) + 1);
           setState(() {});
         }
       },
       onSelectedPage: (page) {
-        if (paginatorInfo != null) {
+        if (isWebServiceMode) {
+          _fetchWebData(
+            page: page,
+            perPage: paginatorInfo?.perPage ?? 8,
+          );
+        } else if (paginatorInfo != null) {
           paginatorInfo = paginatorInfo!.copyWith(currentPage: page);
           setState(() {});
         }
@@ -585,33 +659,43 @@ class _MyHomePageState extends State<MyHomePage> {
       },
       onChangeSearchTextField: (values) {},
       onPerPageChange: (perPage) {
-        print(perPage);
+        if (isWebServiceMode) {
+          _fetchWebData(
+            page: 1,
+            perPage: perPage,
+          );
+        } else if (paginatorInfo != null) {
+          paginatorInfo = paginatorInfo!.copyWith(perPage: perPage);
+          setState(() {});
+        }
       },
       onSort: (sortInfo) {
+        if (data == null) return;
         switch (sortInfo.columnInfo.key) {
           case 'id':
             if (sortInfo.asc) {
-              data.sort((a, b) => (a.id ?? 0).compareTo(b.id ?? 0));
+              data!.sort((a, b) => (a.id ?? 0).compareTo(b.id ?? 0));
             } else {
-              data.sort((b, a) => (a.id ?? 0).compareTo(b.id ?? 0));
+              data!.sort((b, a) => (a.id ?? 0).compareTo(b.id ?? 0));
             }
             break;
           case 'name':
             if (sortInfo.asc) {
-              data.sort((a, b) => (a.name ?? '').compareTo(b.name ?? ''));
+              data!.sort((a, b) => (a.name ?? '').compareTo(b.name ?? ''));
             } else {
-              data.sort((b, a) => (a.name ?? '').compareTo(b.name ?? ''));
+              data!.sort((b, a) => (a.name ?? '').compareTo(b.name ?? ''));
             }
             break;
           case 'userType':
             if (sortInfo.asc) {
-              data.sort((a, b) =>
+              data!.sort((a, b) =>
                   (a.userType?.name ?? '').compareTo(b.userType?.name ?? ''));
             } else {
-              data.sort((b, a) =>
+              data!.sort((b, a) =>
                   (a.userType?.name ?? '').compareTo(b.userType?.name ?? ''));
             }
         }
+        setState(() {});
       },
       onPrint: () {},
       filterSections: filters,

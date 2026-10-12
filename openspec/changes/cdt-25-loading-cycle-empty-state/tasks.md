@@ -25,3 +25,10 @@
 - [x] 4.4 Add widget tests verifying custom `emptyBuilder` and default empty state placeholder when `data == []`.
 - [x] 4.5 Add widget test verifying transitioning `data` from a populated list to `null` resets content height and adapts container constraints smoothly.
 - [x] 4.6 Run format check, static analysis (`flutter analyze --fatal-infos`), and full test suite (`flutter test`).
+
+## 5. Review Iteration: Interactive Web Service and Example Enhancements [Iteration 1]
+
+- [x] 5.1 Implement mock async web service in `example/lib/services/mock_user_service.dart` simulating paginated network fetches with realistic delay (1000ms), 100 items, and empty response simulation.
+- [x] 5.2 Add interactive toggle in `example/lib/main.dart` between realistic static single-page mode (`PaginatorInfo.singlePage(total: 7)`) and simulated async web service.
+- [x] 5.3 Wire async page navigation, initial fetch (`data == null`), background reload, and empty state triggers into `CustomDataTable` in `example/`.
+- [x] 5.4 Verify formatting (`dart format`), static analysis (`flutter analyze --fatal-infos`), and tests (`flutter test`).
