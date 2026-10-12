@@ -231,6 +231,7 @@ class _MyHomePageState extends State<MyHomePage> {
   );
 
   late List<FilterSection> filters;
+  bool isBoundedMode = true;
 
   @override
   void initState() {
@@ -252,61 +253,139 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final bodyContent = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
           children: [
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                FilledButton.tonal(
-                  key: const Key('btn_paginated'),
-                  onPressed: () {
-                    setState(() {
-                      paginatorInfo = PaginatorInfo(
-                        lastPage: 1500,
-                        currentPage: 1400,
-                        perPage: 8,
-                        total: 12000,
-                      );
-                    });
-                  },
-                  child: const Text('Modo Paginado'),
-                ),
-                FilledButton.tonal(
-                  key: const Key('btn_unpaginated'),
-                  onPressed: () {
-                    setState(() {
-                      paginatorInfo = null;
-                    });
-                  },
-                  child: const Text('Sin Paginador (null)'),
-                ),
-                FilledButton.tonal(
-                  key: const Key('btn_single_page'),
-                  onPressed: () {
-                    setState(() {
-                      paginatorInfo =
-                          PaginatorInfo.singlePage(total: data.length);
-                    });
-                  },
-                  child: const Text('Single Page Helper'),
-                ),
-              ],
+            FilledButton.tonal(
+              key: const Key('btn_paginated'),
+              onPressed: () {
+                setState(() {
+                  paginatorInfo = PaginatorInfo(
+                    lastPage: 1500,
+                    currentPage: 1400,
+                    perPage: 8,
+                    total: 12000,
+                  );
+                });
+              },
+              child: const Text('Modo Paginado'),
             ),
-            const SizedBox(height: 10),
-            FilledButton(
+            FilledButton.tonal(
+              key: const Key('btn_unpaginated'),
+              onPressed: () {
+                setState(() {
+                  paginatorInfo = null;
+                });
+              },
+              child: const Text('Sin Paginador (null)'),
+            ),
+            FilledButton.tonal(
+              key: const Key('btn_single_page'),
+              onPressed: () {
+                setState(() {
+                  paginatorInfo = PaginatorInfo.singlePage(total: data.length);
+                });
+              },
+              child: const Text('Single Page Helper'),
+            ),
+            FilledButton.tonal(
+              key: const Key('btn_bounded'),
+              style: isBoundedMode
+                  ? FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    )
+                  : null,
+              onPressed: () {
+                setState(() {
+                  isBoundedMode = true;
+                });
+              },
+              child: const Text('Bounded (Expanded)'),
+            ),
+            FilledButton.tonal(
+              key: const Key('btn_unbounded'),
+              style: !isBoundedMode
+                  ? FilledButton.styleFrom(
+                      backgroundColor: Theme.of(context).colorScheme.primary,
+                      foregroundColor: Theme.of(context).colorScheme.onPrimary,
+                    )
+                  : null,
+              onPressed: () {
+                setState(() {
+                  isBoundedMode = false;
+                });
+              },
+              child: const Text('Unbounded (SingleChildScrollView)'),
+            ),
+            FilledButton.tonal(
+              key: const Key('btn_toggle_data'),
+              onPressed: () {
+                setState(() {
+                  if (data.isEmpty) {
+                    data = [
+                      User(
+                        id: 1,
+                        name: 'Hugo',
+                        phone: '3347294736',
+                        userType: UserType.admin,
+                      ),
+                      User(
+                        id: 2,
+                        name: 'Paco',
+                        phone: '3392053734',
+                        userType: UserType.admin,
+                      ),
+                      User(
+                        id: 5,
+                        name: 'Luis',
+                        phone: '3392053734',
+                        userType: UserType.user,
+                      ),
+                      User(
+                        id: 5,
+                        name: 'Luis',
+                        phone: '3392053734',
+                        userType: UserType.user,
+                      ),
+                      User(
+                        id: 5,
+                        name: 'Luis',
+                        phone: '3392053734',
+                        userType: UserType.user,
+                      ),
+                      User(
+                        id: 5,
+                        name: 'Luis',
+                        phone: '3392053734',
+                        userType: UserType.user,
+                      ),
+                      User(
+                        id: 5,
+                        name: 'Luis',
+                        phone: '3392053734',
+                        userType: UserType.user,
+                      ),
+                    ];
+                  } else {
+                    data = [];
+                  }
+                });
+              },
+              child: Text(data.isEmpty ? 'Restore Data' : 'Empty Data ([])'),
+            ),
+            FilledButton.tonal(
               onPressed: () async {
                 final a = await showCustomDateFilters(context);
-
                 print(a?.label(context));
               },
               child: const Text('Show date filter'),
             ),
-            FilledButton(
+            FilledButton.tonal(
               onPressed: () async {
                 final date = await showMonthPicker(
                   context: context,
@@ -314,227 +393,244 @@ class _MyHomePageState extends State<MyHomePage> {
                   firstDate: DateTime(2021, 4),
                   lastDate: DateTime(2022, 5),
                 );
-
                 print(date);
               },
               child: const Text('Seleccionar mes'),
             ),
-            CustomFilters(
-              sections: [
-                FilterSection<TipoVehiculo>(
-                  columnInfo: ColumnId(key: 'type', name: 'Tipo de vehículo'),
-                  filters: [
-                    FilterItem(
-                      filterName: 'Particular',
-                      value: TipoVehiculo(name: 'particular'),
-                    ),
-                    FilterItem(
-                      filterName: 'Motocicleta',
-                      value: TipoVehiculo(name: 'moto'),
-                    ),
-                  ],
-                  selectedFilters: [
-                    FilterItem(
-                      filterName: 'Motocicleta',
-                      value: TipoVehiculo(name: 'moto'),
-                    ),
-                  ],
-                ),
-                FilterSection<Clase>(
-                  columnInfo: ColumnId(key: 'clase', name: 'Clase'),
-                  filters: [
-                    FilterItem(
-                      filterName: 'Particular',
-                      value: Clase(name: 'particular'),
-                    ),
-                    FilterItem(
-                      filterName: 'Público',
-                      value: Clase(name: 'publico'),
-                    ),
-                  ],
-                ),
-              ],
-              onChange: (sections) {
-                print(sections);
-              },
-              onChangeDateFilter: (dateFilter) {},
-              initialDateFilter: DateSelection(
-                dateFilterType: DateFilterType.period,
-                date: DateTime.now(),
-                endDate: DateTime.now(),
-              ),
-            ),
-            const SizedBox(height: 20),
-            FiltersView(
-              sections: [
-                FilterSection<String>(
-                  columnInfo: ColumnId(key: 'agente', name: 'Agente'),
-                  filters: [
-                    FilterItem(
-                      filterName: 'Editar agente',
-                      value: 'edit_agent',
-                    ),
-                    FilterItem(
-                      filterName: 'Agregar agente',
-                      value: 'add_agent',
-                    ),
-                  ],
-                ),
-              ],
-              onChange: (sections) {
-                print(sections);
-              },
-            ),
-            const SizedBox(height: 20),
-            Expanded(
-              child: CustomDataTable<User>(
-                data: data,
-                columns: [
-                  ColumnInfo(
-                    name: 'Id',
-                    key: 'id',
-                    flex: 1,
-                    width: 100,
-                  ),
-                  ColumnInfo(
-                    name: 'Nombre',
-                    key: 'name',
-                    flex: 2,
-                    width: 300,
-                    canSearchInput: true,
-                  ),
-                  ColumnInfo(
-                    name: 'Teléfono',
-                    key: 'phone',
-                    width: 110,
-                    canSearchInput: true,
-                    controllerInput: TextEditingController(text: 'Prueba'),
-                    onChangeInput: (value) {
-                      print(value);
-                    },
-                  ),
-                  ColumnInfo(
-                    name: 'Email',
-                    key: 'email',
-                    width: 110,
-                    canSort: true,
-                  ),
-                  ColumnInfo(
-                    name: 'Tipo',
-                    key: 'userType',
-                    width: 100,
-                    canSearchInput: true,
-                    canSort: true,
-                  ),
-                  ColumnInfo(
-                    name: '',
-                    key: 'button',
-                    flex: 1,
-                    width: 100,
-                    canSearchInput: true,
-                  ),
-                ],
-                canCopy: true,
-                toMap: (element) => element.toJsonTable(),
-                /*
-                onChangeSearchFilter: (values) {
-                  print(values);
-                },
-
-                 */
-                cell: (element, map, key) {
-                  switch (key) {
-                    case 'button':
-                      return IconButton(
-                        padding: EdgeInsets.zero,
-                        onPressed: () => print(element.id),
-                        icon: const Icon(Icons.block),
-                        color: Colors.pink,
-                        splashRadius: 20,
-                      );
-                  }
-
-                  return null;
-                },
-                paginatorInfo: paginatorInfo,
-                onPreviousPage: () {
-                  if (paginatorInfo != null) {
-                    paginatorInfo = paginatorInfo!.copyWith(
-                        currentPage: (paginatorInfo!.currentPage ?? 0) - 1);
-                    setState(() {});
-                  }
-                },
-                onNextPage: () {
-                  if (paginatorInfo != null) {
-                    paginatorInfo = paginatorInfo!.copyWith(
-                        currentPage: (paginatorInfo!.currentPage ?? 0) + 1);
-                    setState(() {});
-                  }
-                },
-                onSelectedPage: (page) {
-                  if (paginatorInfo != null) {
-                    paginatorInfo = paginatorInfo!.copyWith(currentPage: page);
-                    setState(() {});
-                  }
-                },
-                onChangeGeneralSearch: (value) {
-                  print(value);
-                },
-                onChangeSearchTextField: (values) {},
-                onPerPageChange: (perPage) {
-                  print(perPage);
-                },
-                onSort: (sortInfo) {
-                  switch (sortInfo.columnInfo.key) {
-                    case 'id':
-                      if (sortInfo.asc) {
-                        data.sort((a, b) => (a.id ?? 0).compareTo(b.id ?? 0));
-                      } else {
-                        data.sort((b, a) => (a.id ?? 0).compareTo(b.id ?? 0));
-                      }
-                      break;
-                    case 'name':
-                      if (sortInfo.asc) {
-                        data.sort(
-                            (a, b) => (a.name ?? '').compareTo(b.name ?? ''));
-                      } else {
-                        data.sort(
-                            (b, a) => (a.name ?? '').compareTo(b.name ?? ''));
-                      }
-                      break;
-                    case 'userType':
-                      if (sortInfo.asc) {
-                        data.sort((a, b) => (a.userType?.name ?? '')
-                            .compareTo(b.userType?.name ?? ''));
-                      } else {
-                        data.sort((b, a) => (a.userType?.name ?? '')
-                            .compareTo(b.userType?.name ?? ''));
-                      }
-                  }
-                },
-                onPrint: () {},
-                filterSections: filters,
-                onChangeFilters: (values) {
-                  filters = values;
-                  setState(() {});
-                },
-                initialDateFilter: DateSelection(
-                  dateFilterType: DateFilterType.period,
-                  date: DateTime.now(),
-                  endDate: DateTime.now(),
-                ),
-                lastDate: DateTime.now().add(const Duration(days: 10)),
-                onChangeDateFilter: (dateFilter) {
-                  print(dateFilter);
-                },
-                onTapRow: (element) {
-                  print(element.toJsonTable());
-                },
-              ),
-            ),
           ],
         ),
+        const SizedBox(height: 10),
+        CustomFilters(
+          sections: [
+            FilterSection<TipoVehiculo>(
+              columnInfo: ColumnId(key: 'type', name: 'Tipo de vehículo'),
+              filters: [
+                FilterItem(
+                  filterName: 'Particular',
+                  value: TipoVehiculo(name: 'particular'),
+                ),
+                FilterItem(
+                  filterName: 'Motocicleta',
+                  value: TipoVehiculo(name: 'moto'),
+                ),
+              ],
+              selectedFilters: [
+                FilterItem(
+                  filterName: 'Motocicleta',
+                  value: TipoVehiculo(name: 'moto'),
+                ),
+              ],
+            ),
+            FilterSection<Clase>(
+              columnInfo: ColumnId(key: 'clase', name: 'Clase'),
+              filters: [
+                FilterItem(
+                  filterName: 'Particular',
+                  value: Clase(name: 'particular'),
+                ),
+                FilterItem(
+                  filterName: 'Público',
+                  value: Clase(name: 'publico'),
+                ),
+              ],
+            ),
+          ],
+          onChange: (sections) {
+            print(sections);
+          },
+          onChangeDateFilter: (dateFilter) {},
+          initialDateFilter: DateSelection(
+            dateFilterType: DateFilterType.period,
+            date: DateTime.now(),
+            endDate: DateTime.now(),
+          ),
+        ),
+        const SizedBox(height: 20),
+        FiltersView(
+          sections: [
+            FilterSection<String>(
+              columnInfo: ColumnId(key: 'agente', name: 'Agente'),
+              filters: [
+                FilterItem(
+                  filterName: 'Editar agente',
+                  value: 'edit_agent',
+                ),
+                FilterItem(
+                  filterName: 'Agregar agente',
+                  value: 'add_agent',
+                ),
+              ],
+            ),
+          ],
+          onChange: (sections) {
+            print(sections);
+          },
+        ),
+        const SizedBox(height: 20),
+        if (isBoundedMode)
+          Expanded(
+            child: _buildTable(),
+          )
+        else
+          _buildTable(),
+      ],
+    );
+
+    return Scaffold(
+      body: isBoundedMode
+          ? Padding(
+              padding: const EdgeInsets.all(20),
+              child: bodyContent,
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(20),
+              child: bodyContent,
+            ),
+    );
+  }
+
+  Widget _buildTable() {
+    return CustomDataTable<User>(
+      data: data,
+      columns: [
+        ColumnInfo(
+          name: 'Id',
+          key: 'id',
+          flex: 1,
+          width: 100,
+        ),
+        ColumnInfo(
+          name: 'Nombre',
+          key: 'name',
+          flex: 2,
+          width: 300,
+          canSearchInput: true,
+        ),
+        ColumnInfo(
+          name: 'Teléfono',
+          key: 'phone',
+          width: 110,
+          canSearchInput: true,
+          controllerInput: TextEditingController(text: 'Prueba'),
+          onChangeInput: (value) {
+            print(value);
+          },
+        ),
+        ColumnInfo(
+          name: 'Email',
+          key: 'email',
+          width: 110,
+          canSort: true,
+        ),
+        ColumnInfo(
+          name: 'Tipo',
+          key: 'userType',
+          width: 100,
+          canSearchInput: true,
+          canSort: true,
+        ),
+        ColumnInfo(
+          name: '',
+          key: 'button',
+          flex: 1,
+          width: 100,
+          canSearchInput: true,
+        ),
+      ],
+      canCopy: true,
+      toMap: (element) => element.toJsonTable(),
+      /*
+      onChangeSearchFilter: (values) {
+        print(values);
+      },
+
+       */
+      cell: (element, map, key) {
+        switch (key) {
+          case 'button':
+            return IconButton(
+              padding: EdgeInsets.zero,
+              onPressed: () => print(element.id),
+              icon: const Icon(Icons.block),
+              color: Colors.pink,
+              splashRadius: 20,
+            );
+        }
+
+        return null;
+      },
+      paginatorInfo: paginatorInfo,
+      onPreviousPage: () {
+        if (paginatorInfo != null) {
+          paginatorInfo = paginatorInfo!
+              .copyWith(currentPage: (paginatorInfo!.currentPage ?? 0) - 1);
+          setState(() {});
+        }
+      },
+      onNextPage: () {
+        if (paginatorInfo != null) {
+          paginatorInfo = paginatorInfo!
+              .copyWith(currentPage: (paginatorInfo!.currentPage ?? 0) + 1);
+          setState(() {});
+        }
+      },
+      onSelectedPage: (page) {
+        if (paginatorInfo != null) {
+          paginatorInfo = paginatorInfo!.copyWith(currentPage: page);
+          setState(() {});
+        }
+      },
+      onChangeGeneralSearch: (value) {
+        print(value);
+      },
+      onChangeSearchTextField: (values) {},
+      onPerPageChange: (perPage) {
+        print(perPage);
+      },
+      onSort: (sortInfo) {
+        switch (sortInfo.columnInfo.key) {
+          case 'id':
+            if (sortInfo.asc) {
+              data.sort((a, b) => (a.id ?? 0).compareTo(b.id ?? 0));
+            } else {
+              data.sort((b, a) => (a.id ?? 0).compareTo(b.id ?? 0));
+            }
+            break;
+          case 'name':
+            if (sortInfo.asc) {
+              data.sort((a, b) => (a.name ?? '').compareTo(b.name ?? ''));
+            } else {
+              data.sort((b, a) => (a.name ?? '').compareTo(b.name ?? ''));
+            }
+            break;
+          case 'userType':
+            if (sortInfo.asc) {
+              data.sort((a, b) =>
+                  (a.userType?.name ?? '').compareTo(b.userType?.name ?? ''));
+            } else {
+              data.sort((b, a) =>
+                  (a.userType?.name ?? '').compareTo(b.userType?.name ?? ''));
+            }
+        }
+      },
+      onPrint: () {},
+      filterSections: filters,
+      onChangeFilters: (values) {
+        filters = values;
+        setState(() {});
+      },
+      initialDateFilter: DateSelection(
+        dateFilterType: DateFilterType.period,
+        date: DateTime.now(),
+        endDate: DateTime.now(),
       ),
+      lastDate: DateTime.now().add(const Duration(days: 10)),
+      onChangeDateFilter: (dateFilter) {
+        print(dateFilter);
+      },
+      onTapRow: (element) {
+        print(element.toJsonTable());
+      },
     );
   }
 }
