@@ -274,12 +274,144 @@ void main() {
       final pagePickerInkWell = tester.widget<InkWell>(pagePickerFinder);
       expect(pagePickerInkWell.onTap, isNull);
 
+      // Verify dropdown icon remains in the tree during loading and uses disabledColor
+      final dropdownIconFinder = find.descendant(
+        of: find.byType(TablePaginatedCountWidget),
+        matching: find.byIcon(Icons.keyboard_arrow_down_rounded),
+      );
+      expect(dropdownIconFinder, findsOneWidget);
+
+      final BuildContext context = tester.element(dropdownIconFinder);
+      final expectedDisabledColor = Theme.of(context).disabledColor;
+
+      final dropdownIcon = tester.widget<Icon>(dropdownIconFinder);
+      expect(dropdownIcon.color, expectedDisabledColor);
+
+      // Verify page number text gracefully dims with disabledColor
+      final pageText = tester.widget<Text>(
+        find.descendant(
+          of: find.byType(TablePaginatedCountWidget),
+          matching: find.text('2'),
+        ),
+      );
+      expect(pageText.style?.color, expectedDisabledColor);
+
+      // Verify Material background color is preserved during loading
+      final materialFinder = find.ancestor(
+        of: pagePickerFinder,
+        matching: find.byType(Material),
+      );
+      final materialWidget = tester.widget<Material>(materialFinder.first);
+      expect(
+        materialWidget.color,
+        Theme.of(context).inputDecorationTheme.fillColor,
+      );
+
       await tester.tap(pagePickerFinder);
       await tester.pump();
       expect(find.byType(SelectPageWidget), findsNothing);
       expect(previousPressed, isFalse);
       expect(nextPressed, isFalse);
       expect(pageSelected, isFalse);
+    });
+
+    testWidgets(
+        'page selector maintains identical dimensions and switches color between idle and loading',
+        (tester) async {
+      final columns = createSampleColumns();
+      final sampleData = createSampleData();
+      bool loading = false;
+
+      late StateSetter setStateCallback;
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: StatefulBuilder(
+              builder: (context, setState) {
+                setStateCallback = setState;
+                return SizedBox(
+                  width: 800,
+                  height: 600,
+                  child: CustomDataTable<Map<String, String>>(
+                    columns: columns,
+                    data: sampleData,
+                    isLoading: loading,
+                    paginatorInfo: PaginatorInfo(
+                      lastPage: 5,
+                      currentPage: 2,
+                      perPage: 10,
+                      total: 50,
+                    ),
+                    onSelectedPage: (page) {},
+                    toMap: (element) => element,
+                  ),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      final pagePickerFinder = find.ancestor(
+        of: find.descendant(
+          of: find.byType(TablePaginatedCountWidget),
+          matching: find.text('2'),
+        ),
+        matching: find.byType(InkWell),
+      );
+      final initialSize = tester.getSize(pagePickerFinder);
+
+      final iconFinder = find.descendant(
+        of: find.byType(TablePaginatedCountWidget),
+        matching: find.byIcon(Icons.keyboard_arrow_down_rounded),
+      );
+      expect(iconFinder, findsOneWidget);
+
+      final context = tester.element(iconFinder);
+      final activeColor = Theme.of(context).textTheme.bodySmall?.color;
+      final disabledColor = Theme.of(context).disabledColor;
+
+      expect(tester.widget<Icon>(iconFinder).color, activeColor);
+      expect(
+        tester
+            .widget<Text>(
+              find.descendant(
+                of: find.byType(TablePaginatedCountWidget),
+                matching: find.text('2'),
+              ),
+            )
+            .style
+            ?.color,
+        activeColor,
+      );
+
+      // Switch to loading
+      setStateCallback(() {
+        loading = true;
+      });
+      await tester.pump();
+
+      // Zero shift: size is strictly identical
+      expect(tester.getSize(pagePickerFinder), initialSize);
+      expect(iconFinder, findsOneWidget);
+      expect(tester.widget<Icon>(iconFinder).color, disabledColor);
+      expect(
+        tester
+            .widget<Text>(
+              find.descendant(
+                of: find.byType(TablePaginatedCountWidget),
+                matching: find.text('2'),
+              ),
+            )
+            .style
+            ?.color,
+        disabledColor,
+      );
     });
 
     testWidgets(

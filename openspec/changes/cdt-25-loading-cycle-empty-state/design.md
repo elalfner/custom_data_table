@@ -19,7 +19,7 @@ The original Jira ticket referenced resetting `contentHeight.value = null` when 
 - Provide an optional `emptyBuilder` on `CustomDataTable` (forwarded to `TableContent`) that renders when `data != null && data.isEmpty`.
 - When `emptyBuilder` is null, provide a localized default empty state showing an icon and `"No results found"` / `"No se han encontrado resultados"` (`context.appLocalizations.noResultsFound`).
 - Ensure empty states allocate a comfortable minimum height (160.0 px under unbounded constraints, centered within `Flexible` under bounded constraints) without collapsing to 10px.
-- Enhance the `example/` app with an interactive toggle between a realistic single-page static mode and a simulated asynchronous web service with simulated network delay to facilitate visual inspection in `/jira-app-review`.
+- Eliminate layout shift in the page selector button during loading by preserving the dropdown arrow, pill fill background, and dimensions while applying a disabled visual style and disabling tap interactions.
 - Maintain complete backwards compatibility for existing `CustomDataTable` consumers.
 
 **Non-Goals:**
@@ -37,8 +37,8 @@ The original Jira ticket referenced resetting `contentHeight.value = null` when 
 - **Decision**: In `TablePaginatedCountWidget`, guard the interactive page picker:
   ```dart
   final canSelect = widget.onSelectedPage != null &&
-      widget.paginatorInfo.lastPage != 1 &&
-      !widget.loading;
+      widget.paginatorInfo.lastPage != 1;
+  final isEnabled = canSelect && !widget.loading;
   ```
 - **Rationale**: While `onPreviousPage` and `onNextPage` already checked `!widget.loading`, `canSelect` previously allowed opening `showDialogPage` and triggering `onSelectedPage` while loading.
 
@@ -59,14 +59,17 @@ The original Jira ticket referenced resetting `contentHeight.value = null` when 
 
 ### 5. Review Iteration 1: Interactive Example App with Simulated Web Service & Realistic Single Page
 - **Decision**:
-  - In `example/lib/services/mock_user_service.dart` (or `example/lib/main.dart`), implement an in-memory asynchronous user service with simulated network delay (e.g. 1000-1200ms) that returns paginated data (`List<User>` and `PaginatorInfo`).
+  - In `example/lib/services/mock_user_service.dart`, implement an in-memory asynchronous user service with simulated network delay (1000ms) that returns paginated data (`List<User>` and `PaginatorInfo`).
   - In `example/lib/main.dart`:
-    - Provide a mode toggle:
-      - **Realistic Static Mode (Single Page)**: A clean, realistic list of fixed users with single-page paginator (`PaginatorInfo.singlePage(total: 7)`), eliminating confusing artificial 1500 pages.
-      - **Simulated Web Service Mode (Async)**: Asynchronous pagination with 100 total users, 10 per page, tracking `_isLoading`. When navigating pages, `isLoading` is set to `true` during the delay, demonstrating the locked controls and top linear progress bar.
-    - Provide quick test buttons:
-      - `Initial Fetch (data == null)`: triggers central loader and then loads records.
-      - `Simulate Empty ([])`: returns 0 records to demonstrate the new empty state.
+    - Provide a mode toggle between **Realistic Static Mode (Single Page)** and **Simulated Web Service Mode (Async)**.
+    - Provide quick test buttons: `Initial Fetch (null)`, `Simulate Empty ([])`, and `Reload Page`.
+
+### 6. Review Iteration 2: Zero-Shift Page Selector Stability (Alternativa A)
+- **Decision**:
+  - Decouple structural capability (`isSelectable = widget.onSelectedPage != null && widget.paginatorInfo.lastPage != 1`) from interaction capability (`isEnabled = isSelectable && !widget.loading`).
+  - Maintain the pill background (`fillColor`) and the dropdown arrow icon (`Icons.keyboard_arrow_down_rounded`) rendered whenever `isSelectable == true`, preserving exact container width (~35px) and eliminating layout shifts.
+  - When `isEnabled == false` (loading or disabled), set `onTap: null`, and style the text and arrow icon with `Theme.of(context).disabledColor`.
+- **Rationale**: Eliminates the jarring 17px layout shift during asynchronous page transitions while clearly conveying disabled interaction via color and inert touch behavior.
 
 ## Risks / Trade-offs
 

@@ -20,6 +20,7 @@ This change optimizes the loading lifecycle, locks pagination navigation when lo
 - **Empty State Support**: Add an optional `final Widget Function()? emptyBuilder;` parameter to `CustomDataTable` and `TableContent`. When `data != null && data.isEmpty`, render `emptyBuilder?.call()` (or a default localized empty state widget) within an ergonomically sized viewport instead of collapsing to 10px.
 - **Clean Height and Transition Behavior**: Ensure empty states and null data transitions gracefully adjust viewport dimensions without layout overflows.
 - **Review Iteration 1 - Interactive Example App**: Enhance `example/` with an interactive toggle between a realistic single-page static table mode and a simulated asynchronous web service with simulated latency, allowing interactive verification of pagination lock, loaders, and empty states.
+- **Review Iteration 2 - Zero-Shift Page Selector Stability**: Decouple page selector interactivity from its layout structure in `TablePaginatedCountWidget`, keeping the dropdown arrow icon and background pill visible and properly styled with `disabledColor` during loading, eliminating the 17px layout shift.
 
 ## Capabilities
 
@@ -33,7 +34,7 @@ This change optimizes the loading lifecycle, locks pagination navigation when lo
 
 - `lib/src/ui/custom_data_table/widgets/custom_data_table.dart`: Add `emptyBuilder` parameter, pass `isLoading` to `TableFooter`, conditional top progress indicator.
 - `lib/src/ui/custom_data_table/widgets/table_footer.dart`: Add `isLoading` property, forward `loading: widget.isLoading` to `TablePaginatedCountWidget`.
-- `lib/src/ui/custom_data_table/widgets/pagination/table_paginated_count_widget.dart`: Prevent page selection dialog from opening when `widget.loading` is true.
+- `lib/src/ui/custom_data_table/widgets/pagination/table_paginated_count_widget.dart`: Prevent page selection dialog from opening when `widget.loading` is true while preserving container dimensions, background, and icon with disabled styling.
 - `lib/src/ui/custom_data_table/widgets/table_content.dart`: Accept `emptyBuilder`, display empty state with comfortable height when `data.isEmpty`.
 - `lib/l10n/`: Add `noResultsFound` to `app_en.arb` and `app_es.arb`.
 - `example/`: Add simulated asynchronous web service and toggle between single-page static mode and async web service mode for interactive manual and automated testing.

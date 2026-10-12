@@ -73,22 +73,26 @@ class _TablePaginatedCountWidgetState extends State<TablePaginatedCountWidget> {
 
     if (currentPage > lastPage) currentPage = lastPage;
 
-    final canSelect = widget.onSelectedPage != null &&
-        widget.paginatorInfo.lastPage != 1 &&
-        !widget.loading;
+    final isSelectable =
+        widget.onSelectedPage != null && widget.paginatorInfo.lastPage != 1;
+    final isEnabled = isSelectable && !widget.loading;
+
+    final contentColor = isEnabled
+        ? Theme.of(context).textTheme.bodySmall?.color
+        : Theme.of(context).disabledColor;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Material(
           key: buttonKey,
-          color: !canSelect
+          color: !isSelectable
               ? null
               : Theme.of(context).inputDecorationTheme.fillColor,
           borderRadius: BorderRadius.circular(5),
           child: InkWell(
             borderRadius: BorderRadius.circular(5),
-            onTap: !canSelect ? null : showDialogPage,
+            onTap: !isEnabled ? null : showDialogPage,
             child: Container(
               height: 30,
               padding: const EdgeInsets.symmetric(horizontal: 5),
@@ -96,13 +100,17 @@ class _TablePaginatedCountWidgetState extends State<TablePaginatedCountWidget> {
                 children: [
                   Text(
                     NumberFormat.decimalPattern().format(currentPage),
-                    style: Theme.of(context).textTheme.bodySmall,
+                    style: Theme.of(context)
+                        .textTheme
+                        .bodySmall
+                        ?.copyWith(color: contentColor),
                   ),
                   const SizedBox(width: 3),
-                  if (canSelect)
-                    const Icon(
+                  if (isSelectable)
+                    Icon(
                       Icons.keyboard_arrow_down_rounded,
                       size: 14,
+                      color: contentColor,
                     ),
                 ],
               ),

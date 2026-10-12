@@ -1,15 +1,15 @@
 ## ADDED Requirements
 
 ### Requirement: Pagination Control Lockdown During Loading
-`CustomDataTable` SHALL disable pagination controls (previous page button, next page button, and page selector popup button) whenever `isLoading` is `true`.
+`CustomDataTable` SHALL disable pagination controls (previous page button, next page button, and page selector popup button) whenever `isLoading` is `true`, while preserving page selector geometry without layout shifts.
 
 #### Scenario: Previous and next buttons disabled when loading
 - **WHEN** `isLoading` is `true` and the table has multiple pages
 - **THEN** the previous page and next page `IconButton` widgets have `onPressed: null` and cannot be activated
 
-#### Scenario: Page selector popup disabled when loading
-- **WHEN** `isLoading` is `true`
-- **THEN** the page selector tap handler is inactive (`onTap: null`), preventing the page selection modal from opening
+#### Scenario: Page selector popup disabled without layout shift during loading
+- **WHEN** `isLoading` is `true` and the table has multiple pages
+- **THEN** the page selector tap handler is inactive (`onTap: null`), the button container preserves its fill background and dimensions, the dropdown arrow icon remains visible, and the page number text and icon render with `Theme.of(context).disabledColor`
 
 ### Requirement: Independent Loading Indicator Visibility
 `CustomDataTable` SHALL decouple the top linear loading bar from initial load, displaying the top `LinearProgressIndicator` only when `isLoading == true` and existing `data != null`.

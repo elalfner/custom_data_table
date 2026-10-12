@@ -32,3 +32,10 @@
 - [x] 5.2 Add interactive toggle in `example/lib/main.dart` between realistic static single-page mode (`PaginatorInfo.singlePage(total: 7)`) and simulated async web service.
 - [x] 5.3 Wire async page navigation, initial fetch (`data == null`), background reload, and empty state triggers into `CustomDataTable` in `example/`.
 - [x] 5.4 Verify formatting (`dart format`), static analysis (`flutter analyze --fatal-infos`), and tests (`flutter test`).
+
+## 6. Review Iteration: Zero-Shift Page Selector Stability [Iteration 2]
+
+- [x] 6.1 In `TablePaginatedCountWidget`, decouple `isSelectable` from `isEnabled` so the fill background and dropdown icon remain visible during loading (`widget.loading`).
+- [x] 6.2 In `TablePaginatedCountWidget`, apply `disabledColor` to the page text and dropdown icon when `widget.loading` is `true`.
+- [x] 6.3 Add/update widget tests verifying `TablePaginatedCountWidget` maintains its dropdown icon and dimensions while disabled during `loading`.
+- [x] 6.4 Verify formatting (`dart format`), static analysis (`flutter analyze --fatal-infos`), and test suite (`flutter test`).
