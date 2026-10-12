@@ -88,4 +88,7 @@ class DataTableLocalizationsEs extends DataTableLocalizations {
 
   @override
   String get columns => 'columnas';
+
+  @override
+  String get noResultsFound => 'No se han encontrado resultados';
 }

@@ -73,8 +73,9 @@ class _TablePaginatedCountWidgetState extends State<TablePaginatedCountWidget> {
 
     if (currentPage > lastPage) currentPage = lastPage;
 
-    final canSelect =
-        widget.onSelectedPage != null && widget.paginatorInfo.lastPage != 1;
+    final canSelect = widget.onSelectedPage != null &&
+        widget.paginatorInfo.lastPage != 1 &&
+        !widget.loading;
 
     return Row(
       mainAxisSize: MainAxisSize.min,

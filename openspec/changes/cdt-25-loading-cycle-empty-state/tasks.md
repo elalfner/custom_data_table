@@ -1,0 +1,27 @@
+## 1. Pagination and Footer Loading Lockdown
+
+- [x] 1.1 In `TablePaginatedCountWidget`, guard page selection modal trigger so `showDialogPage` is disabled when `widget.loading` is `true`.
+- [x] 1.2 In `TableFooter`, add `final bool isLoading;` parameter (default `false`) and forward `loading: widget.isLoading` to `TablePaginatedCountWidget`.
+- [x] 1.3 In `CustomDataTable`, pass `isLoading: widget.isLoading` when instantiating `TableFooter`.
+
+## 2. Conditional Top Progress Indicator
+
+- [x] 2.1 In `CustomDataTable`, update top `LinearProgressIndicator` visibility condition to `if (widget.isLoading && widget.data != null)`.
+
+## 3. Localization and Empty State Support
+
+- [x] 3.1 Add `noResultsFound` key to `lib/l10n/app_en.arb` ("No results found") and `lib/l10n/app_es.arb` ("No se han encontrado resultados") and run `flutter gen-l10n`.
+- [x] 3.2 Add `final Widget Function()? emptyBuilder;` parameter to `CustomDataTable` and pass it to `TableContent`.
+- [x] 3.3 Add `final Widget Function()? emptyBuilder;` parameter to `TableContent`.
+- [x] 3.4 In `TableContent`, implement `_buildDefaultEmptyWidget(BuildContext context)` with icon and localized `noResultsFound` text.
+- [x] 3.5 In `TableContent`, render `widget.emptyBuilder?.call() ?? _buildDefaultEmptyWidget(context)` when `data != null && data.isEmpty`.
+- [x] 3.6 In `TableContent`, ensure empty datasets allocate comfortable minimum height (160.0 px under unbounded constraints, centered inside `Flexible` under bounded constraints) without collapsing to 10px.
+
+## 4. Height Reset Verification and Test Suite
+
+- [x] 4.1 Verify pure synchronous height calculation when `data` transitions to `null` (confirming legacy `contentHeight.value` mutation from CDT-25 is obsolete and handled via `currentContentHeight == null`).
+- [x] 4.2 Add widget tests verifying pagination controls (previous, next, and page picker) are disabled during active loading (`isLoading == true`).
+- [x] 4.3 Add widget tests verifying top `LinearProgressIndicator` is hidden on initial load (`data == null`) and visible on background reload (`data != null`).
+- [x] 4.4 Add widget tests verifying custom `emptyBuilder` and default empty state placeholder when `data == []`.
+- [x] 4.5 Add widget test verifying transitioning `data` from a populated list to `null` resets content height and adapts container constraints smoothly.
+- [x] 4.6 Run format check, static analysis (`flutter analyze --fatal-infos`), and full test suite (`flutter test`).

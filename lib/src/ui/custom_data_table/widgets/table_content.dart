@@ -1,3 +1,4 @@
+import 'package:custom_data_table/l10n/localization_extension.dart';
 import 'package:custom_data_table/src/domain/models/column_info.dart';
 import 'package:custom_data_table/src/ui/core/themes/datatable_theme.dart';
 import 'package:custom_data_table/src/ui/custom_data_table/widgets/table_row_widget.dart';
@@ -53,6 +54,9 @@ class TableContent<T> extends StatefulWidget {
   /// Custom builder for error/empty state when data is null and not loading.
   final Widget Function()? exceptionBuilder;
 
+  /// Custom builder for empty state when data is non-null and empty.
+  final Widget Function()? emptyBuilder;
+
   const TableContent({
     super.key,
     required this.constraints,
@@ -67,6 +71,7 @@ class TableContent<T> extends StatefulWidget {
     this.isLoading = false,
     this.loadingBuilder,
     this.exceptionBuilder,
+    this.emptyBuilder,
   });
 
   @override
@@ -122,11 +127,12 @@ class _TableContentState<T> extends State<TableContent<T>> {
     }
 
     final tableContentContainer = Container(
-      constraints: currentContentHeight == null || error
-          ? null
-          : BoxConstraints(
-              maxHeight: currentContentHeight + 10,
-            ),
+      constraints:
+          currentContentHeight == null || error || (data?.isEmpty ?? false)
+              ? null
+              : BoxConstraints(
+                  maxHeight: currentContentHeight + 10,
+                ),
       child: Builder(
         builder: (context) {
           if (data == null) {
@@ -136,6 +142,11 @@ class _TableContentState<T> extends State<TableContent<T>> {
             } else {
               return widget.exceptionBuilder?.call() ?? const SizedBox();
             }
+          }
+
+          if (data.isEmpty) {
+            return widget.emptyBuilder?.call() ??
+                _buildDefaultEmptyWidget(context);
           }
 
           if (widget.constraints.maxWidth > minWidth) {
@@ -176,6 +187,12 @@ class _TableContentState<T> extends State<TableContent<T>> {
     if (widget.constraints.hasBoundedHeight) {
       return Flexible(child: tableContentContainer);
     } else {
+      if (data != null && data.isEmpty) {
+        return SizedBox(
+          height: 160.0,
+          child: tableContentContainer,
+        );
+      }
       if (currentContentHeight != null) {
         return SizedBox(
           height: currentContentHeight + 10,
@@ -184,6 +201,34 @@ class _TableContentState<T> extends State<TableContent<T>> {
       }
       return tableContentContainer;
     }
+  }
+
+  Widget _buildDefaultEmptyWidget(BuildContext context) {
+    final theme = Theme.of(context);
+    final subtleColor =
+        theme.textTheme.bodyMedium?.color?.withValues(alpha: 0.5) ??
+            theme.disabledColor;
+
+    return Center(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(
+            Icons.inbox_outlined,
+            size: 40,
+            color: subtleColor,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            context.appLocalizations.noResultsFound,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: subtleColor,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildListView({

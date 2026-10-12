@@ -25,5 +25,6 @@
   "export": "exportar",
   "thisWeek": "Esta semana",
   "columnsToShow": "columnas a mostrar",
-  "columns": "columnas"
+  "columns": "columnas",
+  "noResultsFound": "No se han encontrado resultados"
 }

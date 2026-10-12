@@ -174,5 +174,112 @@ void main() {
       expect(vController.hasClients, isTrue);
       expect(hController.hasClients, isTrue);
     });
+
+    testWidgets(
+        'renders default empty state when data is empty and emptyBuilder is null',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 500,
+              height: 300,
+              child: Column(
+                children: [
+                  TableContent<Map<String, String>>(
+                    constraints: const BoxConstraints(
+                      maxWidth: 500,
+                      maxHeight: 300,
+                    ),
+                    columns: columns,
+                    data: const [],
+                    toMap: (element) => element,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.inbox_outlined), findsOneWidget);
+      expect(find.text('No results found'), findsOneWidget);
+    });
+
+    testWidgets('renders custom emptyBuilder when data is empty',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 500,
+              height: 300,
+              child: Column(
+                children: [
+                  TableContent<Map<String, String>>(
+                    constraints: const BoxConstraints(
+                      maxWidth: 500,
+                      maxHeight: 300,
+                    ),
+                    columns: columns,
+                    data: const [],
+                    emptyBuilder: () => const Text('Custom Empty Placeholder'),
+                    toMap: (element) => element,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Custom Empty Placeholder'), findsOneWidget);
+      expect(find.byIcon(Icons.inbox_outlined), findsNothing);
+    });
+
+    testWidgets(
+        'allocates 160.0 px height in unbounded vertical constraints when data is empty',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SingleChildScrollView(
+              child: LayoutBuilder(
+                builder: (context, constraints) =>
+                    TableContent<Map<String, String>>(
+                  constraints: constraints,
+                  columns: columns,
+                  data: const [],
+                  toMap: (element) => element,
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+
+      final emptySizedBox = tester.widget<SizedBox>(
+        find
+            .ancestor(
+              of: find.byIcon(Icons.inbox_outlined),
+              matching: find.byType(SizedBox),
+            )
+            .first,
+      );
+      expect(emptySizedBox.height, 160.0);
+    });
   });
 }

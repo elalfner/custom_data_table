@@ -17,6 +17,9 @@ class TableFooter extends StatefulWidget {
   /// The paginator info.
   final PaginatorInfo paginatorInfo;
 
+  /// Whether the table is currently loading data.
+  final bool isLoading;
+
   /// Callback that notifies when the per page value changes.
   final Function(int perPage)? onPerPageChange;
 
@@ -32,6 +35,7 @@ class TableFooter extends StatefulWidget {
   const TableFooter({
     super.key,
     required this.paginatorInfo,
+    this.isLoading = false,
     this.onPerPageChange,
     this.onPreviousPage,
     this.onNextPage,
@@ -91,7 +95,7 @@ class _TableFooterState extends State<TableFooter> {
               const SizedBox(width: 10),
               TablePaginatedCountWidget(
                 paginatorInfo: paginatorInfo,
-                loading: false,
+                loading: widget.isLoading,
                 onPreviousPage: widget.onPreviousPage,
                 onNextPage: widget.onNextPage,
                 onSelectedPage: widget.onSelectedPage,

@@ -114,6 +114,9 @@ class CustomDataTable<T> extends StatefulWidget {
   /// Custom builder for loading indicator.
   final Widget Function()? loadingBuilder;
 
+  /// Custom builder for empty state when data is non-null and empty.
+  final Widget Function()? emptyBuilder;
+
   /// Callback when a row is clicked.
   final Function(T element)? onTapRow;
 
@@ -148,6 +151,7 @@ class CustomDataTable<T> extends StatefulWidget {
     this.canCopy = true,
     this.exceptionBuilder,
     this.loadingBuilder,
+    this.emptyBuilder,
     this.onTapRow,
   });
 
@@ -306,10 +310,12 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                       isLoading: widget.isLoading,
                       loadingBuilder: widget.loadingBuilder,
                       exceptionBuilder: widget.exceptionBuilder,
+                      emptyBuilder: widget.emptyBuilder,
                     ),
                     if (widget.paginatorInfo != null)
                       TableFooter(
                         paginatorInfo: widget.paginatorInfo!,
+                        isLoading: widget.isLoading,
                         onNextPage: widget.onNextPage,
                         onPerPageChange: widget.onPerPageChange,
                         onPreviousPage: widget.onPreviousPage,
@@ -320,7 +326,7 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
               ),
             ),
           ),
-          if (widget.isLoading)
+          if (widget.isLoading && widget.data != null)
             Positioned(
               top: -10,
               right: 0,
