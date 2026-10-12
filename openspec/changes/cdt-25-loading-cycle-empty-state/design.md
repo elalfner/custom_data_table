@@ -71,6 +71,14 @@ The original Jira ticket referenced resetting `contentHeight.value = null` when 
   - When `isEnabled == false` (loading or disabled), set `onTap: null`, and style the text and arrow icon with `Theme.of(context).disabledColor`.
 - **Rationale**: Eliminates the jarring 17px layout shift during asynchronous page transitions while clearly conveying disabled interaction via color and inert touch behavior.
 
+### 7. Review Iteration 3: Visual Polish, Empty State Dimensions, and Paginator Sync
+- **Decision**:
+  - In `TablePaginatedCountWidget`, always apply `Theme.of(context).inputDecorationTheme.fillColor` to the page button `Material`, even when `lastPage == 1`. When `lastPage == 1`, omit the dropdown arrow and disable tap (`onTap: null`), providing a consistent pill appearance alongside `TablePerPageWidget`.
+  - In `TableContent`, bound the empty state viewport to a compact, proportionate height of 100.0 px across both bounded (`BoxConstraints(maxHeight: 100.0)`) and unbounded (`SizedBox(height: 100.0)`) layouts, reducing icon size from 40 to 30 to prevent cavernous empty viewports.
+  - In `TableFooter.resultsNumberWidget`, guard the `total == 0` case: render `0 results` / `0 resultados` without an invalid `showing 1 to 0` range.
+  - In `example/lib/main.dart`, synchronize `paginatorInfo` when toggling `btn_toggle_data` (clearing to `data = []` also updates `paginatorInfo = PaginatorInfo.singlePage(total: 0)`).
+- **Rationale**: Elevates visual polish, ensures mathematical and visual accuracy when datasets are empty, and unifies control styling across all pagination states.
+
 ## Risks / Trade-offs
 
 - **[Risk] Custom empty widget overflow in bounded layouts** → **Mitigation**: Constrain the empty widget with `Center` and `SingleChildScrollView` or `Flexible` so large custom empty state widgets do not cause layout overflows.

@@ -207,6 +207,10 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byIcon(Icons.inbox_outlined), findsOneWidget);
+      expect(
+        tester.widget<Icon>(find.byIcon(Icons.inbox_outlined)).size,
+        30.0,
+      );
       expect(find.text('No results found'), findsOneWidget);
     });
 
@@ -246,7 +250,7 @@ void main() {
     });
 
     testWidgets(
-        'allocates 160.0 px height in unbounded vertical constraints when data is empty',
+        'allocates 100.0 px height in unbounded vertical constraints when data is empty',
         (tester) async {
       await tester.pumpWidget(
         MaterialApp(
@@ -279,7 +283,48 @@ void main() {
             )
             .first,
       );
-      expect(emptySizedBox.height, 160.0);
+      expect(emptySizedBox.height, 100.0);
+    });
+
+    testWidgets(
+        'bounds height to 100.0 px in bounded vertical constraints when data is empty',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 500,
+              height: 400,
+              child: Column(
+                children: [
+                  TableContent<Map<String, String>>(
+                    constraints: const BoxConstraints(
+                      maxWidth: 500,
+                      maxHeight: 350,
+                    ),
+                    columns: columns,
+                    data: const [],
+                    toMap: (element) => element,
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+
+      final emptyContainerFinder = find
+          .ancestor(
+            of: find.byIcon(Icons.inbox_outlined),
+            matching: find.byType(Container),
+          )
+          .first;
+      expect(tester.getSize(emptyContainerFinder).height, 100.0);
     });
   });
 }

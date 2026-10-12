@@ -126,13 +126,16 @@ class _TableContentState<T> extends State<TableContent<T>> {
       );
     }
 
+    final isDataEmpty = data != null && data.isEmpty;
+
     final tableContentContainer = Container(
-      constraints:
-          currentContentHeight == null || error || (data?.isEmpty ?? false)
+      constraints: isDataEmpty
+          ? const BoxConstraints(maxHeight: 100.0)
+          : (currentContentHeight == null || error
               ? null
               : BoxConstraints(
                   maxHeight: currentContentHeight + 10,
-                ),
+                )),
       child: Builder(
         builder: (context) {
           if (data == null) {
@@ -189,7 +192,7 @@ class _TableContentState<T> extends State<TableContent<T>> {
     } else {
       if (data != null && data.isEmpty) {
         return SizedBox(
-          height: 160.0,
+          height: 100.0,
           child: tableContentContainer,
         );
       }
@@ -216,7 +219,7 @@ class _TableContentState<T> extends State<TableContent<T>> {
         children: [
           Icon(
             Icons.inbox_outlined,
-            size: 40,
+            size: 30,
             color: subtleColor,
           ),
           const SizedBox(height: 8),

@@ -77,18 +77,16 @@ class _TablePaginatedCountWidgetState extends State<TablePaginatedCountWidget> {
         widget.onSelectedPage != null && widget.paginatorInfo.lastPage != 1;
     final isEnabled = isSelectable && !widget.loading;
 
-    final contentColor = isEnabled
-        ? Theme.of(context).textTheme.bodySmall?.color
-        : Theme.of(context).disabledColor;
+    final contentColor = widget.loading
+        ? Theme.of(context).disabledColor
+        : Theme.of(context).textTheme.bodySmall?.color;
 
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
         Material(
           key: buttonKey,
-          color: !isSelectable
-              ? null
-              : Theme.of(context).inputDecorationTheme.fillColor,
+          color: Theme.of(context).inputDecorationTheme.fillColor,
           borderRadius: BorderRadius.circular(5),
           child: InkWell(
             borderRadius: BorderRadius.circular(5),
@@ -105,13 +103,14 @@ class _TablePaginatedCountWidgetState extends State<TablePaginatedCountWidget> {
                         .bodySmall
                         ?.copyWith(color: contentColor),
                   ),
-                  const SizedBox(width: 3),
-                  if (isSelectable)
+                  if (isSelectable) ...[
+                    const SizedBox(width: 3),
                     Icon(
                       Icons.keyboard_arrow_down_rounded,
                       size: 14,
                       color: contentColor,
                     ),
+                  ],
                 ],
               ),
             ),

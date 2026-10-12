@@ -560,7 +560,7 @@ void main() {
     });
 
     testWidgets(
-        'allocates 160.0 px minimum height for empty state under unbounded vertical constraints',
+        'allocates 100.0 px minimum height for empty state under unbounded vertical constraints',
         (tester) async {
       final columns = createSampleColumns();
 
@@ -591,7 +591,150 @@ void main() {
             )
             .first,
       );
-      expect(emptySizedBox.height, 160.0);
+      expect(emptySizedBox.height, 100.0);
+    });
+
+    testWidgets(
+        'bounds empty state to 100.0 px height under bounded vertical constraints',
+        (tester) async {
+      final columns = createSampleColumns();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: const [],
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+
+      final emptyContainer = find
+          .ancestor(
+            of: find.byIcon(Icons.inbox_outlined),
+            matching: find.byType(Container),
+          )
+          .first;
+      expect(tester.getSize(emptyContainer).height, 100.0);
+    });
+  });
+
+  group('Widget Tests - Review Iteration Visual Polish', () {
+    testWidgets(
+        'single-page table retains fillColor on page number button and omits dropdown icon',
+        (tester) async {
+      final columns = createSampleColumns();
+      final sampleData = createSampleData();
+      const testFillColor = Color(0xFFE0E0E0);
+
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData(
+            inputDecorationTheme: const InputDecorationTheme(
+              fillColor: testFillColor,
+            ),
+          ),
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: sampleData,
+                paginatorInfo: PaginatorInfo.singlePage(total: 2),
+                onSelectedPage: (page) {},
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      final materialFinder = find
+          .ancestor(
+            of: find.descendant(
+              of: find.byType(TablePaginatedCountWidget),
+              matching: find.text('1'),
+            ),
+            matching: find.byType(Material),
+          )
+          .first;
+      expect(tester.widget<Material>(materialFinder).color, testFillColor);
+
+      // Verify dropdown arrow icon is omitted on single-page table
+      final arrowFinder = find.descendant(
+        of: find.byType(TablePaginatedCountWidget),
+        matching: find.byIcon(Icons.keyboard_arrow_down_rounded),
+      );
+      expect(arrowFinder, findsNothing);
+
+      // Verify InkWell is inert (onTap == null)
+      final inkWellFinder = find
+          .ancestor(
+            of: find.descendant(
+              of: find.byType(TablePaginatedCountWidget),
+              matching: find.text('1'),
+            ),
+            matching: find.byType(InkWell),
+          )
+          .first;
+      expect(tester.widget<InkWell>(inkWellFinder).onTap, isNull);
+    });
+
+    testWidgets(
+        'TableFooter with total == 0 displays 0 results cleanly without showing 1 to 0 range',
+        (tester) async {
+      final columns = createSampleColumns();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: const [],
+                paginatorInfo: PaginatorInfo.singlePage(total: 0),
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      final zeroResultsRichTextFinder = find.byWidgetPredicate(
+        (widget) =>
+            widget is RichText &&
+            widget.text.toPlainText().contains('0 results.'),
+      );
+      expect(zeroResultsRichTextFinder, findsOneWidget);
+
+      final richText = tester.widget<RichText>(zeroResultsRichTextFinder);
+      final fullText = richText.text.toPlainText();
+
+      expect(fullText, '0 results.');
+      expect(fullText, isNot(contains('1 to 0')));
+      expect(fullText, isNot(contains('to')));
     });
   });
 

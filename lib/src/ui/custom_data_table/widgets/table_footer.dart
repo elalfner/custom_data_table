@@ -115,6 +115,25 @@ class _TableFooterState extends State<TableFooter> {
   ///
   /// Returns a [RichText] widget that displays the number of results.
   RichText resultsNumberWidget(int currentPage, int perPage, int total) {
+    if (total == 0) {
+      return RichText(
+        text: TextSpan(
+          style: Theme.of(context).textTheme.bodySmall,
+          children: [
+            TextSpan(
+              text: NumberFormat.decimalPattern().format(0),
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            TextSpan(
+              text: ' ${context.appLocalizations.results}.',
+            ),
+          ],
+        ),
+      );
+    }
+
     return RichText(
       text: TextSpan(
         style: Theme.of(context).textTheme.bodySmall,

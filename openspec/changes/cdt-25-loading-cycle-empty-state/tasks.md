@@ -39,3 +39,12 @@
 - [x] 6.2 In `TablePaginatedCountWidget`, apply `disabledColor` to the page text and dropdown icon when `widget.loading` is `true`.
 - [x] 6.3 Add/update widget tests verifying `TablePaginatedCountWidget` maintains its dropdown icon and dimensions while disabled during `loading`.
 - [x] 6.4 Verify formatting (`dart format`), static analysis (`flutter analyze --fatal-infos`), and test suite (`flutter test`).
+
+## 7. Review Iteration: Visual Polish, Empty State Dimensions, and Paginator Sync [Iteration 3]
+
+- [x] 7.1 In `TablePaginatedCountWidget`, retain `fillColor` background on page number button even when `lastPage == 1` for consistent pill styling with `TablePerPageWidget`.
+- [x] 7.2 In `TableContent`, adjust default empty state height to a compact height (100.0 px) in both bounded and unbounded modes, with refined icon size (30.0 px).
+- [x] 7.3 In `TableFooter.resultsNumberWidget`, handle `total == 0` edge case so it displays `0 results` / `0 resultados` cleanly without showing `1 to 0`.
+- [x] 7.4 In `example/lib/main.dart`, synchronize `paginatorInfo` when toggling `btn_toggle_data` between static data and empty list.
+- [x] 7.5 Update widget tests covering single-page pill styling, compact empty state height, and zero-results footer text.
+- [x] 7.6 Verify formatting (`dart format`), static analysis (`flutter analyze --fatal-infos`), and tests (`flutter test`).

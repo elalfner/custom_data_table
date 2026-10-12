@@ -388,8 +388,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   setState(() {
                     if (data == null || data!.isEmpty) {
                       data = List<User>.from(staticData);
+                      paginatorInfo =
+                          PaginatorInfo.singlePage(total: staticData.length);
                     } else {
                       data = [];
+                      paginatorInfo = PaginatorInfo.singlePage(total: 0);
                     }
                   });
                 },

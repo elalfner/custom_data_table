@@ -43,3 +43,24 @@ The `example/` application SHALL provide interactive controls to simulate asynch
 #### Scenario: Realistic static single page mode in example
 - **WHEN** the user selects the static data mode in `example/lib/main.dart`
 - **THEN** the table displays a realistic set of records configured with single-page pagination metadata
+
+### Requirement: Consistent Single-Page Selector Pill Styling
+`TablePaginatedCountWidget` SHALL preserve its fill background (`inputDecorationTheme.fillColor`) and pill geometry even when `lastPage == 1`, matching the styling of `TablePerPageWidget`.
+
+#### Scenario: Single-page pill styling
+- **WHEN** the table has only 1 page (`lastPage == 1`)
+- **THEN** the page number button renders with `Theme.of(context).inputDecorationTheme.fillColor` and rounded border, omits the dropdown arrow icon, and has `onTap: null`
+
+### Requirement: Compact Empty State Viewport Dimensions
+`TableContent` SHALL bound the empty state viewport to a proportionate, compact height (~100.0 px) in both bounded and unbounded vertical constraints, with an icon size of 30.0 px.
+
+#### Scenario: Compact empty state rendering
+- **WHEN** `data` is empty (`[]`)
+- **THEN** `TableContent` renders with a constrained height of 100.0 px and an inbox icon sized at 30.0 px
+
+### Requirement: Zero-Results Footer Range Formatting
+`TableFooter.resultsNumberWidget` SHALL format the results count cleanly when `total == 0`, avoiding invalid ranges like "1 to 0".
+
+#### Scenario: Zero results footer text
+- **WHEN** `paginatorInfo.total` is `0`
+- **THEN** `TableFooter` renders `0 results` without displaying a "showing 1 to 0" range
