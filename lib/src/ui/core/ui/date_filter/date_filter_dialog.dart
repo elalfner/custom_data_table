@@ -1,0 +1,400 @@
+import 'package:custom_data_table/l10n/localization_extension.dart';
+import 'package:custom_data_table/src/domain/models/date_filter_type.dart';
+import 'package:custom_data_table/src/domain/models/date_selection.dart';
+import 'package:custom_data_table/src/utils/date_time_extension.dart';
+import 'package:custom_data_table/src/utils/string_extension.dart';
+import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:pointer_interceptor/pointer_interceptor.dart';
+
+import 'custom_month_picker.dart';
+import 'date_time_range_picker.dart';
+
+/// Shows a dialog to filter dates.
+///
+/// This function is used to show a dialog to filter dates.
+///
+/// Returns the selected date filter.
+///
+/// [context] The context to show the dialog.
+/// [initialDateFilter] The selected date filter.
+/// [firstDate] The first date of the date range.
+/// [lastDate] The last date of the date range.
+Future<DateSelection?> showCustomDateFilters(
+  BuildContext context, {
+  DateSelection? initialDateFilter,
+  DateTime? firstDate,
+  DateTime? lastDate,
+}) =>
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => DateFilterDialog(
+        dateFilter: initialDateFilter,
+        firstDate: firstDate,
+        lastDate: lastDate,
+      ),
+    );
+
+/// A widget that displays a dialog to filter dates.
+///
+/// This widget is used to display a dialog to filter dates.
+class DateFilterDialog extends StatefulWidget {
+  /// The selected date filter.
+  final DateSelection? dateFilter;
+
+  /// The first date of the date range.
+  final DateTime? firstDate;
+
+  /// The last date of the date range.
+  final DateTime? lastDate;
+
+  const DateFilterDialog({
+    super.key,
+    this.dateFilter,
+    this.firstDate,
+    this.lastDate,
+  });
+
+  @override
+  State<DateFilterDialog> createState() => _DateFilterDialogState();
+}
+
+class _DateFilterDialogState extends State<DateFilterDialog> {
+  /// The selected date filter.
+  DateSelection? dateFilter;
+
+  /// Whether the date filter is a week.
+  bool get isWeek {
+    final date = dateFilter?.date;
+    if (date == null) return false;
+
+    return date.startOfWeek == date && date.endOfWeek == dateFilter?.endDate;
+  }
+
+  @override
+  void initState() {
+    dateFilter = widget.dateFilter;
+
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final date = dateFilter?.date;
+    final endDate = dateFilter?.endDate;
+    final dateFilterType = dateFilter?.dateFilterType;
+
+    final thisYear = DateTime.now().year;
+
+    final isThisYear = date?.year == thisYear;
+
+    final startYear = widget.firstDate?.year ?? thisYear - 10;
+    final endYear = widget.lastDate?.year ?? (thisYear + 1);
+
+    return PointerInterceptor(
+      child: AlertDialog(
+        scrollable: true,
+        title: Row(
+          children: [
+            Expanded(
+              child: Text(
+                context.appLocalizations.filterDates.naturalCapitalized,
+                style: Theme.of(context).textTheme.titleLarge,
+                softWrap: false,
+                overflow: TextOverflow.fade,
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context, null);
+              },
+              child: Text(
+                  context.appLocalizations.clearFilters.naturalCapitalized),
+            ),
+          ],
+        ),
+        content: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(context.appLocalizations.byDate.naturalCapitalized),
+              const SizedBox(height: 5),
+              Wrap(
+                spacing: 5,
+                runSpacing: 5,
+                children: [
+                  ChoiceChip(
+                    label:
+                        Text(context.appLocalizations.today.naturalCapitalized),
+                    selected: dateFilterType == DateFilterType.date &&
+                        date?.onlyDate == DateTime.now().onlyDate,
+                    onSelected: (value) {
+                      if (value) {
+                        final newDate = DateTime.now().onlyDate;
+
+                        dateFilter = DateSelection(
+                          dateFilterType: DateFilterType.date,
+                          date: newDate,
+                          endDate: newDate.endOfDay,
+                        );
+                      } else {
+                        dateFilter = null;
+                      }
+
+                      setState(() {});
+                    },
+                  ),
+                  ChoiceChip(
+                    selected: dateFilterType == DateFilterType.date &&
+                        date?.onlyDate != DateTime.now().onlyDate,
+                    label: Text(
+                      dateFilterType != DateFilterType.date ||
+                              date?.onlyDate == DateTime.now().onlyDate ||
+                              date == null
+                          ? context
+                              .appLocalizations.otherDate.naturalCapitalized
+                          : DateFormat.yMd().format(date),
+                    ),
+                    onSelected: (value) async {
+                      final selectedDate = await showDatePicker(
+                        context: context,
+                        initialDate: date ?? DateTime.now(),
+                        firstDate: DateTime(startYear),
+                        lastDate: DateTime(endYear),
+                        builder: (context, child) => Stack(
+                          children: [
+                            GestureDetector(
+                              onTap: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            PointerInterceptor(child: child!),
+                          ],
+                        ),
+                      );
+
+                      if (selectedDate != null) {
+                        dateFilter = DateSelection(
+                          dateFilterType: DateFilterType.date,
+                          date: selectedDate,
+                          endDate: selectedDate.endOfDay,
+                        );
+                      } else {
+                        dateFilter = null;
+                      }
+
+                      setState(() {});
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              Text(
+                  '${context.appLocalizations.byMonth.naturalCapitalized} (${DateTime.now().year})'),
+              const SizedBox(height: 5),
+              Wrap(
+                spacing: 5,
+                runSpacing: 5,
+                children: List<Widget>.generate(
+                  DateTime.now().month,
+                  (int index) {
+                    final month = DateTime(DateTime.now().year, index + 1);
+
+                    return ChoiceChip(
+                      label: Text(DateFormat.MMMM().format(month)),
+                      selected: dateFilterType == DateFilterType.month &&
+                          month == date?.onlyMonth,
+                      onSelected: (bool selected) {
+                        if (selected) {
+                          dateFilter = DateSelection(
+                            dateFilterType: DateFilterType.month,
+                            date: month.onlyMonth,
+                            endDate: month.endOfMonth,
+                          );
+                        } else {
+                          dateFilter = null;
+                        }
+
+                        setState(() {});
+                      },
+                    );
+                  },
+                ).toList(),
+              ),
+              const SizedBox(height: 10),
+              Text(context.appLocalizations.byOtherMonth.naturalCapitalized),
+              const SizedBox(height: 5),
+              ChoiceChip(
+                selected: dateFilterType == DateFilterType.month && !isThisYear,
+                label: Text(
+                  dateFilterType != DateFilterType.month ||
+                          isThisYear ||
+                          date == null
+                      ? context.appLocalizations.select.naturalCapitalized
+                      : DateFormat.yMMMM().format(date),
+                ),
+                onSelected: (bool selected) async {
+                  final selectedMonth = await showMonthPicker(
+                    context: context,
+                    firstDate: widget.firstDate ?? DateTime(startYear),
+                    lastDate: DateTime.now(),
+                    initialDate: date ?? DateTime.now(),
+                    builder: (context, child) => Stack(
+                      children: [
+                        GestureDetector(
+                          onTap: () {
+                            Navigator.of(context).pop();
+                          },
+                        ),
+                        PointerInterceptor(child: child!),
+                      ],
+                    ),
+                  );
+
+                  if (selectedMonth != null) {
+                    dateFilter = DateSelection(
+                      dateFilterType: DateFilterType.month,
+                      date: selectedMonth.onlyMonth,
+                      endDate: selectedMonth.endOfMonth,
+                    );
+                  } else {
+                    dateFilter = null;
+                  }
+
+                  setState(() {});
+                },
+              ),
+              const SizedBox(height: 10),
+              Text(context.appLocalizations.byYear.naturalCapitalized),
+              const SizedBox(height: 5),
+              Wrap(
+                spacing: 5,
+                runSpacing: 5,
+                children: List<Widget>.generate(
+                  DateTime.now().year -
+                      (widget.firstDate ?? DateTime(startYear)).year +
+                      1,
+                  (int index) {
+                    final year = DateTime(DateTime.now().year - index);
+
+                    return ChoiceChip(
+                      label: Text(DateFormat.y().format(year)),
+                      selected: dateFilterType == DateFilterType.year &&
+                          year == date?.onlyYear,
+                      onSelected: (bool selected) {
+                        if (selected) {
+                          dateFilter = DateSelection(
+                            dateFilterType: DateFilterType.year,
+                            date: year.onlyYear,
+                            endDate: year.endOfYear,
+                          );
+                        } else {
+                          dateFilter = null;
+                        }
+
+                        setState(() {});
+                      },
+                    );
+                  },
+                ).toList(),
+              ),
+              const SizedBox(height: 10),
+              Text(context.appLocalizations.byPeriodOfTime.naturalCapitalized),
+              const SizedBox(height: 5),
+              Wrap(
+                spacing: 5,
+                runSpacing: 5,
+                children: [
+                  ChoiceChip(
+                    label: Text(
+                        context.appLocalizations.select.naturalCapitalized),
+                    selected:
+                        dateFilterType == DateFilterType.period && !isWeek,
+                    onSelected: (value) {
+                      if (value) {
+                        final newDate = DateTime.now().onlyDate;
+                        dateFilter = DateSelection(
+                          dateFilterType: DateFilterType.period,
+                          date: newDate,
+                          endDate: newDate.endOfDay,
+                        );
+                      } else {
+                        dateFilter = null;
+                      }
+
+                      setState(() {});
+                    },
+                  ),
+                  ChoiceChip(
+                    label: Text(
+                        context.appLocalizations.thisWeek.naturalCapitalized),
+                    selected: dateFilterType == DateFilterType.period && isWeek,
+                    onSelected: (value) {
+                      if (value) {
+                        final newDate = DateTime.now().startOfWeek;
+
+                        dateFilter = DateSelection(
+                          dateFilterType: DateFilterType.period,
+                          date: newDate,
+                          endDate: newDate.endOfWeek,
+                        );
+                      } else {
+                        dateFilter = null;
+                      }
+
+                      setState(() {});
+                    },
+                  ),
+                ],
+              ),
+              const SizedBox(height: 10),
+              if (!isWeek)
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 300),
+                  child: dateFilterType != DateFilterType.period
+                      ? const SizedBox()
+                      : DateTimeRangePickerWidget(
+                          startDate: date ?? DateTime.now().onlyDate,
+                          endDate: endDate ??
+                              DateTime.now()
+                                  .onlyDate
+                                  .add(const Duration(days: 1)),
+                          onChangeStart: (dateTime) {
+                            dateFilter = DateSelection(
+                              dateFilterType: DateFilterType.period,
+                              date: dateTime,
+                              endDate: endDate,
+                            );
+
+                            setState(() {});
+                          },
+                          onChangeEnd: (dateTime) {
+                            dateFilter = DateSelection(
+                              dateFilterType: DateFilterType.period,
+                              date: date,
+                              endDate: dateTime,
+                            );
+
+                            setState(() {});
+                          },
+                        ),
+                ),
+            ],
+          ),
+        ),
+        actions: [
+          FilledButton(
+            onPressed: () => Navigator.pop(
+              context,
+              dateFilter,
+            ),
+            child: Text(MaterialLocalizations.of(context).okButtonLabel),
+          ),
+        ],
+      ),
+    );
+  }
+}
