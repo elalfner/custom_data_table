@@ -1,6 +1,6 @@
 name: custom_data_table
 description: A customizable Flutter DataTable with bi-directional scrolling, advanced date/month filtering, pagination, and dynamic theme support.
-version: 3.0.6
+version: 3.1.0
 homepage: https://github.com/elalfner/custom_data_table
 repository: https://github.com/elalfner/custom_data_table
 issue_tracker: https://github.com/elalfner/custom_data_table/issues

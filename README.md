@@ -32,6 +32,9 @@ Building complex data grids, admin dashboards, and enterprise reporting screens 
 | **Column Visibility Selector** | ❌ Custom implementation needed | ✅ **Built-in Show/Hide columns modal dialog** |
 | **Built-in Search Debounce** | ❌ Manual streams/timers | ✅ **Automatic 500ms debounce protects APIs** |
 | **Date & Calendar Filters** | ❌ None | ✅ **Dialogs for Day, Week, Month, Year & Time** |
+| **Adaptable Height (`shrinkWrap`)** | ❌ Rigid / Overflows in scroll views | ✅ **First-class `shrinkWrap` & unbounded support** |
+| **Lifecycle State Builders** | ⚠️ Minimal default states | ✅ **Granular `initial`, `loading`, `empty` & `error` builders** |
+| **Non-Destructive Error Banners** | ❌ Replaces table on error | ✅ **Preserve row data via `showErrorBanner`** |
 | **App-Wide Theming** | ⚠️ Basic styling only | ✅ **`CustomDatatableTheme` via Provider** |
 | **Internationalization (i18n)** | ❌ Manual boilerplate | ✅ **English & Spanish built-in** |
 
@@ -51,7 +54,7 @@ Add `custom_data_table` to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  custom_data_table: ^3.0.6
+  custom_data_table: ^3.1.0
 ```
 
 Then run:
@@ -716,6 +719,69 @@ CustomDataTable(
 
 ---
 
+## 🔄 Granular Lifecycle & Error Handling
+
+`CustomDataTable` provides dedicated builder hooks and reactive flags to control every stage of your data lifecycle:
+
+```dart
+CustomDataTable<User>(
+  columns: columns,
+  data: users, // null when idle or initial, List<User> when loaded
+  isLoading: isFetching,
+  hasError: errorOccurred,
+  error: lastErrorObject,
+  showErrorBanner: true, // Retains existing rows while displaying a non-destructive error banner
+
+  // 1. Initial State: Rendered when data is null, not loading, and hasError is false
+  initialBuilder: () => Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [
+        Icon(Icons.search, size: 48, color: Colors.grey),
+        SizedBox(height: 8),
+        Text('Search or apply filters to view data.'),
+      ],
+    ),
+  ),
+
+  // 2. Loading State: Rendered when data is null and isLoading is true
+  loadingBuilder: () => const Center(
+    child: CircularProgressIndicator(),
+  ),
+
+  // 3. Empty State: Rendered when data is non-null but empty (falls back to localized default if omitted)
+  emptyBuilder: () => Center(
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: const [
+        Icon(Icons.inbox_outlined, size: 48, color: Colors.grey),
+        SizedBox(height: 8),
+        Text('No records found.'),
+      ],
+    ),
+  ),
+
+  // 4. Error State: Rendered when data is null and hasError is true
+  errorBuilder: (context, error) => Center(
+    child: Text('Failed to load: $error'),
+  ),
+
+  // 5. Error Banner: Rendered above existing rows when hasError is true and showErrorBanner is true
+  errorBannerBuilder: (context, error) => Container(
+    color: Colors.red.shade100,
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: Text('Background refresh failed: $error', style: const TextStyle(color: Colors.red)),
+  ),
+
+  toMap: (user) => user.toMap(),
+)
+```
+
+> [!NOTE]
+> `exceptionBuilder` is deprecated in favor of `errorBuilder(context, error)`. If both are provided, `errorBuilder` takes precedence with full backwards compatibility.
+
+---
+
 ## 🎨 Global & Local Theming
 
 ### Option 1: Global App-Wide Theme (Recommended)
@@ -774,10 +840,10 @@ CustomDatatableTheme(
 
 To ensure smooth rendering and avoid common Flutter layout constraints pitfalls, keep these guidelines in mind:
 
-### 1. Bounded Height Constraints (`RenderFlex` & Dashboards)
-Like standard Flutter scrollable views and data grids, `CustomDataTable` uses vertical scroll virtualization internally. It requires bounded vertical constraints:
+### 1. Bounded & Unbounded Height Constraints (`RenderFlex` & Scrolling)
+`CustomDataTable` features native adaptability for both fixed-height viewports and unbounded vertically scrolling containers:
 
-* **Inside a `Column` (Admin Dashboards / Full Screens):** Wrap `CustomDataTable` in an `Expanded` or `Flexible`:
+* **Inside a `Column` (Admin Dashboards / Full Screens):** Wrap `CustomDataTable` in an `Expanded` or `Flexible` for optimal virtualization when the screen has a fixed viewport:
   ```dart
   Column(
     children: [
@@ -789,15 +855,17 @@ Like standard Flutter scrollable views and data grids, `CustomDataTable` uses ve
   )
   ```
 
-* **Inside a vertically scrolling page (`SingleChildScrollView` / `ListView`):** Give the table a defined boundary:
+* **Inside a vertically scrolling page (`SingleChildScrollView` / `ListView`):**
+  `CustomDataTable` dynamically calculates its intrinsic content height based on active row counts, theme heights, and state banners. It safely renders inside unbounded vertical viewports without throwing `RenderFlex` or unbounded constraint errors:
   ```dart
   SingleChildScrollView(
     child: Column(
       children: [
         const SummaryCards(),
-        SizedBox(
-          height: 600, // Explicit height boundary
-          child: CustomDataTable<User>(...),
+        CustomDataTable<User>(
+          data: users,
+          columns: columns,
+          toMap: (u) => u.toMap(),
         ),
       ],
     ),
