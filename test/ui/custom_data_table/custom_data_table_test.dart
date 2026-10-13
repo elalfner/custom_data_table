@@ -851,4 +851,330 @@ void main() {
       expect(tester.takeException(), isNull);
     });
   });
+
+  group('Widget Tests - Explicit Error and Initial States (CDT-30)', () {
+    testWidgets(
+        'renders initialBuilder when data is null, isLoading is false, and hasError is false',
+        (tester) async {
+      final columns = createSampleColumns();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: null,
+                isLoading: false,
+                hasError: false,
+                initialBuilder: () =>
+                    const Text('Initial Search Idle State - CustomDataTable'),
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Initial Search Idle State - CustomDataTable'),
+        findsOneWidget,
+      );
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+    });
+
+    testWidgets(
+        'renders SizedBox when data is null, isLoading is false, hasError is false, and initialBuilder is null',
+        (tester) async {
+      final columns = createSampleColumns();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: null,
+                isLoading: false,
+                hasError: false,
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets(
+        'falls back to legacy error state when hasError is omitted (null)',
+        (tester) async {
+      final columns = createSampleColumns();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: null,
+                isLoading: false,
+                // hasError is null
+                errorBuilder: (context, error) =>
+                    const Text('Legacy Omitted Error Fallback'),
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Legacy Omitted Error Fallback'), findsOneWidget);
+    });
+
+    testWidgets(
+        'renders errorBuilder immediately when hasError is true even if isLoading is true',
+        (tester) async {
+      final columns = createSampleColumns();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: null,
+                isLoading: true,
+                hasError: true,
+                error: 'Server Fatal 500',
+                errorBuilder: (context, error) => Text('Error: $error'),
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Error: Server Fatal 500'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+    });
+
+    testWidgets(
+        'prioritizes errorBuilder over deprecated exceptionBuilder in CustomDataTable',
+        (tester) async {
+      final columns = createSampleColumns();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: null,
+                isLoading: false,
+                hasError: true,
+                error: 'API Error',
+                errorBuilder: (context, error) =>
+                    const Text('Canonical Error Builder In CustomDataTable'),
+                // ignore: deprecated_member_use_from_same_package
+                exceptionBuilder: () =>
+                    const Text('Legacy Exception Builder In CustomDataTable'),
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Canonical Error Builder In CustomDataTable'),
+        findsOneWidget,
+      );
+      expect(
+        find.text('Legacy Exception Builder In CustomDataTable'),
+        findsNothing,
+      );
+    });
+
+    testWidgets(
+        'falls back to deprecated exceptionBuilder when errorBuilder is omitted',
+        (tester) async {
+      final columns = createSampleColumns();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: null,
+                isLoading: false,
+                hasError: true,
+                // ignore: deprecated_member_use_from_same_package
+                exceptionBuilder: () =>
+                    const Text('ExceptionBuilder Fallback Verified'),
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('ExceptionBuilder Fallback Verified'), findsOneWidget);
+    });
+
+    testWidgets(
+        'displays default error banner and preserves table rows when data is populated, hasError is true, and showErrorBanner is true',
+        (tester) async {
+      final columns = createSampleColumns();
+      final sampleData = createSampleData();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: sampleData,
+                hasError: true,
+                error: 'Background refetch failed',
+                showErrorBanner: true,
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Data rows remain rendered and intact
+      expect(find.text('Alice'), findsOneWidget);
+      expect(find.text('Bob'), findsOneWidget);
+
+      // Default error banner is rendered
+      expect(find.byIcon(Icons.error_outline), findsOneWidget);
+      expect(find.text('Background refetch failed'), findsOneWidget);
+    });
+
+    testWidgets(
+        'displays custom errorBannerBuilder and preserves rows when showErrorBanner is true',
+        (tester) async {
+      final columns = createSampleColumns();
+      final sampleData = createSampleData();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: sampleData,
+                hasError: true,
+                error: '503 Service Unavailable',
+                showErrorBanner: true,
+                errorBannerBuilder: (context, error) => Container(
+                  key: const Key('custom_cdt_banner'),
+                  child: Text('Custom Alert: $error'),
+                ),
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Alice'), findsOneWidget);
+      expect(find.text('Bob'), findsOneWidget);
+      expect(find.byKey(const Key('custom_cdt_banner')), findsOneWidget);
+      expect(
+        find.text('Custom Alert: 503 Service Unavailable'),
+        findsOneWidget,
+      );
+      expect(find.byIcon(Icons.error_outline), findsNothing);
+    });
+
+    testWidgets(
+        'does not display error banner when hasError is true and showErrorBanner is false',
+        (tester) async {
+      final columns = createSampleColumns();
+      final sampleData = createSampleData();
+
+      await tester.pumpWidget(
+        MaterialApp(
+          localizationsDelegates: DataTableLocalizations.localizationsDelegates,
+          supportedLocales: DataTableLocalizations.supportedLocales,
+          home: Scaffold(
+            body: SizedBox(
+              width: 800,
+              height: 600,
+              child: CustomDataTable<Map<String, String>>(
+                columns: columns,
+                data: sampleData,
+                hasError: true,
+                error: 'Background error',
+                showErrorBanner: false,
+                toMap: (element) => element,
+              ),
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Data rows remain intact
+      expect(find.text('Alice'), findsOneWidget);
+      expect(find.text('Bob'), findsOneWidget);
+      expect(find.byIcon(Icons.error_outline), findsNothing);
+    });
+  });
 }

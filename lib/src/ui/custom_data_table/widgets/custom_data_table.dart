@@ -108,8 +108,31 @@ class CustomDataTable<T> extends StatefulWidget {
   /// Whether the copy button is shown.
   final bool canCopy;
 
+  /// Whether the table is currently in an error state.
+  ///
+  /// When specified, explicitly controls error evaluation regardless of [data].
+  /// When null (omitted), falls back to legacy evaluation `(data == null && !isLoading)`.
+  final bool? hasError;
+
+  /// The error or exception object, if any, to pass to [errorBuilder] and [errorBannerBuilder].
+  final Object? error;
+
+  /// Custom builder for initial/idle state when data is null, not loading, and not in error.
+  final Widget Function()? initialBuilder;
+
+  /// Custom builder for error state, providing [BuildContext] and the caught [error] payload.
+  final Widget Function(BuildContext context, Object? error)? errorBuilder;
+
   /// Custom builder for error or empty state.
+  @Deprecated('Use errorBuilder instead. Will be removed in future versions.')
   final Widget Function()? exceptionBuilder;
+
+  /// Whether to display an error banner above rows when an error occurs while data is already loaded.
+  final bool showErrorBanner;
+
+  /// Custom builder for the error banner displayed above data rows during background refetch errors.
+  final Widget Function(BuildContext context, Object? error)?
+      errorBannerBuilder;
 
   /// Custom builder for loading indicator.
   final Widget Function()? loadingBuilder;
@@ -149,7 +172,13 @@ class CustomDataTable<T> extends StatefulWidget {
     this.onChangeDateFilter,
     this.generalSearchController,
     this.canCopy = true,
+    this.hasError,
+    this.error,
+    this.initialBuilder,
+    this.errorBuilder,
     this.exceptionBuilder,
+    this.showErrorBanner = false,
+    this.errorBannerBuilder,
     this.loadingBuilder,
     this.emptyBuilder,
     this.onTapRow,
@@ -308,8 +337,15 @@ class _CustomDataTableState<T> extends State<CustomDataTable<T>> {
                       verticalScrollController: _verticalScrollController,
                       horizontalScrollController: _hContentScrollController,
                       isLoading: widget.isLoading,
-                      loadingBuilder: widget.loadingBuilder,
+                      hasError: widget.hasError,
+                      error: widget.error,
+                      initialBuilder: widget.initialBuilder,
+                      errorBuilder: widget.errorBuilder,
+                      // ignore: deprecated_member_use_from_same_package
                       exceptionBuilder: widget.exceptionBuilder,
+                      showErrorBanner: widget.showErrorBanner,
+                      errorBannerBuilder: widget.errorBannerBuilder,
+                      loadingBuilder: widget.loadingBuilder,
                       emptyBuilder: widget.emptyBuilder,
                     ),
                     if (widget.paginatorInfo != null)
