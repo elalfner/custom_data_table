@@ -4,7 +4,7 @@
 TBD - created by archiving change cdt-20-subcomponents-modularization. Update Purpose after archive.
 ## Requirements
 ### Requirement: Specialized Table Header Component
-The package SHALL provide a dedicated `TableHeader` widget under `lib/src/ui/custom_data_table/widgets/table_header.dart` that encapsulates the top actions toolbar, column visibility selection, export triggers, filter dialogs, and general search bar.
+The package SHALL provide a dedicated `TableHeader` widget under `lib/src/ui/custom_data_table/widgets/table_header.dart` that encapsulates the top actions toolbar, column visibility selection, export triggers, filter dialogs, general search bar, and configurable debouncing.
 
 #### Scenario: Rendering top toolbar controls
 - **WHEN** `TableHeader` is rendered with configured columns, search controller, and action callbacks
@@ -16,16 +16,16 @@ The package SHALL provide a dedicated `TableHeader` widget under `lib/src/ui/cus
 
 #### Scenario: Emitting general search input
 - **WHEN** user types into the search field of `TableHeader`
-- **THEN** it debounces input and invokes the `onChangeGeneralSearch` callback with the current search query
+- **THEN** it debounces input using `debounceDuration` (default 500ms) or an injected `TableDebouncer` and invokes the `onChangeGeneralSearch` callback with the current search query
 
 ---
 
 ### Requirement: Column Headers Row and Atomic Header Cell
-The package SHALL provide `TableColumnsHeader` and `TableColumnHeader` under `lib/src/ui/custom_data_table/widgets/` to decouple the horizontal column titles row and individual column header cells.
+The package SHALL provide `TableColumnsHeader` and `TableColumnHeader` under `lib/src/ui/custom_data_table/widgets/` to decouple the horizontal column titles row and individual column header cells, supporting configurable search debouncing.
 
 #### Scenario: Rendering synchronized column header row
-- **WHEN** `TableColumnsHeader` is provided a list of visible columns and an injected `ScrollController`
-- **THEN** it lays out each column according to its defined width or flex, horizontally scrollable via the provided controller
+- **WHEN** `TableColumnsHeader` is provided a list of visible columns, an optional `debounceDuration`, and an injected `ScrollController`
+- **THEN** it lays out each column according to its defined width or flex, horizontally scrollable via the provided controller, forwarding debounce settings to child headers
 
 #### Scenario: Toggling sort direction on header cell
 - **WHEN** user taps the sort button on a sortable `TableColumnHeader`
@@ -33,9 +33,7 @@ The package SHALL provide `TableColumnsHeader` and `TableColumnHeader` under `li
 
 #### Scenario: Inputting column-specific search query
 - **WHEN** a column with `canSearchInput: true` receives user input in its search field
-- **THEN** `TableColumnHeader` debounces the input and triggers the column search change callback with updated field values
-
----
+- **THEN** `TableColumnHeader` debounces the input using `debounceDuration` (default 500ms) or an injected `TableDebouncer` and triggers the column search change callback with updated field values
 
 ### Requirement: Content Viewport and Dual Scrollbars
 The package SHALL provide `TableContent` under `lib/src/ui/custom_data_table/widgets/table_content.dart` to manage the viewport, dual scrollbars (horizontal and vertical), and layout adaptation for bounded and unbounded height constraints.
