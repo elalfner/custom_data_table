@@ -449,4 +449,310 @@ void main() {
       expect(tester.getSize(loadingContainerFinder).height, 100.0);
     });
   });
+
+  group('Widget Tests - Explicit Error and Initial States in TableContent', () {
+    final columns = [
+      ColumnInfo(key: 'id', name: 'ID', width: 100),
+      ColumnInfo(key: 'name', name: 'Name', width: 200),
+    ];
+    final sampleData = [
+      {'id': '1', 'name': 'Item 1'},
+      {'id': '2', 'name': 'Item 2'},
+    ];
+
+    testWidgets(
+        'renders initialBuilder when data is null, isLoading is false, and hasError is false',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                TableContent<Map<String, String>>(
+                  constraints:
+                      const BoxConstraints(maxWidth: 500, maxHeight: 300),
+                  columns: columns,
+                  data: null,
+                  isLoading: false,
+                  hasError: false,
+                  initialBuilder: () => const Text('Initial Search Idle State'),
+                  toMap: (element) => element,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Initial Search Idle State'), findsOneWidget);
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+    });
+
+    testWidgets(
+        'renders SizedBox when data is null, isLoading is false, hasError is false, and initialBuilder is null',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                TableContent<Map<String, String>>(
+                  constraints:
+                      const BoxConstraints(maxWidth: 500, maxHeight: 300),
+                  columns: columns,
+                  data: null,
+                  isLoading: false,
+                  hasError: false,
+                  toMap: (element) => element,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.byType(CircularProgressIndicator), findsNothing);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets(
+        'falls back to legacy error state when hasError is null (omitted)',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                TableContent<Map<String, String>>(
+                  constraints:
+                      const BoxConstraints(maxWidth: 500, maxHeight: 300),
+                  columns: columns,
+                  data: null,
+                  isLoading: false,
+                  // hasError is omitted (null)
+                  errorBuilder: (context, error) =>
+                      const Text('Legacy Error Fallback Triggered'),
+                  toMap: (element) => element,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Legacy Error Fallback Triggered'), findsOneWidget);
+    });
+
+    testWidgets('renders errorBuilder with context and error payload',
+        (tester) async {
+      const testError = 'SocketException: Connection refused';
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                TableContent<Map<String, String>>(
+                  constraints:
+                      const BoxConstraints(maxWidth: 500, maxHeight: 300),
+                  columns: columns,
+                  data: null,
+                  isLoading: false,
+                  hasError: true,
+                  error: testError,
+                  errorBuilder: (context, error) =>
+                      Text('Error payload: $error'),
+                  toMap: (element) => element,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Error payload: SocketException: Connection refused'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('prioritizes errorBuilder over deprecated exceptionBuilder',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                TableContent<Map<String, String>>(
+                  constraints:
+                      const BoxConstraints(maxWidth: 500, maxHeight: 300),
+                  columns: columns,
+                  data: null,
+                  isLoading: false,
+                  hasError: true,
+                  error: 'Sample Error',
+                  errorBuilder: (context, error) =>
+                      const Text('Canonical Error Builder'),
+                  // ignore: deprecated_member_use_from_same_package
+                  exceptionBuilder: () =>
+                      const Text('Legacy Exception Builder'),
+                  toMap: (element) => element,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Canonical Error Builder'), findsOneWidget);
+      expect(find.text('Legacy Exception Builder'), findsNothing);
+    });
+
+    testWidgets(
+        'falls back to deprecated exceptionBuilder when errorBuilder is null',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                TableContent<Map<String, String>>(
+                  constraints:
+                      const BoxConstraints(maxWidth: 500, maxHeight: 300),
+                  columns: columns,
+                  data: null,
+                  isLoading: false,
+                  hasError: true,
+                  // ignore: deprecated_member_use_from_same_package
+                  exceptionBuilder: () =>
+                      const Text('Deprecated Exception Builder Fallback'),
+                  toMap: (element) => element,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(
+        find.text('Deprecated Exception Builder Fallback'),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets(
+        'renders default error banner above rows when data is non-null, hasError is true, and showErrorBanner is true',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                TableContent<Map<String, String>>(
+                  constraints:
+                      const BoxConstraints(maxWidth: 500, maxHeight: 300),
+                  columns: columns,
+                  data: sampleData,
+                  hasError: true,
+                  error: 'Failed to refresh table data',
+                  showErrorBanner: true,
+                  toMap: (element) => element,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      // Data rows remain visible
+      expect(find.text('Item 1'), findsOneWidget);
+      expect(find.text('Item 2'), findsOneWidget);
+
+      // Default error banner is rendered
+      expect(find.byIcon(Icons.error_outline), findsOneWidget);
+      expect(find.text('Failed to refresh table data'), findsOneWidget);
+    });
+
+    testWidgets(
+        'renders custom errorBannerBuilder when provided and showErrorBanner is true',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                TableContent<Map<String, String>>(
+                  constraints:
+                      const BoxConstraints(maxWidth: 500, maxHeight: 300),
+                  columns: columns,
+                  data: sampleData,
+                  hasError: true,
+                  error: '404 Not Found',
+                  showErrorBanner: true,
+                  errorBannerBuilder: (context, error) => Container(
+                    key: const Key('custom_error_banner'),
+                    child: Text('Custom Banner: $error'),
+                  ),
+                  toMap: (element) => element,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Item 1'), findsOneWidget);
+      expect(find.text('Item 2'), findsOneWidget);
+      expect(find.byKey(const Key('custom_error_banner')), findsOneWidget);
+      expect(find.text('Custom Banner: 404 Not Found'), findsOneWidget);
+      expect(find.byIcon(Icons.error_outline), findsNothing);
+    });
+
+    testWidgets(
+        'does not render error banner when data is non-null, hasError is true, and showErrorBanner is false',
+        (tester) async {
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: Column(
+              children: [
+                TableContent<Map<String, String>>(
+                  constraints:
+                      const BoxConstraints(maxWidth: 500, maxHeight: 300),
+                  columns: columns,
+                  data: sampleData,
+                  hasError: true,
+                  error: 'Background error',
+                  showErrorBanner: false,
+                  toMap: (element) => element,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      expect(find.text('Item 1'), findsOneWidget);
+      expect(find.text('Item 2'), findsOneWidget);
+      expect(find.byIcon(Icons.error_outline), findsNothing);
+    });
+  });
 }

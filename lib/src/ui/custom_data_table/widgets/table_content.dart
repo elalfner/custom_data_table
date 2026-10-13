@@ -51,8 +51,31 @@ class TableContent<T> extends StatefulWidget {
   /// Custom builder for loading state. Falls back to [CircularProgressIndicator].
   final Widget Function()? loadingBuilder;
 
+  /// Whether the table is currently in an error state.
+  ///
+  /// When specified, explicitly controls error evaluation regardless of [data].
+  /// When null (omitted), falls back to legacy evaluation `(data == null && !isLoading)`.
+  final bool? hasError;
+
+  /// The error or exception object to pass to [errorBuilder] and [errorBannerBuilder].
+  final Object? error;
+
+  /// Custom builder for initial/idle state when data is null, not loading, and not in error.
+  final Widget Function()? initialBuilder;
+
+  /// Custom builder for error state receiving [BuildContext] and [error] payload.
+  final Widget Function(BuildContext context, Object? error)? errorBuilder;
+
   /// Custom builder for error/empty state when data is null and not loading.
+  @Deprecated('Use errorBuilder instead. Will be removed in future versions.')
   final Widget Function()? exceptionBuilder;
+
+  /// Whether to display an error banner above rows when an error occurs while data is loaded.
+  final bool showErrorBanner;
+
+  /// Custom builder for the error banner displayed above data rows.
+  final Widget Function(BuildContext context, Object? error)?
+      errorBannerBuilder;
 
   /// Custom builder for empty state when data is non-null and empty.
   final Widget Function()? emptyBuilder;
@@ -70,7 +93,13 @@ class TableContent<T> extends StatefulWidget {
     this.horizontalScrollController,
     this.isLoading = false,
     this.loadingBuilder,
+    this.hasError,
+    this.error,
+    this.initialBuilder,
+    this.errorBuilder,
     this.exceptionBuilder,
+    this.showErrorBanner = false,
+    this.errorBannerBuilder,
     this.emptyBuilder,
   });
 
@@ -97,6 +126,57 @@ class _TableContentState<T> extends State<TableContent<T>> {
     super.dispose();
   }
 
+  bool get _computeHasError =>
+      widget.hasError ?? (widget.data == null && !widget.isLoading);
+
+  Widget _buildErrorState(BuildContext context, Object? error) {
+    if (widget.errorBuilder != null) {
+      return widget.errorBuilder!(context, error);
+    }
+    // ignore: deprecated_member_use_from_same_package
+    if (widget.exceptionBuilder != null) {
+      // ignore: deprecated_member_use_from_same_package
+      return widget.exceptionBuilder!();
+    }
+    return const SizedBox();
+  }
+
+  Widget _buildDefaultErrorBanner(BuildContext context, Object? error) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+    final rowMinHeight = context.watchDataTableTheme?.dataRowHeight ?? 38.0;
+    final errorMessage = error != null
+        ? error.toString()
+        : 'An error occurred while loading data.';
+
+    return Container(
+      height: rowMinHeight,
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      color: colorScheme.errorContainer,
+      child: Row(
+        children: [
+          Icon(
+            Icons.error_outline,
+            size: 18,
+            color: colorScheme.onErrorContainer,
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              errorMessage,
+              style: theme.textTheme.bodySmall?.copyWith(
+                color: colorScheme.onErrorContainer,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final dataTableTheme = context.watchDataTableTheme;
@@ -115,7 +195,7 @@ class _TableContentState<T> extends State<TableContent<T>> {
     final tableConstraints = BoxConstraints(minWidth: minWidth);
 
     final data = widget.data;
-    final error = data == null && !widget.isLoading;
+    final isError = _computeHasError;
 
     double? currentContentHeight;
     if (data != null) {
@@ -126,26 +206,33 @@ class _TableContentState<T> extends State<TableContent<T>> {
       );
     }
 
-    final isCompactState =
-        (data != null && data.isEmpty) || (data == null && widget.isLoading);
+    final isCompactState = (data != null && data.isEmpty) ||
+        (data == null && widget.isLoading && !isError);
+
+    final bannerExtraHeight =
+        (data != null && isError && widget.showErrorBanner)
+            ? rowMinHeight
+            : 0.0;
 
     final tableContentContainer = Container(
       constraints: isCompactState
           ? const BoxConstraints(maxHeight: 100.0)
-          : (currentContentHeight == null || error
+          : (currentContentHeight == null || (data == null && isError)
               ? null
               : BoxConstraints(
-                  maxHeight: currentContentHeight + 10,
+                  maxHeight: currentContentHeight + 10 + bannerExtraHeight,
                 )),
       child: Builder(
         builder: (context) {
           if (data == null) {
+            if (isError) {
+              return _buildErrorState(context, widget.error);
+            }
             if (widget.isLoading) {
               return widget.loadingBuilder?.call() ??
                   _buildDefaultLoadingWidget(context);
-            } else {
-              return widget.exceptionBuilder?.call() ?? const SizedBox();
             }
+            return widget.initialBuilder?.call() ?? const SizedBox();
           }
 
           if (data.isEmpty) {
@@ -153,8 +240,9 @@ class _TableContentState<T> extends State<TableContent<T>> {
                 _buildDefaultEmptyWidget(context);
           }
 
+          Widget listView;
           if (widget.constraints.maxWidth > minWidth) {
-            return Scrollbar(
+            listView = Scrollbar(
               controller: _verticalController,
               thumbVisibility: true,
               child: Container(
@@ -162,28 +250,44 @@ class _TableContentState<T> extends State<TableContent<T>> {
                 child: _buildListView(data: data, scrollable: false),
               ),
             );
-          }
-
-          return Scrollbar(
-            controller: _verticalController,
-            notificationPredicate: (notif) => notif.depth == 1,
-            thumbVisibility: true,
-            child: Scrollbar(
-              controller: _horizontalController,
+          } else {
+            listView = Scrollbar(
+              controller: _verticalController,
+              notificationPredicate: (notif) => notif.depth == 1,
               thumbVisibility: true,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 10),
-                child: SingleChildScrollView(
-                  controller: _horizontalController,
-                  scrollDirection: Axis.horizontal,
-                  child: SizedBox(
-                    width: minWidth,
-                    child: _buildListView(data: data, scrollable: true),
+              child: Scrollbar(
+                controller: _horizontalController,
+                thumbVisibility: true,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: 10),
+                  child: SingleChildScrollView(
+                    controller: _horizontalController,
+                    scrollDirection: Axis.horizontal,
+                    child: SizedBox(
+                      width: minWidth,
+                      child: _buildListView(data: data, scrollable: true),
+                    ),
                   ),
                 ),
               ),
-            ),
-          );
+            );
+          }
+
+          if (isError && widget.showErrorBanner) {
+            final banner =
+                widget.errorBannerBuilder?.call(context, widget.error) ??
+                    _buildDefaultErrorBanner(context, widget.error);
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                banner,
+                Expanded(child: listView),
+              ],
+            );
+          }
+
+          return listView;
         },
       ),
     );
@@ -199,7 +303,7 @@ class _TableContentState<T> extends State<TableContent<T>> {
       }
       if (currentContentHeight != null) {
         return SizedBox(
-          height: currentContentHeight + 10,
+          height: currentContentHeight + 10 + bannerExtraHeight,
           child: tableContentContainer,
         );
       }
