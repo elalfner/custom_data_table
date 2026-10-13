@@ -1,28 +1,28 @@
 import 'dart:async';
 import 'dart:ui';
 
-/// Debouncer class to debounce actions.
+/// Debouncer class to debounce actions within the table components.
 ///
 /// Example:
 /// ```dart
-/// final debouncer = Debouncer(milliseconds: 500);
+/// final debouncer = TableDebouncer(milliseconds: 500);
 ///
 /// debouncer.run(() {
 ///   // Do something
 /// });
 /// ```
-class Debouncer {
+class TableDebouncer {
   /// The time in milliseconds to wait before executing the action.
   final int milliseconds;
 
   /// The timer used to debounce the action.
-  ///
-  /// This timer is reset every time the [run] method is called.
-  ///
-  /// If the timer is not null, it is canceled.
   Timer? _timer;
 
-  Debouncer({required this.milliseconds});
+  TableDebouncer({required this.milliseconds});
+
+  /// Creates a [TableDebouncer] with a [Duration].
+  TableDebouncer.duration(Duration duration)
+      : milliseconds = duration.inMilliseconds;
 
   /// Runs the action after the specified time.
   ///
@@ -33,5 +33,10 @@ class Debouncer {
   void run(VoidCallback action) {
     _timer?.cancel();
     _timer = Timer(Duration(milliseconds: milliseconds), action);
+  }
+
+  /// Cancels any active debounce timer.
+  void cancel() {
+    _timer?.cancel();
   }
 }

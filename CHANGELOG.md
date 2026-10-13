@@ -3,6 +3,22 @@
 All notable changes to the `custom_data_table` package will be documented in this file.
 This project adheres to [Semantic Versioning](https://semver.org/).
 
+## 3.1.1
+
+### Encapsulation & Bug Fixes
+* **Public API Encapsulation**:
+  * Removed internal utility re-exports (`src/utils/date_time_extension.dart`, `src/utils/debounce.dart`, `src/utils/responsive_helpers.dart`, and `src/utils/string_extension.dart`) from `lib/custom_data_table.dart`.
+  * Prevents namespace pollution and eliminates compiler collisions (`ambiguous_extension_member_access`, `ambiguous_import`, `invocation_of_non_function`) in downstream consuming applications.
+* **Internal Extension Isolation & Pruning**:
+  * Prefixed internal extensions with `Cdt` (`CdtStringExtension` and `CdtDateExtension`) to guarantee zero symbol collisions within the library.
+  * Pruned unused dead methods (`convertStringToCode`, `convertCodeToString`, `splitFirstOccurrence`, `onlyTime`, `isBetween`, `isBetweenIncluding`), retaining required date manipulation utilities and capitalization helpers.
+* **Removed Dead Code & Web Platform Cleanup**:
+  * Removed `responsive_helpers.dart` and its unnecessary `dart:io` dependency for optimal Flutter Web compatibility.
+  * Migrated `calculateContentHeight` unit tests directly into `test/ui/custom_data_table/widgets/table_content_test.dart`.
+* **Configurable Search Debounce**:
+  * Renamed internal debouncer class to `TableDebouncer` in `lib/src/utils/debounce.dart`.
+  * Added idiomatic `debounceDuration` parameter (defaults to 500ms) and `TableDebouncer? debouncer` to `TableHeader`, `TableColumnsHeader`, and `TableColumnHeader`.
+
 ## 3.1.0
 
 ### Key Capabilities & Enhancements

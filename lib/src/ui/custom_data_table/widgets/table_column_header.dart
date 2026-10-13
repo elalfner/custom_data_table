@@ -22,8 +22,11 @@ class TableColumnHeader extends StatefulWidget {
   /// Callback invoked when the column search input changes (debounced).
   final ValueChanged<String>? onSearchChanged;
 
-  /// Debouncer used for the search text field. If null, a default 500ms debouncer is used.
-  final Debouncer? debouncer;
+  /// Debounce duration used for the search text field.
+  final Duration debounceDuration;
+
+  /// Debouncer used for the search text field. If null, a default debouncer with [debounceDuration] is used.
+  final TableDebouncer? debouncer;
 
   const TableColumnHeader({
     super.key,
@@ -32,6 +35,7 @@ class TableColumnHeader extends StatefulWidget {
     this.onSort,
     this.searchController,
     this.onSearchChanged,
+    this.debounceDuration = const Duration(milliseconds: 500),
     this.debouncer,
   });
 
@@ -40,7 +44,7 @@ class TableColumnHeader extends StatefulWidget {
 }
 
 class _TableColumnHeaderState extends State<TableColumnHeader> {
-  late final Debouncer _debouncer;
+  late final TableDebouncer _debouncer;
   TextEditingController? _internalController;
 
   TextEditingController get _controller =>
@@ -53,7 +57,8 @@ class _TableColumnHeaderState extends State<TableColumnHeader> {
   @override
   void initState() {
     super.initState();
-    _debouncer = widget.debouncer ?? Debouncer(milliseconds: 500);
+    _debouncer = widget.debouncer ??
+        TableDebouncer(milliseconds: widget.debounceDuration.inMilliseconds);
   }
 
   @override

@@ -755,4 +755,28 @@ void main() {
       expect(find.byIcon(Icons.error_outline), findsNothing);
     });
   });
+
+  group('calculateContentHeight Unit Tests', () {
+    test('returns 0 when itemCount is 0', () {
+      expect(
+        calculateContentHeight(
+          itemCount: 0,
+          minRowHeight: 40,
+          dividerHeight: 1,
+        ),
+        0,
+      );
+    });
+
+    test('calculates height correctly for populated list', () {
+      expect(
+        calculateContentHeight(
+          itemCount: 3,
+          minRowHeight: 40,
+          dividerHeight: 1,
+        ),
+        122, // (40 * 3) + (1 * 2) = 120 + 2 = 122
+      );
+    });
+  });
 }
