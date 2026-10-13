@@ -67,8 +67,11 @@ class TableHeader<T> extends StatefulWidget {
   /// Callback invoked when general search text changes (debounced).
   final ValueChanged<String>? onChangeGeneralSearch;
 
+  /// Debounce duration for the general search bar.
+  final Duration debounceDuration;
+
   /// Debouncer for the general search bar.
-  final Debouncer? debouncer;
+  final TableDebouncer? debouncer;
 
   const TableHeader({
     super.key,
@@ -89,6 +92,7 @@ class TableHeader<T> extends StatefulWidget {
     this.onExport,
     this.generalSearchController,
     this.onChangeGeneralSearch,
+    this.debounceDuration = const Duration(milliseconds: 500),
     this.debouncer,
   });
 
@@ -98,7 +102,7 @@ class TableHeader<T> extends StatefulWidget {
 
 class _TableHeaderState<T> extends State<TableHeader<T>> {
   final ScrollController _headerScroll = ScrollController();
-  late final Debouncer _debouncer;
+  late final TableDebouncer _debouncer;
   TextEditingController? _internalSearchController;
   late TextEditingController _searchController;
   bool _searching = false;
@@ -107,7 +111,8 @@ class _TableHeaderState<T> extends State<TableHeader<T>> {
   @override
   void initState() {
     super.initState();
-    _debouncer = widget.debouncer ?? Debouncer(milliseconds: 500);
+    _debouncer = widget.debouncer ??
+        TableDebouncer(milliseconds: widget.debounceDuration.inMilliseconds);
     _dateFilter = widget.initialDateFilter;
 
     if (widget.generalSearchController != null) {

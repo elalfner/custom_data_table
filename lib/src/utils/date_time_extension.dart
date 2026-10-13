@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Extension methods for [DateTime] utilities.
-extension DateExtension on DateTime {
+/// Extension methods for [DateTime] utilities used internally by table filters.
+extension CdtDateExtension on DateTime {
   /// Strips time components and returns only the date portion (midnight).
   DateTime get onlyDate => DateTime(year, month, day);
 
@@ -11,32 +11,8 @@ extension DateExtension on DateTime {
   /// Strips month, day, and time components, returning only the year.
   DateTime get onlyYear => DateTime(year);
 
-  /// Strips date components and returns only the time portion.
-  DateTime get onlyTime => DateTime(0, 0, 0, hour, minute, second);
-
   /// Converts the time portion into a [TimeOfDay] instance.
   TimeOfDay get timeOfDay => TimeOfDay(hour: hour, minute: minute);
-
-  /// Checks if this date falls strictly between [from] and [to].
-  ///
-  /// Returns `true` if this date is after [from] and before [to].
-  bool isBetween(DateTime? from, DateTime? to) {
-    if (from == null || to == null) return false;
-
-    return from.isBefore(this) && to.isAfter(this);
-  }
-
-  /// Checks if this date falls between [from] and [to], inclusive of boundaries.
-  ///
-  /// Returns `true` if this date is equal to [from], equal to [to],
-  /// or strictly between them.
-  bool isBetweenIncluding(DateTime? from, DateTime? to) {
-    if (from == null || to == null) return false;
-
-    return from == this ||
-        to == this ||
-        from.isBefore(this) && to.isAfter(this);
-  }
 
   /// Returns the end of the day (`23:59:59.999`).
   DateTime get endOfDay => onlyDate

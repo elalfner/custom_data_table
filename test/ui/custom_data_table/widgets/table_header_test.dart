@@ -1,4 +1,5 @@
 import 'package:custom_data_table/custom_data_table.dart';
+import 'package:custom_data_table/src/utils/debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -41,10 +42,11 @@ void main() {
       expect(find.byType(SelectColumnsToShowDialog), findsOneWidget);
     });
 
-    testWidgets('toggles general search bar and debounces search input',
+    testWidgets(
+        'toggles general search bar and debounces search input with TableDebouncer',
         (tester) async {
       String? searchQuery;
-      final debouncer = Debouncer(milliseconds: 100);
+      final debouncer = TableDebouncer(milliseconds: 100);
 
       await tester.pumpWidget(
         buildTestWidget(
@@ -84,6 +86,41 @@ void main() {
 
       expect(searchQuery, '');
       expect(find.byType(TextField), findsNothing);
+    });
+
+    testWidgets('debounces general search input with custom debounceDuration',
+        (tester) async {
+      String? searchQuery;
+
+      await tester.pumpWidget(
+        buildTestWidget(
+          child: TableHeader<Map<String, String>>(
+            columns: columns,
+            selectedColumns: columns,
+            debounceDuration: const Duration(milliseconds: 200),
+            onChangeGeneralSearch: (value) {
+              searchQuery = value;
+            },
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      final searchIcon = find.widgetWithIcon(IconButton, Icons.search);
+      await tester.tap(searchIcon);
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextField), 'CustomDuration');
+      expect(searchQuery, isNull);
+
+      // Advance clock partially (100ms) - should still be null
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(searchQuery, isNull);
+
+      // Advance clock past 200ms
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(searchQuery, 'CustomDuration');
     });
 
     testWidgets('triggers onCopy, onPrint, and filter dialog callbacks',
@@ -150,6 +187,41 @@ void main() {
       await tester.pumpAndSettle();
 
       expect(find.byType(SelectFiltersDialog), findsOneWidget);
+    });
+  });
+
+  group('TableDebouncer Unit Tests', () {
+    test('debounces multiple calls to only execute the latest', () async {
+      final debouncer = TableDebouncer(milliseconds: 50);
+      var executionCount = 0;
+      var lastValue = '';
+
+      debouncer.run(() {
+        executionCount++;
+        lastValue = 'first';
+      });
+      debouncer.run(() {
+        executionCount++;
+        lastValue = 'second';
+      });
+
+      expect(executionCount, 0);
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+      expect(executionCount, 1);
+      expect(lastValue, 'second');
+    });
+
+    test('cancels active timer when cancel is called', () async {
+      final debouncer = TableDebouncer(milliseconds: 50);
+      var called = false;
+
+      debouncer.run(() {
+        called = true;
+      });
+      debouncer.cancel();
+
+      await Future<void>.delayed(const Duration(milliseconds: 80));
+      expect(called, isFalse);
     });
   });
 }

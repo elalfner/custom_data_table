@@ -26,8 +26,11 @@ class TableColumnsHeader extends StatelessWidget {
   /// Callback invoked when any column search field changes.
   final void Function(ColumnInfo column, String value)? onColumnSearchChanged;
 
+  /// Debounce duration for column search fields.
+  final Duration debounceDuration;
+
   /// Optional debouncer for column search fields.
-  final Debouncer? debouncer;
+  final TableDebouncer? debouncer;
 
   const TableColumnsHeader({
     super.key,
@@ -37,6 +40,7 @@ class TableColumnsHeader extends StatelessWidget {
     this.onSort,
     this.textControllers,
     this.onColumnSearchChanged,
+    this.debounceDuration = const Duration(milliseconds: 500),
     this.debouncer,
   });
 
@@ -108,6 +112,7 @@ class TableColumnsHeader extends StatelessWidget {
                     onSearchChanged: onColumnSearchChanged != null
                         ? (value) => onColumnSearchChanged!(col, value)
                         : null,
+                    debounceDuration: debounceDuration,
                     debouncer: debouncer,
                   );
 

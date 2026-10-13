@@ -1,4 +1,5 @@
 import 'package:custom_data_table/custom_data_table.dart';
+import 'package:custom_data_table/src/utils/debounce.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -80,7 +81,9 @@ void main() {
       expect(emittedSortInfo!.asc, isFalse);
     });
 
-    testWidgets('debounces input when canSearchInput is true', (tester) async {
+    testWidgets(
+        'debounces input when canSearchInput is true with TableDebouncer',
+        (tester) async {
       String? changedSearch;
       String? columnInputSearch;
 
@@ -94,7 +97,7 @@ void main() {
         },
       );
 
-      final debouncer = Debouncer(milliseconds: 100);
+      final debouncer = TableDebouncer(milliseconds: 100);
 
       await tester.pumpWidget(
         MaterialApp(
@@ -124,6 +127,44 @@ void main() {
 
       expect(changedSearch, 'test@example.com');
       expect(columnInputSearch, 'test@example.com');
+    });
+
+    testWidgets('debounces input with custom debounceDuration', (tester) async {
+      String? changedSearch;
+
+      final column = ColumnInfo(
+        key: 'phone',
+        name: 'Phone',
+        width: 150,
+        canSearchInput: true,
+      );
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: TableColumnHeader(
+              column: column,
+              debounceDuration: const Duration(milliseconds: 200),
+              onSearchChanged: (val) {
+                changedSearch = val;
+              },
+            ),
+          ),
+        ),
+      );
+
+      await tester.pumpAndSettle();
+
+      await tester.enterText(find.byType(TextFormField), '123456');
+      expect(changedSearch, isNull);
+
+      // Advance clock partially (100ms)
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(changedSearch, isNull);
+
+      // Advance clock past 200ms
+      await tester.pump(const Duration(milliseconds: 150));
+      expect(changedSearch, '123456');
     });
   });
 }
